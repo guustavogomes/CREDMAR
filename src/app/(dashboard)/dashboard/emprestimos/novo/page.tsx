@@ -1,0 +1,436 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/hooks/use-toast'
+import { ArrowLeft, Calculator, Search, X } from 'lucide-react'
+import Link from 'next/link'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
+
+interface Customer {
+  id: string
+  nomeCompleto: string
+  cpf: string
+}
+
+interface Periodicity {
+  id: string
+  name: string
+  description?: string
+}
+
+export default function NovoEmprestimoPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { toast } = useToast()
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [periodicities, setPeriodicities] = useState<Periodicity[]>([])
+  const [loading, setLoading] = useState(false)
+  const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
+  const [customerSearch, setCustomerSearch] = useState('')
+
+  const [formData, setFormData] = useState({
+    customerId: '',
+    totalAmount: '',
+    advanceAmount: '0',
+    periodicityId: '',
+    installments: '',
+    nextPaymentDate: ''
+  })
+
+  const [calculatedValues, setCalculatedValues] = useState({
+    installmentValue: 0,
+    showCalculation: false
+  })
+
+  // Filtrar clientes baseado na pesquisa
+  const filteredCustomers = customers.filter(customer =>
+    customer.nomeCompleto.toLowerCase().includes(customerSearch.toLowerCase()) ||
+    customer.cpf.includes(customerSearch)
+  )
+
+  const selectedCustomer = customers.find(c => c.id === formData.customerId)
+
+  useEffect(() => {
+    fetchCustomers()
+    fetchPeriodicities()
+    
+    // Verificar se há um customerId na URL
+    const preSelectedCustomerId = searchParams.get('customerId')
+    if (preSelectedCustomerId) {
+      setFormData(prev => ({ ...prev, customerId: preSelectedCustomerId }))
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    calculateInstallmentValue()
+  }, [formData.totalAmount, formData.installments])
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch('/api/customers')
+      if (response.ok) {
+        const data = await response.json()
+        setCustomers(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar clientes:', error)
+    }
+  }
+
+  const fetchPeriodicities = async () => {
+    try {
+      const response = await fetch('/api/periodicities')
+      if (response.ok) {
+        const data = await response.json()
+        setPeriodicities(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar periodicidades:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar periodicidades',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const calculateInstallmentValue = () => {
+    const total = parseFloat(formData.totalAmount) || 0
+    const installments = parseInt(formData.installments) || 0
+    
+    if (total > 0 && installments > 0) {
+      const installmentValue = total / installments
+      setCalculatedValues({
+        installmentValue,
+        showCalculation: true
+      })
+    } else {
+      setCalculatedValues({
+        installmentValue: 0,
+        showCalculation: false
+      })
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!formData.customerId || !formData.totalAmount || 
+        !formData.periodicityId || !formData.installments || !formData.nextPaymentDate) {
+      toast({
+        title: 'Erro',
+        description: 'Preencha todos os campos obrigatórios',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setLoading(true)
+    
+    const requestData = {
+      ...formData,
+      totalAmount: parseFloat(formData.totalAmount),
+      advanceAmount: parseFloat(formData.advanceAmount) || 0,
+      installments: parseInt(formData.installments),
+      installmentValue: calculatedValues.installmentValue
+    }
+    
+    console.log('Enviando dados:', requestData)
+    
+    try {
+      const response = await fetch('/api/loans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      })
+
+      console.log('Response status:', response.status)
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Empréstimo criado:', result)
+        
+        toast({
+          title: 'Sucesso',
+          description: 'Empréstimo cadastrado com sucesso'
+        })
+        router.push('/dashboard/emprestimos')
+      } else {
+        const error = await response.json()
+        console.error('Erro na resposta:', error)
+        
+        toast({
+          title: 'Erro',
+          description: error.error || 'Erro ao cadastrar empréstimo',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      console.error('Erro no catch:', error)
+      
+      toast({
+        title: 'Erro',
+        description: 'Erro ao cadastrar empréstimo',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.relative')) {
+        setCustomerSearchOpen(false)
+      }
+    }
+
+    if (customerSearchOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [customerSearchOpen])
+
+  return (
+    <div className="container mx-auto p-6">
+      <div className="flex items-center mb-6">
+        <Link href="/dashboard/emprestimos">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
+        </Link>
+        <h1 className="text-3xl font-bold ml-4">Novo Empréstimo</h1>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Dados do Empréstimo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="customerId">Cliente *</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Pesquisar cliente por nome ou CPF..."
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      onFocus={() => setCustomerSearchOpen(true)}
+                      className="pr-10"
+                    />
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    
+                    {customerSearchOpen && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {filteredCustomers.length === 0 ? (
+                          <div className="p-3 text-sm text-gray-500">
+                            Nenhum cliente encontrado
+                          </div>
+                        ) : (
+                          filteredCustomers.map((customer) => (
+                            <div
+                              key={customer.id}
+                              className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, customerId: customer.id }))
+                                setCustomerSearch(`${customer.nomeCompleto} - ${customer.cpf}`)
+                                setCustomerSearchOpen(false)
+                              }}
+                            >
+                              <div className="font-medium text-sm">{customer.nomeCompleto}</div>
+                              <div className="text-xs text-gray-500">{customer.cpf}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedCustomer && (
+                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-medium text-blue-900">
+                            {selectedCustomer.nomeCompleto}
+                          </span>
+                          <span className="text-xs text-blue-700 ml-2">
+                            {selectedCustomer.cpf}
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, customerId: '' }))
+                            setCustomerSearch('')
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="totalAmount">Valor Total *</Label>
+                    <Input
+                      id="totalAmount"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.totalAmount}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        totalAmount: e.target.value 
+                      }))}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="advanceAmount">Valor Antecipado</Label>
+                    <Input
+                      id="advanceAmount"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.advanceAmount}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        advanceAmount: e.target.value || '0'
+                      }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="periodicityId">Periodicidade *</Label>
+                    <Select value={formData.periodicityId} onValueChange={(value) => 
+                      setFormData(prev => ({ ...prev, periodicityId: value }))
+                    }>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a periodicidade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {periodicities.map((periodicity) => (
+                          <SelectItem key={periodicity.id} value={periodicity.id}>
+                            {periodicity.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="installments">Quantidade de Parcelas *</Label>
+                    <Input
+                      id="installments"
+                      type="number"
+                      min="1"
+                      placeholder="12"
+                      value={formData.installments}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        installments: e.target.value 
+                      }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="nextPaymentDate">Próxima Data de Pagamento *</Label>
+                  <Input
+                    id="nextPaymentDate"
+                    type="date"
+                    value={formData.nextPaymentDate}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      nextPaymentDate: e.target.value 
+                    }))}
+                    required
+                  />
+                </div>
+
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? 'Cadastrando...' : 'Cadastrar Empréstimo'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="w-5 h-5" />
+                Cálculo das Parcelas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {calculatedValues.showCalculation ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-blue-600 mb-1">Valor por Parcela</div>
+                    <div className="text-2xl font-bold text-blue-700">
+                      R$ {calculatedValues.installmentValue.toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Valor Total:</span>
+                      <span>R$ {parseFloat(formData.totalAmount || '0').toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Parcelas:</span>
+                      <span>{formData.installments || 0}x</span>
+                    </div>
+                    <hr />
+                    <div className="flex justify-between font-semibold">
+                      <span>Valor da Parcela:</span>
+                      <span>R$ {calculatedValues.installmentValue.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  <Calculator className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Preencha o valor total e quantidade de parcelas para ver o cálculo</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
+
+
+
+

@@ -1,0 +1,334 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User } from 'lucide-react'
+import Link from 'next/link'
+import { useToast } from '@/hooks/use-toast'
+
+interface Loan {
+  id: string
+  totalAmount: number
+  advanceAmount: number
+  installments: number
+  installmentValue: number
+  nextPaymentDate: string
+  status: string
+  transactionDate: string
+  customer: {
+    id: string
+    nomeCompleto: string
+    cpf: string
+  }
+  periodicity: {
+    id: string
+    name: string
+  }
+}
+
+export default function EmprestimosPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const { toast } = useToast()
+  const [loans, setLoans] = useState<Loan[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login")
+      return
+    }
+    
+    if (status === "authenticated") {
+      fetchLoans()
+    }
+  }, [status, router])
+
+  const fetchLoans = async () => {
+    try {
+      const response = await fetch('/api/loans')
+      if (response.ok) {
+        const data = await response.json()
+        setLoans(data)
+      } else {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao carregar empréstimos',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar empréstimos',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filteredLoans = loans.filter(loan =>
+    loan.customer.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    loan.customer.cpf.includes(searchTerm)
+  )
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value)
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR')
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      ACTIVE: { label: 'Ativo', variant: 'default' as const },
+      COMPLETED: { label: 'Concluído', variant: 'secondary' as const },
+      CANCELLED: { label: 'Cancelado', variant: 'destructive' as const }
+    }
+    
+    const statusInfo = statusMap[status as keyof typeof statusMap] || { label: status, variant: 'default' as const }
+    
+    return (
+      <Badge variant={statusInfo.variant}>
+        {statusInfo.label}
+      </Badge>
+    )
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto p-4 lg:p-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">Meus Empréstimos</h1>
+        <Link href="/dashboard/emprestimos/novo">
+          <Button className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Empréstimo
+          </Button>
+        </Link>
+      </div>
+
+      {/* Search */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <Input
+              placeholder="Buscar por cliente ou CPF..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Total de Empréstimos</p>
+                <p className="text-2xl font-bold text-slate-800">{loans.length}</p>
+              </div>
+              <DollarSign className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Empréstimos Ativos</p>
+                <p className="text-2xl font-bold text-slate-800">
+                  {loans.filter(loan => loan.status === 'ACTIVE').length}
+                </p>
+              </div>
+              <Calendar className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">Valor Total</p>
+                <p className="text-2xl font-bold text-slate-800">
+                  {formatCurrency(loans.reduce((sum, loan) => sum + loan.totalAmount, 0))}
+                </p>
+              </div>
+              <User className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Empréstimos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : filteredLoans.length === 0 ? (
+            <div className="text-center py-8">
+              <DollarSign className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <p className="text-slate-600">
+                {searchTerm ? 'Nenhum empréstimo encontrado' : 'Nenhum empréstimo cadastrado'}
+              </p>
+              {!searchTerm && (
+                <Link href="/dashboard/emprestimos/novo">
+                  <Button className="mt-4">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Cadastrar Primeiro Empréstimo
+                  </Button>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Valor Total</TableHead>
+                      <TableHead>Parcelas</TableHead>
+                      <TableHead>Valor/Parcela</TableHead>
+                      <TableHead>Próximo Pagamento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLoans.map((loan) => (
+                      <TableRow key={loan.id} className="hover:bg-slate-50/50">
+                        <TableCell className="font-medium">
+                          <div>
+                            <div>{loan.customer.nomeCompleto}</div>
+                            <div className="text-sm text-slate-500">{loan.customer.cpf}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatCurrency(loan.totalAmount)}</TableCell>
+                        <TableCell>{loan.installments}x</TableCell>
+                        <TableCell>{formatCurrency(loan.installmentValue)}</TableCell>
+                        <TableCell>{formatDate(loan.nextPaymentDate)}</TableCell>
+                        <TableCell>{getStatusBadge(loan.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
+                              className="bg-blue-50 hover:bg-blue-100 border-blue-200"
+                            >
+                              <Calendar className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-4">
+                {filteredLoans.map((loan) => (
+                  <Card key={loan.id} className="border-l-4 border-l-green-500">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-semibold">{loan.customer.nomeCompleto}</h3>
+                          <p className="text-sm text-slate-500">{loan.customer.cpf}</p>
+                        </div>
+                        {getStatusBadge(loan.status)}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-slate-500">Valor Total:</span>
+                          <div className="font-semibold">{formatCurrency(loan.totalAmount)}</div>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Parcelas:</span>
+                          <div className="font-semibold">{loan.installments}x de {formatCurrency(loan.installmentValue)}</div>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Próximo Pagamento:</span>
+                          <div className="font-semibold">{formatDate(loan.nextPaymentDate)}</div>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Periodicidade:</span>
+                          <div className="font-semibold">{loan.periodicity.name}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2 mt-4">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Editar
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 bg-blue-50 hover:bg-blue-100 border-blue-200"
+                          onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Parcelas
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+
+

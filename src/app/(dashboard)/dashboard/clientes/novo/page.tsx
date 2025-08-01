@@ -1,0 +1,509 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/hooks/use-toast'
+import { ArrowLeft, DollarSign } from 'lucide-react'
+import Link from 'next/link'
+import { validateCPF, formatCPF } from '@/lib/cpf'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+interface Route {
+  id: string
+  description: string
+}
+
+interface AddressData {
+  cep: string
+  endereco: string
+  cidade: string
+  estado: string
+  bairro: string
+  logradouro: string
+}
+
+export default function NovoClientePage() {
+  const router = useRouter()
+  const { toast } = useToast()
+  const [routes, setRoutes] = useState<Route[]>([])
+  const [loading, setLoading] = useState(false)
+  const [cepLoading, setCepLoading] = useState(false)
+  const [showNewRouteInput, setShowNewRouteInput] = useState(false)
+  const [newRouteDescription, setNewRouteDescription] = useState('')
+  const [showLoanDialog, setShowLoanDialog] = useState(false)
+  const [createdCustomerId, setCreatedCustomerId] = useState<string>('')
+  const [createdCustomerName, setCreatedCustomerName] = useState<string>('')
+
+  const [formData, setFormData] = useState({
+    cpf: '',
+    nomeCompleto: '',
+    celular: '',
+    cep: '',
+    endereco: '',
+    cidade: '',
+    estado: '',
+    bairro: '',
+    referencia: '',
+    routeId: '',
+    foto: ''
+  })
+
+  const [fotoFile, setFotoFile] = useState<File | null>(null)
+
+  useEffect(() => {
+    fetchRoutes()
+  }, [])
+
+  const fetchRoutes = async () => {
+    try {
+      const response = await fetch('/api/routes')
+      if (response.ok) {
+        const data = await response.json()
+        setRoutes(data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar rotas:', error)
+    }
+  }
+
+  const handleCepChange = async (cep: string) => {
+    setFormData(prev => ({ ...prev, cep }))
+    
+    if (cep.length === 8) {
+      setCepLoading(true)
+      try {
+        const response = await fetch(`/api/cep/${cep}`)
+        if (response.ok) {
+          const addressData: AddressData = await response.json()
+          setFormData(prev => ({
+            ...prev,
+            endereco: addressData.endereco,
+            cidade: addressData.cidade,
+            estado: addressData.estado,
+            bairro: addressData.bairro
+          }))
+        } else {
+          toast({
+            title: 'Erro',
+            description: 'CEP não encontrado',
+            variant: 'destructive'
+          })
+        }
+      } catch (error) {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao buscar CEP',
+          variant: 'destructive'
+        })
+      } finally {
+        setCepLoading(false)
+      }
+    }
+  }
+
+  const handleCreateRoute = async () => {
+    if (!newRouteDescription.trim()) return
+
+    try {
+      const response = await fetch('/api/routes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ description: newRouteDescription })
+      })
+
+      if (response.ok) {
+        const newRoute = await response.json()
+        setRoutes(prev => [...prev, newRoute])
+        setFormData(prev => ({ ...prev, routeId: newRoute.id }))
+        setShowNewRouteInput(false)
+        setNewRouteDescription('')
+        toast({
+          title: 'Sucesso',
+          description: 'Rota criada com sucesso'
+        })
+      } else {
+        const error = await response.json()
+        toast({
+          title: 'Erro',
+          description: error.error || 'Erro ao criar rota',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao criar rota',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Validações existentes...
+    if (!validateCPF(formData.cpf)) {
+      toast({
+        title: 'Erro',
+        description: 'CPF inválido',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!formData.nomeCompleto || !formData.celular || !formData.cep) {
+      toast({
+        title: 'Erro',
+        description: 'Preencha todos os campos obrigatórios',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    setLoading(true)
+    
+    try {
+      console.log('Dados sendo enviados:', formData)
+      
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+
+      console.log('Response status:', response.status)
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Cliente criado:', result)
+        
+        // Armazenar dados do cliente criado
+        setCreatedCustomerId(result.id)
+        setCreatedCustomerName(formData.nomeCompleto)
+        
+        toast({
+          title: 'Sucesso',
+          description: 'Cliente cadastrado com sucesso'
+        })
+        
+        // Mostrar dialog perguntando sobre empréstimo
+        setShowLoanDialog(true)
+      } else {
+        const error = await response.json()
+        console.error('Erro na resposta:', error)
+        
+        toast({
+          title: 'Erro',
+          description: error.error || 'Erro ao cadastrar cliente',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      console.error('Erro no catch:', error)
+      
+      toast({
+        title: 'Erro',
+        description: 'Erro ao cadastrar cliente',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateLoan = () => {
+    setShowLoanDialog(false)
+    router.push(`/dashboard/emprestimos/novo?customerId=${createdCustomerId}`)
+  }
+
+  const handleGoToClients = () => {
+    setShowLoanDialog(false)
+    router.push('/dashboard/clientes')
+  }
+
+  const formatCpfInput = (value: string) => {
+    const numbers = value.replace(/\D/g, '')
+    return numbers.slice(0, 11)
+  }
+
+  const formatCepInput = (value: string) => {
+    const numbers = value.replace(/\D/g, '')
+    return numbers.slice(0, 8)
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <div className="flex items-center mb-6">
+        <Link href="/dashboard/clientes">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
+        </Link>
+        <h1 className="text-3xl font-bold ml-4">Novo Cliente</h1>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Dados do Cliente</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cpf">CPF *</Label>
+                <Input
+                  id="cpf"
+                  placeholder="00000000000"
+                  value={formData.cpf}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    cpf: formatCpfInput(e.target.value) 
+                  }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="nomeCompleto">Nome Completo *</Label>
+                <Input
+                  id="nomeCompleto"
+                  value={formData.nomeCompleto}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    nomeCompleto: e.target.value 
+                  }))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="foto">Foto do Cliente</Label>
+              <Input
+                id="foto"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    setFotoFile(file)
+                  }
+                }}
+                className="cursor-pointer"
+              />
+              {fotoFile && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Arquivo selecionado: {fotoFile.name}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="celular">Celular *</Label>
+                <Input
+                  id="celular"
+                  placeholder="(00) 00000-0000"
+                  value={formData.celular}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    celular: e.target.value 
+                  }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="cep">CEP *</Label>
+                <Input
+                  id="cep"
+                  placeholder="00000000"
+                  value={formData.cep}
+                  onChange={(e) => handleCepChange(formatCepInput(e.target.value))}
+                  required
+                />
+                {cepLoading && <p className="text-sm text-gray-500 mt-1">Buscando CEP...</p>}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="endereco">Endereço *</Label>
+              <Input
+                id="endereco"
+                value={formData.endereco}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  endereco: e.target.value 
+                }))}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="bairro">Bairro *</Label>
+                <Input
+                  id="bairro"
+                  value={formData.bairro}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    bairro: e.target.value 
+                  }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="cidade">Cidade *</Label>
+                <Input
+                  id="cidade"
+                  value={formData.cidade}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    cidade: e.target.value 
+                  }))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="estado">Estado *</Label>
+                <Input
+                  id="estado"
+                  value={formData.estado}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    estado: e.target.value 
+                  }))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="referencia">Referência</Label>
+              <Input
+                id="referencia"
+                placeholder="Nome e telefone de uma referência"
+                value={formData.referencia}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  referencia: e.target.value 
+                }))}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="rota">Rota</Label>
+              <div className="flex gap-2">
+                <Select
+                  value={formData.routeId}
+                  onValueChange={(value) => {
+                    if (value === 'new') {
+                      setShowNewRouteInput(true)
+                    } else if (value === 'none') {
+                      setFormData(prev => ({ ...prev, routeId: '' }))
+                    } else {
+                      setFormData(prev => ({ ...prev, routeId: value }))
+                    }
+                  }}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Selecione uma rota (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem rota</SelectItem>
+                    {routes.map((route) => (
+                      <SelectItem key={route.id} value={route.id}>
+                        {route.description}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="new">+ Criar nova rota</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {showNewRouteInput && (
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    placeholder="Descrição da nova rota"
+                    value={newRouteDescription}
+                    onChange={(e) => setNewRouteDescription(e.target.value)}
+                  />
+                  <Button type="button" onClick={handleCreateRoute}>
+                    Criar
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => {
+                      setShowNewRouteInput(false)
+                      setNewRouteDescription('')
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Link href="/dashboard/clientes">
+                <Button type="button" variant="outline">
+                  Cancelar
+                </Button>
+              </Link>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar Cliente'}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Dialog para perguntar sobre empréstimo */}
+      <AlertDialog open={showLoanDialog} onOpenChange={setShowLoanDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-green-600" />
+              Cliente cadastrado com sucesso!
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              O cliente <strong>{createdCustomerName}</strong> foi cadastrado com sucesso. 
+              Deseja criar um empréstimo para este cliente agora?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleGoToClients}>
+              Não, voltar para clientes
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleCreateLoan} className="bg-green-600 hover:bg-green-700">
+              <DollarSign className="w-4 h-4 mr-2" />
+              Sim, criar empréstimo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
