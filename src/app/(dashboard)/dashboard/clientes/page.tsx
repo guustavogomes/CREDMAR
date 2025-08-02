@@ -152,7 +152,7 @@ const filteredCustomers = customers.filter(customer =>
     <div className="container mx-auto p-4 lg:p-6">
       {/* Header responsivo */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">Meus Clientes</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Meus Clientes</h1>
         <Link href="/dashboard/clientes/novo">
           <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
             <Plus className="w-4 h-4 mr-2" />
@@ -161,27 +161,27 @@ const filteredCustomers = customers.filter(customer =>
         </Link>
       </div>
 
-      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-        <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50">
-          <CardTitle className="text-lg lg:text-xl font-bold text-slate-800">Lista de Clientes</CardTitle>
+      <Card className="border border-border shadow-xl bg-card backdrop-blur-sm">
+        <CardHeader className="border-b border-border bg-muted/30">
+          <CardTitle className="text-lg lg:text-xl font-bold text-foreground">Lista de Clientes</CardTitle>
           <div className="flex items-center space-x-2 mt-4">
-            <Search className="w-4 h-4 text-slate-400" />
+            <Search className="w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por nome, CPF ou rota..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 bg-white/50 border-slate-200/50 focus:border-blue-300 focus:ring-2 focus:ring-blue-500/20"
+              className="flex-1 bg-background/50 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {filteredCustomers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                <Users className="h-8 w-8 text-slate-400" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                <Users className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">Nenhum cliente encontrado</h3>
-              <p className="text-slate-500 max-w-md px-4">
+              <h3 className="text-lg font-semibold text-foreground mb-2">Nenhum cliente encontrado</h3>
+              <p className="text-muted-foreground max-w-md px-4">
                 {searchTerm ? 'Tente ajustar os filtros de busca.' : 'Comece adicionando seu primeiro cliente.'}
               </p>
             </div>
@@ -202,22 +202,22 @@ const filteredCustomers = customers.filter(customer =>
                   </TableHeader>
                   <TableBody>
                     {filteredCustomers.map((customer) => (
-                      <TableRow key={customer.id} className="hover:bg-slate-50/50">
-                        <TableCell className="font-medium">
+                      <TableRow key={customer.id} className="hover:bg-muted/30 border-border">
+                        <TableCell className="font-medium text-foreground">
                           {customer.nomeCompleto}
                         </TableCell>
-                        <TableCell>{formatCPF(customer.cpf || '')}</TableCell>
-                        <TableCell>{customer.celular}</TableCell>
-                        <TableCell>{customer.cidade}/{customer.estado}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatCPF(customer.cpf || '')}</TableCell>
+                        <TableCell className="text-muted-foreground">{customer.celular}</TableCell>
+                        <TableCell className="text-muted-foreground">{customer.cidade}/{customer.estado}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                             {customer.route?.description || 'Sem rota'}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Link href={`/dashboard/clientes/${customer.id}/editar`}>
-                              <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:border-blue-300">
+                              <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:border-primary/30">
                                 <Edit className="w-4 h-4" />
                               </Button>
                             </Link>
@@ -225,7 +225,7 @@ const filteredCustomers = customers.filter(customer =>
                               variant="outline"
                               size="sm"
                               onClick={() => handleDelete(customer.id, customer.nomeCompleto)}
-                              className="hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+                              className="hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -238,31 +238,31 @@ const filteredCustomers = customers.filter(customer =>
               </div>
 
               {/* Mobile Cards */}
-              <div className="lg:hidden divide-y divide-slate-100">
+              <div className="lg:hidden divide-y divide-border">
                 {filteredCustomers.map((customer) => (
-                  <div key={customer.id} className="p-4 hover:bg-slate-50/50 transition-colors">
+                  <div key={customer.id} className="p-4 hover:bg-muted/30 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-slate-800 text-lg">
+                        <h3 className="font-semibold text-foreground text-lg">
                           {customer.nomeCompleto}
                         </h3>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           CPF: {formatCPF(customer.cpf || '')}
                         </p>
                       </div>
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 ml-2">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 ml-2">
                         {customer.route?.description || 'Sem rota'}
                       </Badge>
                     </div>
                     
                     <div className="grid grid-cols-1 gap-2 mb-4">
-                      <div className="flex items-center text-sm text-slate-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <span className="font-medium mr-2">Celular:</span>
-                        <a href={`tel:${customer.celular}`} className="text-blue-600 hover:underline">
+                        <a href={`tel:${customer.celular}`} className="text-primary hover:underline">
                           {customer.celular}
                         </a>
                       </div>
-                      <div className="flex items-center text-sm text-slate-600">
+                      <div className="flex items-center text-sm text-muted-foreground">
                         <span className="font-medium mr-2">Cidade:</span>
                         {customer.cidade}/{customer.estado}
                       </div>
@@ -270,7 +270,7 @@ const filteredCustomers = customers.filter(customer =>
 
                     <div className="flex space-x-2">
                       <Link href={`/dashboard/clientes/${customer.id}/editar`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full hover:bg-blue-50 hover:border-blue-300">
+                        <Button variant="outline" size="sm" className="w-full hover:bg-primary/10 hover:border-primary/30">
                           <Edit className="w-4 h-4 mr-2" />
                           Editar
                         </Button>
@@ -279,7 +279,7 @@ const filteredCustomers = customers.filter(customer =>
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(customer.id, customer.nomeCompleto)}
-                        className="flex-1 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+                        className="flex-1 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Excluir

@@ -48,26 +48,23 @@ export async function middleware(request: NextRequest) {
     }
   }
   
-  // Se o usuário estiver autenticado e tentar acessar uma rota pública
-  if (session && isPublicPath) {
-    // Se for admin, redirecionar SEMPRE para a área de administração
-    if (userRole === 'ADMIN') {
+  // PRIMEIRO: Se o usuário for ADMIN, aplicar regras específicas
+  if (session && userRole === 'ADMIN') {
+    // Se admin tentar acessar rota pública, redirecionar para admin
+    if (isPublicPath) {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
-    // Se for usuário normal, redirecionar para o dashboard
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Se admin tentar acessar dashboard comum, redirecionar para admin
+    if (path.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+    // Admin pode acessar qualquer rota admin
+    if (path.startsWith('/admin')) {
+      return NextResponse.next()
+    }
   }
   
-  // Se o usuário tentar acessar a área de administração sem ser admin
-  if (session && path.startsWith('/admin') && userRole !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
-  
-  // Se o usuário for ADMIN, permitir acesso a TODAS as rotas admin independente do status
-  if (session && userRole === 'ADMIN') {
-    return NextResponse.next()
-  }
-  
+  // VERIFICAR STATUS PENDENTE ANTES DE OUTROS REDIRECIONAMENTOS
   // Se o usuário estiver com status pendente e tentar acessar uma rota não permitida
   // (mas APENAS se NÃO for ADMIN)
   if (session && 
@@ -76,6 +73,16 @@ export async function middleware(request: NextRequest) {
       !isPendingUserAllowedPath && 
       !path.startsWith('/pending-payment')) {
     return NextResponse.redirect(new URL('/pending-payment', request.url))
+  }
+  
+  // Se o usuário estiver autenticado e tentar acessar uma rota pública (não admin)
+  if (session && isPublicPath && userRole !== 'ADMIN') {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+  
+  // Se o usuário tentar acessar a área de administração sem ser admin
+  if (session && path.startsWith('/admin') && userRole !== 'ADMIN') {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   
   return NextResponse.next()

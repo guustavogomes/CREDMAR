@@ -28,9 +28,13 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
+        const errorMessage = result.error.includes('aprovada') 
+          ? result.error 
+          : "Email ou senha incorretos."
+        
         toast({
-          title: "Erro no login",
-          description: "Email ou senha incorretos.",
+          title: result.error.includes('aprovada') ? "Conta pendente de aprovação" : "Erro no login",
+          description: errorMessage,
           variant: "destructive",
         })
       } else {

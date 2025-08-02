@@ -1,9 +1,168 @@
+'use client'
+
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Brain, Shield, Users, Zap, ArrowRight, CheckCircle, Star, TrendingDown, Globe, Lock, Smartphone, BarChart3, Quote } from 'lucide-react'
+import { QrCode, Upload, AlertTriangle, Copy, Check } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import QRCodeReact from 'qrcode.react'
 
 export default function HomePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const { toast } = useToast()
+
+  // Se o usuário estiver autenticado, redirecionar conforme o role
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      if (session.user.role === 'ADMIN') {
+        router.push('/admin')
+      } else {
+        router.push('/dashboard')
+      }
+    }
+  }, [status, session, router])
+
+  // Se ainda está carregando, mostrar loading
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // Se não estiver autenticado, mostrar tela do PIX
+  if (status === 'unauthenticated') {
+    const pixKey = "akljdlkadjkldjalksdjalskdjklasdjlasj"
+    const qrCodeData = `00020126580014br.gov.bcb.pix0136${pixKey}0204Pagamento TaPago5303986540100.005802BR5925TaPago6009SAO PAULO62070503***6304`
+
+    const copyPixKey = async () => {
+      try {
+        await navigator.clipboard.writeText(pixKey)
+        toast({
+          title: "Copiado!",
+          description: "Chave PIX copiada para a área de transferência.",
+        })
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível copiar a chave.",
+          variant: "destructive",
+        })
+      }
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="max-w-4xl w-full">
+          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+            <CardHeader className="text-center border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50">
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <QrCode className="h-6 w-6 text-blue-600" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-slate-800">Pagamento TaPago</CardTitle>
+              <CardDescription className="text-slate-600">
+                Realize o pagamento da mensalidade para acessar o sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* QR Code */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <QrCode className="h-5 w-5 text-blue-600" />
+                    Pague com PIX
+                  </h3>
+                  <div className="flex justify-center">
+                    <div className="p-4 bg-white rounded-lg border shadow-md">
+                      <QRCodeReact value={qrCodeData} size={200} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Chave PIX:</label>
+                    <div className="flex gap-2 mt-1">
+                      <input
+                        value={pixKey}
+                        readOnly
+                        className="flex-1 px-3 py-2 border border-slate-200 rounded-md font-mono text-xs bg-slate-50"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={copyPixKey}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="text-center text-sm text-slate-600">
+                    <p>Valor: <span className="font-bold">R$ 100,00</span></p>
+                    <p>Descrição: Mensalidade TaPago</p>
+                  </div>
+                </div>
+
+                {/* Informações */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-800">Como funciona?</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-blue-600">1</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800">Faça o pagamento</p>
+                        <p className="text-sm text-slate-600">Use o QR Code ou copie a chave PIX</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-blue-600">2</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800">Crie sua conta</p>
+                        <p className="text-sm text-slate-600">Registre-se no sistema após o pagamento</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-xs font-bold text-blue-600">3</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-800">Acesse o sistema</p>
+                        <p className="text-sm text-slate-600">Após aprovação, faça login e use todas as funcionalidades</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-slate-100">
+                    <div className="flex flex-col gap-3">
+                      <Link href="/register">
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                          Criar Conta
+                        </Button>
+                      </Link>
+                      <Link href="/login">
+                        <Button variant="outline" className="w-full">
+                          Já tenho conta
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // Fallback (não deve chegar aqui)
+  return null
   return (
     <div className="min-h-screen bg-white">
       {/* Header Premium */}
@@ -58,7 +217,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl px-8 py-4 text-lg" asChild>
                 <Link href="/register">
-                  Começar Gratuitamente
+                  Começar Agora
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>

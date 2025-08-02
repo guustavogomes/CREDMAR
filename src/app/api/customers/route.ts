@@ -130,6 +130,17 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // Verificar se é erro de CPF duplicado
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+      const prismaError = error as any
+      if (prismaError.meta?.target?.includes('cpf')) {
+        return NextResponse.json(
+          { error: 'Este CPF já está cadastrado no sistema' },
+          { status: 409 }
+        )
+      }
+    }
+    
     console.error('Erro ao criar cliente:', error)
     return NextResponse.json(
       { error: 'Erro interno do servidor' },

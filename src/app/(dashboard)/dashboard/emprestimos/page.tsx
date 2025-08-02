@@ -119,7 +119,7 @@ export default function EmprestimosPage() {
     <div className="container mx-auto p-4 lg:p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">Meus Empréstimos</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Meus Empréstimos</h1>
         <Link href="/dashboard/emprestimos/novo">
           <Button className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
             <Plus className="w-4 h-4 mr-2" />
@@ -129,15 +129,15 @@ export default function EmprestimosPage() {
       </div>
 
       {/* Search */}
-      <Card className="mb-6">
+      <Card className="mb-6 border-border bg-card">
         <CardContent className="p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               placeholder="Buscar por cliente ou CPF..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-background border-border focus:border-primary"
             />
           </div>
         </CardContent>
@@ -145,24 +145,24 @@ export default function EmprestimosPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
+        <Card className="border-border bg-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total de Empréstimos</p>
-                <p className="text-2xl font-bold text-slate-800">{loans.length}</p>
+                <p className="text-sm text-muted-foreground">Total de Empréstimos</p>
+                <p className="text-2xl font-bold text-foreground">{loans.length}</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-border bg-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Empréstimos Ativos</p>
-                <p className="text-2xl font-bold text-slate-800">
+                <p className="text-sm text-muted-foreground">Empréstimos Ativos</p>
+                <p className="text-2xl font-bold text-foreground">
                   {loans.filter(loan => loan.status === 'ACTIVE').length}
                 </p>
               </div>
@@ -171,12 +171,12 @@ export default function EmprestimosPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-border bg-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Valor Total</p>
-                <p className="text-2xl font-bold text-slate-800">
+                <p className="text-sm text-muted-foreground">Valor Total</p>
+                <p className="text-2xl font-bold text-foreground">
                   {formatCurrency(loans.reduce((sum, loan) => sum + loan.totalAmount, 0))}
                 </p>
               </div>
@@ -187,9 +187,9 @@ export default function EmprestimosPage() {
       </div>
 
       {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Empréstimos</CardTitle>
+      <Card className="border-border bg-card">
+        <CardHeader className="border-b border-border">
+          <CardTitle className="text-foreground">Lista de Empréstimos</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -198,8 +198,8 @@ export default function EmprestimosPage() {
             </div>
           ) : filteredLoans.length === 0 ? (
             <div className="text-center py-8">
-              <DollarSign className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-              <p className="text-slate-600">
+              <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
                 {searchTerm ? 'Nenhum empréstimo encontrado' : 'Nenhum empréstimo cadastrado'}
               </p>
               {!searchTerm && (
@@ -229,17 +229,17 @@ export default function EmprestimosPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredLoans.map((loan) => (
-                      <TableRow key={loan.id} className="hover:bg-slate-50/50">
+                      <TableRow key={loan.id} className="hover:bg-muted/30 border-border">
                         <TableCell className="font-medium">
                           <div>
-                            <div>{loan.customer.nomeCompleto}</div>
-                            <div className="text-sm text-slate-500">{loan.customer.cpf}</div>
+                            <div className="text-foreground">{loan.customer.nomeCompleto}</div>
+                            <div className="text-sm text-muted-foreground">{loan.customer.cpf}</div>
                           </div>
                         </TableCell>
-                        <TableCell>{formatCurrency(loan.totalAmount)}</TableCell>
-                        <TableCell>{loan.installments}x</TableCell>
-                        <TableCell>{formatCurrency(loan.installmentValue)}</TableCell>
-                        <TableCell>{formatDate(loan.nextPaymentDate)}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatCurrency(loan.totalAmount)}</TableCell>
+                        <TableCell className="text-muted-foreground">{loan.installments}x</TableCell>
+                        <TableCell className="text-muted-foreground">{formatCurrency(loan.installmentValue)}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatDate(loan.nextPaymentDate)}</TableCell>
                         <TableCell>{getStatusBadge(loan.status)}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
@@ -247,6 +247,7 @@ export default function EmprestimosPage() {
                               variant="outline" 
                               size="sm"
                               onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
+                              className="hover:bg-primary/10 hover:border-primary/30"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -254,7 +255,7 @@ export default function EmprestimosPage() {
                               variant="outline" 
                               size="sm"
                               onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
-                              className="bg-blue-50 hover:bg-blue-100 border-blue-200"
+                              className="bg-primary/10 hover:bg-primary/20 border-primary/20"
                             >
                               <Calendar className="w-4 h-4" />
                             </Button>
@@ -269,32 +270,32 @@ export default function EmprestimosPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4">
                 {filteredLoans.map((loan) => (
-                  <Card key={loan.id} className="border-l-4 border-l-green-500">
+                  <Card key={loan.id} className="border-l-4 border-l-green-500 border-border bg-card">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="font-semibold">{loan.customer.nomeCompleto}</h3>
-                          <p className="text-sm text-slate-500">{loan.customer.cpf}</p>
+                          <h3 className="font-semibold text-foreground">{loan.customer.nomeCompleto}</h3>
+                          <p className="text-sm text-muted-foreground">{loan.customer.cpf}</p>
                         </div>
                         {getStatusBadge(loan.status)}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-slate-500">Valor Total:</span>
-                          <div className="font-semibold">{formatCurrency(loan.totalAmount)}</div>
+                          <span className="text-muted-foreground">Valor Total:</span>
+                          <div className="font-semibold text-foreground">{formatCurrency(loan.totalAmount)}</div>
                         </div>
                         <div>
-                          <span className="text-slate-500">Parcelas:</span>
-                          <div className="font-semibold">{loan.installments}x de {formatCurrency(loan.installmentValue)}</div>
+                          <span className="text-muted-foreground">Parcelas:</span>
+                          <div className="font-semibold text-foreground">{loan.installments}x de {formatCurrency(loan.installmentValue)}</div>
                         </div>
                         <div>
-                          <span className="text-slate-500">Próximo Pagamento:</span>
-                          <div className="font-semibold">{formatDate(loan.nextPaymentDate)}</div>
+                          <span className="text-muted-foreground">Próximo Pagamento:</span>
+                          <div className="font-semibold text-foreground">{formatDate(loan.nextPaymentDate)}</div>
                         </div>
                         <div>
-                          <span className="text-slate-500">Periodicidade:</span>
-                          <div className="font-semibold">{loan.periodicity.name}</div>
+                          <span className="text-muted-foreground">Periodicidade:</span>
+                          <div className="font-semibold text-foreground">{loan.periodicity.name}</div>
                         </div>
                       </div>
                       
@@ -302,7 +303,7 @@ export default function EmprestimosPage() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="flex-1"
+                          className="flex-1 hover:bg-primary/10 hover:border-primary/30"
                           onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
                         >
                           <Edit className="w-4 h-4 mr-2" />
@@ -311,7 +312,7 @@ export default function EmprestimosPage() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="flex-1 bg-blue-50 hover:bg-blue-100 border-blue-200"
+                          className="flex-1 bg-primary/10 hover:bg-primary/20 border-primary/20"
                           onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
                         >
                           <Calendar className="w-4 h-4 mr-2" />

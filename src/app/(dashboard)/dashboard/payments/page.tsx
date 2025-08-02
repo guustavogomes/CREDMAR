@@ -11,13 +11,11 @@ import {
   Clock, 
   CheckCircle, 
   XCircle,
-  Plus,
   Calendar,
   Receipt,
   TrendingUp,
   AlertCircle
 } from "lucide-react"
-import Link from "next/link"
 
 interface Payment {
   id: string
@@ -148,12 +146,7 @@ export default function PaymentsPage() {
             <p className="text-muted-foreground">Gerencie suas mensalidades e pagamentos do sistema</p>
           </div>
         </div>
-        <Link href="/dashboard/payment/pix">
-          <Button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Pagamento
-          </Button>
-        </Link>
+
       </div>
 
       {/* Stats Cards */}
@@ -224,12 +217,9 @@ export default function PaymentsPage() {
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">Nenhum pagamento encontrado</h3>
               <p className="text-muted-foreground mb-6">Você ainda não realizou nenhum pagamento.</p>
-              <Link href="/dashboard/payment/pix">
-                <Button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Realizar Primeiro Pagamento
-                </Button>
-              </Link>
+              <p className="text-sm text-muted-foreground">
+                As mensalidades são geradas automaticamente todo mês.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">

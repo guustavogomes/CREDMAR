@@ -68,9 +68,13 @@ export default function PendingPaymentPage() {
       if (response.ok) {
         toast({
           title: "Comprovante enviado com sucesso!",
-          description: "Seu pagamento será analisado em breve.",
+          description: "Redirecionando para o login...",
         })
         setFile(null)
+        // Redirecionar para login após 2 segundos
+        setTimeout(() => {
+          router.push("/login")
+        }, 2000)
       } else {
         throw new Error("Erro ao enviar comprovante")
       }

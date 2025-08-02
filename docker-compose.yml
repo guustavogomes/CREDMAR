@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres123
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -19,7 +19,7 @@ services:
   app:
     build: .
     ports:
-      - "3001:3000"
+      - "3002:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/tapago
       - NEXTAUTH_SECRET=your-secret-key-here

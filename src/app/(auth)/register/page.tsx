@@ -58,9 +58,9 @@ export default function RegisterPage() {
       if (response.ok) {
         toast({
           title: "Conta criada com sucesso!",
-          description: "Você pode fazer login agora.",
+          description: "Redirecionando para pagamento...",
         })
-        router.push("/login")
+        router.push("/pending-payment")
       } else {
         const data = await response.json()
         toast({

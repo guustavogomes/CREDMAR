@@ -38,17 +38,22 @@ export const authOptions = {
 
         const passwordsMatch = await bcrypt.compare(password, user.password)
 
-        if (passwordsMatch) {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            status: user.status
-          }
+        if (!passwordsMatch) {
+          return null
         }
 
-        return null
+        // Verificar se o usuário está aprovado
+        if (user.status !== 'ACTIVE') {
+          throw new Error('Sua conta ainda não foi aprovada. Em breve seu acesso será liberado!')
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          status: user.status
+        }
       }
     })
   ],
@@ -85,6 +90,18 @@ export const authOptions = {
         session.user.status = token.status as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Se a URL já é uma URL completa e está no mesmo domínio, usar ela
+      if (url.startsWith(baseUrl)) {
+        return url
+      }
+      // Se é uma URL relativa, adicionar o baseUrl
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
+      // Fallback para baseUrl
+      return baseUrl
     }
   },
   pages: {
