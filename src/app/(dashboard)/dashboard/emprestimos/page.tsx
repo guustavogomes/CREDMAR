@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
+import { formatDate, formatCurrency } from '@/lib/date-utils'
 
 interface Loan {
   id: string
@@ -80,16 +81,7 @@ export default function EmprestimosPage() {
     loan.customer.cpf.includes(searchTerm)
   )
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR')
-  }
+  // Funções de formatação movidas para @/lib/date-utils
 
   const getStatusBadge = (status: string) => {
     const statusMap = {

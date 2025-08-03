@@ -34,31 +34,46 @@ async function main() {
   console.log('🔑 Senha: admin123')
   console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro login!')
 
-  // Criar algumas periodicidades padrão
+  // Criar periodicidades conforme a configuração do sistema
   const periodicities = [
     {
       name: 'Diário',
-      description: 'Pagamento diário',
+      description: 'Segunda a Domingo',
       intervalType: 'DAILY',
+      intervalValue: 1,
+      allowedWeekdays: '[1,0,2,3,4,5,6]' // Seg, Dom, Ter, Qua, Qui, Sex, Sáb
+    },
+    {
+      name: 'Diário Segunda a Sábado',
+      description: 'Segunda a Sábado',
+      intervalType: 'DAILY',
+      intervalValue: 1,
+      allowedWeekdays: '[1,2,3,4,5,6]' // Seg, Ter, Qua, Qui, Sex, Sáb
+    },
+    {
+      name: 'Diário Segunda a Sexta',
+      description: 'Segunda a Sexta',
+      intervalType: 'DAILY',
+      intervalValue: 1,
+      allowedWeekdays: '[1,2,3,4,5]' // Seg, Ter, Qua, Qui, Sex
+    },
+    {
+      name: 'Mensal',
+      description: 'Mensal',
+      intervalType: 'MONTHLY',
       intervalValue: 1
     },
     {
       name: 'Semanal',
-      description: 'Pagamento semanal',
+      description: 'Semanal',
       intervalType: 'WEEKLY',
       intervalValue: 1
     },
     {
       name: 'Quinzenal',
-      description: 'Pagamento quinzenal',
-      intervalType: 'DAILY',
-      intervalValue: 15
-    },
-    {
-      name: 'Mensal',
-      description: 'Pagamento mensal',
-      intervalType: 'MONTHLY',
-      intervalValue: 1
+      description: 'Quinzenal',
+      intervalType: 'WEEKLY',
+      intervalValue: 2
     }
   ]
 

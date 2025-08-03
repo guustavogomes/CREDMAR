@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Gerar as datas das parcelas usando a função utilitária
     const paymentDates = generatePaymentSchedule(
-      new Date(validatedData.nextPaymentDate),
+      validatedData.nextPaymentDate, // Passar a string diretamente
       validatedData.installments,
       periodicityConfig
     )

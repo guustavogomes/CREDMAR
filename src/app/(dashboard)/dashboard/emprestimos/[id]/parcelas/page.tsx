@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Plus, X } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { formatDate, formatCurrency, isOverdue } from '@/lib/date-utils'
 
 type Installment = {
   id: string
@@ -150,26 +151,7 @@ export default function InstallmentsPage() {
     }
   }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value)
-  }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR')
-  }
-
-  // Função para verificar se a parcela está em atraso
-  const isOverdue = (dueDate: string, status: string) => {
-    if (status === 'PAID') return false
-    const today = new Date()
-    const due = new Date(dueDate)
-    today.setHours(0, 0, 0, 0)
-    due.setHours(0, 0, 0, 0)
-    return due < today
-  }
 
   const generateInstallments = async () => {
     try {

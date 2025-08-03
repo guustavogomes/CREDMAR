@@ -63,7 +63,7 @@ export async function POST(
 
     // Gerar as datas das parcelas
     const paymentDates = generatePaymentSchedule(
-      new Date(loan.nextPaymentDate),
+      loan.nextPaymentDate, // Usar a data diretamente
       loan.installments,
       periodicityConfig
     )

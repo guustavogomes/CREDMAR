@@ -36,8 +36,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header Premium - Mobile Optimized */}
-      <header className="relative bg-white border-b border-slate-100 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+      <header className="bg-white border-b border-slate-100 backdrop-blur-xl sticky top-0 z-50">
+        <div className="container mx-auto px-6 sm:px-8 py-3 sm:py-4">
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -67,10 +67,10 @@ export default function HomePage() {
           <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-tl from-indigo-400/20 to-transparent rounded-full -mr-32 -mb-32 sm:-mr-48 sm:-mb-48"></div>
         </div>
         
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <div className="container mx-auto px-6 sm:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight px-2 sm:px-0">
               <span className="block sm:inline">Gestão de</span>
               <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Empréstimos
@@ -78,12 +78,12 @@ export default function HomePage() {
               <span className="block text-slate-700">Inteligente</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0">
               Revolucione sua gestão de empréstimos com nosso termômetro anti-fraude baseado em IA. 
               Reduza significativamente a inadimplência e maximize seus resultados.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 px-4 sm:px-0">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 px-2 sm:px-0">
               <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg" asChild>
                 <Link href="/register">
                   Começar Agora
@@ -95,7 +95,7 @@ export default function HomePage() {
               </Button>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-6 sm:pt-8 text-xs sm:text-sm text-slate-500 px-4 sm:px-0">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-6 sm:pt-8 text-xs sm:text-sm text-slate-500 px-2 sm:px-0">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
                 <span>+2.000 usuários ativos</span>
@@ -115,8 +115,8 @@ export default function HomePage() {
 
       {/* Stats Section */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="container mx-auto px-6 sm:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">2.000+</div>
               <div className="text-slate-600">Usuários ativos</div>
@@ -139,7 +139,7 @@ export default function HomePage() {
 
       {/* Features Premium */}
       <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6 sm:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">
               Tecnologia que
@@ -224,7 +224,7 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6 sm:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">
               Resultados que
@@ -322,7 +322,7 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full -ml-48 -mt-48"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mb-48"></div>
         
-        <div className="container mx-auto px-6 text-center relative z-10">
+        <div className="container mx-auto px-6 sm:px-8 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Pronto para reduzir sua
             <span className="block">inadimplência em 65%?</span>
@@ -349,7 +349,7 @@ export default function HomePage() {
 
       {/* Footer Premium */}
       <footer className="bg-slate-900 text-white py-12">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6 sm:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
