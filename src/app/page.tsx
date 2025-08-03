@@ -6,14 +6,11 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { QrCode, Upload, AlertTriangle, Copy, Check } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import QRCodeReact from 'qrcode.react'
+import { QrCode, Upload, AlertTriangle, Copy, Check, ArrowRight, CheckCircle, Brain, Shield, Users, Zap, Star, TrendingDown, Globe, Lock, Smartphone, BarChart3, Quote } from 'lucide-react'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { toast } = useToast()
 
   // Se o usuário estiver autenticado, redirecionar conforme o role
   useEffect(() => {
@@ -35,208 +32,80 @@ export default function HomePage() {
     )
   }
 
-  // Se não estiver autenticado, mostrar tela do PIX
-  if (status === 'unauthenticated') {
-    const pixKey = "akljdlkadjkldjalksdjalskdjklasdjlasj"
-    const qrCodeData = `00020126580014br.gov.bcb.pix0136${pixKey}0204Pagamento TaPago5303986540100.005802BR5925TaPago6009SAO PAULO62070503***6304`
-
-    const copyPixKey = async () => {
-      try {
-        await navigator.clipboard.writeText(pixKey)
-        toast({
-          title: "Copiado!",
-          description: "Chave PIX copiada para a área de transferência.",
-        })
-      } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Não foi possível copiar a chave.",
-          variant: "destructive",
-        })
-      }
-    }
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="max-w-4xl w-full">
-          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
-            <CardHeader className="text-center border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50">
-              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <QrCode className="h-6 w-6 text-blue-600" />
-              </div>
-              <CardTitle className="text-2xl font-bold text-slate-800">Pagamento TaPago</CardTitle>
-              <CardDescription className="text-slate-600">
-                Realize o pagamento da mensalidade para acessar o sistema
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* QR Code */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                    <QrCode className="h-5 w-5 text-blue-600" />
-                    Pague com PIX
-                  </h3>
-                  <div className="flex justify-center">
-                    <div className="p-4 bg-white rounded-lg border shadow-md">
-                      <QRCodeReact value={qrCodeData} size={200} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Chave PIX:</label>
-                    <div className="flex gap-2 mt-1">
-                      <input
-                        value={pixKey}
-                        readOnly
-                        className="flex-1 px-3 py-2 border border-slate-200 rounded-md font-mono text-xs bg-slate-50"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={copyPixKey}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="text-center text-sm text-slate-600">
-                    <p>Valor: <span className="font-bold">R$ 100,00</span></p>
-                    <p>Descrição: Mensalidade TaPago</p>
-                  </div>
-                </div>
-
-                {/* Informações */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-slate-800">Como funciona?</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-xs font-bold text-blue-600">1</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-800">Faça o pagamento</p>
-                        <p className="text-sm text-slate-600">Use o QR Code ou copie a chave PIX</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-xs font-bold text-blue-600">2</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-800">Crie sua conta</p>
-                        <p className="text-sm text-slate-600">Registre-se no sistema após o pagamento</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-xs font-bold text-blue-600">3</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-800">Acesse o sistema</p>
-                        <p className="text-sm text-slate-600">Após aprovação, faça login e use todas as funcionalidades</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-slate-100">
-                    <div className="flex flex-col gap-3">
-                      <Link href="/register">
-                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                          Criar Conta
-                        </Button>
-                      </Link>
-                      <Link href="/login">
-                        <Button variant="outline" className="w-full">
-                          Já tenho conta
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
-
-  // Fallback (não deve chegar aqui)
-  return null
+  // Landing page para usuários não autenticados
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Premium */}
-      <header className="relative bg-white border-b border-slate-100 backdrop-blur-xl">
-        <div className="container mx-auto px-6 py-4">
+      {/* Header Premium - Mobile Optimized */}
+      <header className="relative bg-white border-b border-slate-100 backdrop-blur-xl sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <nav className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">T</span>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg sm:text-xl">T</span>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TaPago</span>
+              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TaPago</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="text-slate-600 hover:text-blue-600 hover:bg-blue-50" asChild>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-3 sm:px-4" asChild>
                 <Link href="/login">Entrar</Link>
               </Button>
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg" asChild>
-                <Link href="/register">Começar Agora</Link>
+              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg px-3 sm:px-4" asChild>
+                <Link href="/register">
+                  <span className="hidden sm:inline">Começar Agora</span>
+                  <span className="sm:hidden">Começar</span>
+                </Link>
               </Button>
             </div>
           </nav>
         </div>
       </header>
 
-      {/* Hero Section Premium */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-20">
+      {/* Hero Section Premium - Mobile Optimized */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 sm:py-16 lg:py-20">
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-transparent rounded-full -ml-48 -mt-48"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-indigo-400/20 to-transparent rounded-full -mr-48 -mb-48"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-br from-blue-400/20 to-transparent rounded-full -ml-32 -mt-32 sm:-ml-48 sm:-mt-48"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-tl from-indigo-400/20 to-transparent rounded-full -mr-32 -mb-32 sm:-mr-48 sm:-mb-48"></div>
         </div>
         
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-full px-6 py-2 shadow-lg">
-              <Brain className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-slate-700">Powered by Mercury Enterprise</span>
-            </div>
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
             
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-slate-900 leading-tight">
-              Gestão de
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight">
+              <span className="block sm:inline">Gestão de</span>
               <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Empréstimos
               </span>
               <span className="block text-slate-700">Inteligente</span>
             </h1>
             
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
               Revolucione sua gestão de empréstimos com nosso termômetro anti-fraude baseado em IA. 
               Reduza significativamente a inadimplência e maximize seus resultados.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl px-8 py-4 text-lg" asChild>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 px-4 sm:px-0">
+              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg" asChild>
                 <Link href="/register">
                   Começar Agora
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-slate-300 hover:border-blue-300 hover:bg-blue-50 px-8 py-4 text-lg" asChild>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-slate-300 hover:border-blue-300 hover:bg-blue-50 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg" asChild>
                 <Link href="/login">Já sou cliente</Link>
               </Button>
             </div>
             
-            <div className="flex items-center justify-center space-x-8 pt-8 text-sm text-slate-500">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 pt-6 sm:pt-8 text-xs sm:text-sm text-slate-500 px-4 sm:px-0">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
                 <span>+2.000 usuários ativos</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
                 <span>IA anti-fraude</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
                 <span>Suporte especializado</span>
               </div>
             </div>

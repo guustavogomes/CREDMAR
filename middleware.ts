@@ -9,11 +9,23 @@ const prisma = new PrismaClient()
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   
+  // Log simples para verificar se o middleware está sendo executado
+  console.log(`[MIDDLEWARE DEBUG] Executando middleware para: ${path}`)
+  
+  console.log(`[MIDDLEWARE] Acessando rota: ${path}`)
+  
   // Verificar se o usuário está autenticado
   const session = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   })
+  
+  console.log(`[MIDDLEWARE] Session encontrada:`, session ? {
+    sub: session.sub,
+    email: session.email,
+    role: session.role,
+    status: session.status
+  } : 'Nenhuma session')
   
   // Rotas públicas que não precisam de autenticação
   const publicPaths = ['/', '/login', '/register']
@@ -25,6 +37,7 @@ export async function middleware(request: NextRequest) {
   
   // Se o usuário não estiver autenticado e tentar acessar uma rota protegida
   if (!session && !isPublicPath) {
+    console.log(`[MIDDLEWARE] Usuário não autenticado tentando acessar rota protegida: ${path} - Redirecionando para /login`)
     return NextResponse.redirect(new URL('/login', request.url))
   }
   
@@ -42,9 +55,12 @@ export async function middleware(request: NextRequest) {
       if (dbUser) {
         userRole = dbUser.role
         userStatus = dbUser.status
+        console.log(`[MIDDLEWARE] Dados atualizados do DB para usuário ${session.sub}: role=${userRole}, status=${userStatus}`)
+      } else {
+        console.log(`[MIDDLEWARE] Usuário ${session.sub} não encontrado no banco`)
       }
     } catch (error) {
-      console.error('Erro ao buscar dados do usuário no middleware:', error)
+      console.error('[MIDDLEWARE] Erro ao buscar dados do usuário no middleware:', error)
     }
   }
   
@@ -72,11 +88,14 @@ export async function middleware(request: NextRequest) {
       (userStatus === 'PENDING_PAYMENT' || userStatus === 'PENDING_APPROVAL') && 
       !isPendingUserAllowedPath && 
       !path.startsWith('/pending-payment')) {
+    console.log(`[MIDDLEWARE] Redirecionando usuário ${session.sub} com status ${userStatus} para /pending-payment`)
     return NextResponse.redirect(new URL('/pending-payment', request.url))
   }
   
   // Se o usuário estiver autenticado e tentar acessar uma rota pública (não admin)
-  if (session && isPublicPath && userRole !== 'ADMIN') {
+  // MAS APENAS se NÃO tiver status pendente
+  if (session && isPublicPath && userRole !== 'ADMIN' && 
+      userStatus !== 'PENDING_PAYMENT' && userStatus !== 'PENDING_APPROVAL') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   
@@ -90,5 +109,14 @@ export async function middleware(request: NextRequest) {
 
 // Configurar quais caminhos o middleware deve ser executado
 export const config = {
-  matcher: ['/', '/login', '/register', '/dashboard/:path*', '/admin/:path*', '/pending-payment/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 }

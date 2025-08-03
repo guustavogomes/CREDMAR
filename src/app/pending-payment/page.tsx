@@ -1,43 +1,58 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { QrCode, Upload, AlertTriangle, Copy, Check } from "lucide-react"
+import { QrCode, Upload, AlertTriangle, Copy, Check, Clock, Mail } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { AuthGuard } from "@/components/auth-guard"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import QRCodeReact from "qrcode.react"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
 
-export default function PendingPaymentPage() {
-  const { data: session, status } = useSession()
+function PendingPaymentContent() {
+  const { data: session } = useSession()
   const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState<any>(null)
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true)
   const { toast } = useToast()
   
   // Chave PIX estática conforme solicitado
   const pixKey = "akljdlkadjkldjalksdjalskdjklasdjlasj"
   const qrCodeData = `00020126580014br.gov.bcb.pix0136${pixKey}0204Pagamento TaPago5303986540100.005802BR5925TaPago6009SAO PAULO62070503***6304`
+  
+  // Verificar o status do usuário
+  const userStatus = session?.user?.status
+  const isAwaitingApproval = userStatus === "PENDING_APPROVAL"
 
+  // Buscar status do pagamento
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login")
+    const fetchPaymentStatus = async () => {
+      if (!session?.user) return
+      
+      try {
+        const response = await fetch("/api/payment/status")
+        if (response.ok) {
+          const data = await response.json()
+          setPaymentStatus(data)
+          console.log("[PAYMENT STATUS] Status do pagamento:", data)
+        }
+      } catch (error) {
+        console.error("Erro ao buscar status do pagamento:", error)
+      } finally {
+        setIsLoadingStatus(false)
+      }
     }
-  }, [status, router])
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
+    fetchPaymentStatus()
+  }, [session])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -55,6 +70,8 @@ export default function PendingPaymentPage() {
       return
     }
 
+    console.log("[UPLOAD] Iniciando upload do comprovante para usuário:", session?.user?.email)
+    
     setIsUploading(true)
     const formData = new FormData()
     formData.append("file", file)
@@ -64,19 +81,31 @@ export default function PendingPaymentPage() {
         method: "POST",
         body: formData,
       })
+      
+      console.log("[UPLOAD] Resposta da API:", response.status, response.statusText)
 
       if (response.ok) {
         toast({
           title: "Comprovante enviado com sucesso!",
-          description: "Redirecionando para o login...",
+          description: "Aguarde a análise do pagamento...",
         })
         setFile(null)
-        // Redirecionar para login após 2 segundos
-        setTimeout(() => {
-          router.push("/login")
-        }, 2000)
+        // Recarregar a página para atualizar o status do usuário
+        window.location.reload()
       } else {
-        throw new Error("Erro ao enviar comprovante")
+        const errorData = await response.json()
+        
+        if (errorData.error === "ALREADY_SUBMITTED") {
+          toast({
+            title: "Comprovante já enviado",
+            description: errorData.message,
+            variant: "destructive",
+          })
+          // Recarregar a página para mostrar o status correto
+          window.location.reload()
+        } else {
+          throw new Error(errorData.message || "Erro ao enviar comprovante")
+        }
       }
     } catch (error) {
       toast({
@@ -105,6 +134,79 @@ export default function PendingPaymentPage() {
         variant: "destructive",
       })
     }
+  }
+
+  // Mostrar loading enquanto busca o status
+  if (isLoadingStatus) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando status do pagamento...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Renderizar conteúdo baseado no status
+  if (isAwaitingApproval || paymentStatus?.hasSubmittedProof) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full">
+          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+            <CardHeader className="text-center border-b border-slate-100 bg-gradient-to-r from-blue-50 to-green-50">
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <Clock className="h-6 w-6 text-blue-600" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-slate-800">Comprovante Enviado!</CardTitle>
+              <CardDescription className="text-slate-600">
+                Seu comprovante foi recebido e está sendo analisado
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-8 text-center">
+              <div className="space-y-6">
+                <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                  <Check className="h-10 w-10 text-green-600" />
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Pagamento em Análise
+                  </h3>
+                  <p className="text-slate-600">
+                    Recebemos seu comprovante de pagamento e nossa equipe está verificando as informações.
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 text-blue-800">
+                      <Mail className="h-5 w-5" />
+                      <div className="text-left">
+                        <p className="font-medium">Você receberá um e-mail</p>
+                        <p className="text-sm">Assim que seu pagamento for aprovado, enviaremos uma confirmação para <strong>{session?.user?.email}</strong></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-slate-500 space-y-2">
+                    <p>⏱️ Tempo de análise: até 24 horas úteis</p>
+                    <p>📧 Você será notificado por e-mail quando o acesso for liberado</p>
+                    {paymentStatus?.payment?.createdAt && (
+                      <p>📅 Comprovante enviado em: {new Date(paymentStatus.payment.createdAt).toLocaleString('pt-BR')}</p>
+                    )}
+                  </div>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push("/login")}
+                  className="w-full"
+                >
+                  Voltar para Login
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -208,5 +310,18 @@ export default function PendingPaymentPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function PendingPaymentPage() {
+  return (
+    <AuthGuard 
+      requireAuth={true}
+      allowedRoles={["USER", "ADMIN"]}
+      allowedStatuses={["PENDING_PAYMENT", "PENDING_APPROVAL"]}
+      redirectTo="/login"
+    >
+      <PendingPaymentContent />
+    </AuthGuard>
   )
 }

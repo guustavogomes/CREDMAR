@@ -149,11 +149,59 @@ Estrutura principal:
 
 ## 🚀 Deploy em VPS
 
+### Deploy Inicial
 1. Clone o repositório na VPS
 2. Configure as variáveis de ambiente
 3. Execute `docker-compose up --build -d`
 4. Execute o seed do banco
 5. Configure proxy reverso (Nginx) se necessário
+
+### Scripts de Deploy e Configuração
+
+#### Deploy Inicial (VPS Nova):
+```powershell
+powershell -ExecutionPolicy Bypass -File deploy-simples.ps1
+```
+
+#### Configurar Nginx + Cloudflare:
+```powershell
+powershell -ExecutionPolicy Bypass -File setup-cloudflare.ps1
+```
+
+#### Atualizações Automáticas:
+```powershell
+powershell -ExecutionPolicy Bypass -File update-auto.ps1
+```
+
+#### Atualizar IP da VPS:
+```powershell
+powershell -ExecutionPolicy Bypass -File update-ip.ps1 -NewIp "NOVO_IP"
+```
+
+#### Método Manual (se necessário):
+No seu computador local:
+```bash
+# Criar arquivo compactado
+tar -czf ../tapago-update.tar.gz --exclude='.git' --exclude='node_modules' --exclude='.next' .
+
+# Transferir para VPS
+scp ../tapago-update.tar.gz root@159.65.225.133:/tmp/
+```
+
+Na VPS:
+```bash
+# Backup do projeto atual
+cp -r /opt/tapago /opt/tapago-backup-$(date +%Y%m%d-%H%M%S)
+
+# Extrair atualizações
+cd /opt/tapago
+tar -xzf /tmp/tapago-update.tar.gz
+rm /tmp/tapago-update.tar.gz
+
+# Reconstruir containers
+docker-compose down
+docker-compose up --build -d
+```
 
 ## 📄 Licença
 

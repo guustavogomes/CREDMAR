@@ -51,6 +51,14 @@ export async function POST(request: NextRequest) {
       }
     })
     
+    console.log(`[REGISTER API] Usuário criado: ${user.email} com status ${user.status} e role ${user.role}`)
+    console.log(`[REGISTER API] Dados completos do usuário:`, {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status
+    })
+    
     // Retornar resposta sem a senha
     return NextResponse.json({
       success: true,

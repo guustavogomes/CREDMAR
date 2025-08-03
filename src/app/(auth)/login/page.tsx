@@ -28,12 +28,13 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        const errorMessage = result.error.includes('aprovada') 
-          ? result.error 
+        const isApprovalPending = result.error.includes('aprovada')
+        const errorMessage = isApprovalPending 
+          ? "Sua conta será aprovada em instantes. Você receberá um email de confirmação quando estiver liberada." 
           : "Email ou senha incorretos."
         
         toast({
-          title: result.error.includes('aprovada') ? "Conta pendente de aprovação" : "Erro no login",
+          title: isApprovalPending ? "Conta pendente de aprovação" : "Erro no login",
           description: errorMessage,
           variant: "destructive",
         })

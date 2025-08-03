@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -58,9 +59,33 @@ export default function RegisterPage() {
       if (response.ok) {
         toast({
           title: "Conta criada com sucesso!",
-          description: "Redirecionando para pagamento...",
+          description: "Fazendo login automático...",
         })
-        router.push("/pending-payment")
+        
+        // Fazer login automático após registro
+        console.log("[REGISTER] Tentando login automático...")
+        const signInResult = await signIn("credentials", {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        })
+        
+        console.log("[REGISTER] Resultado do login:", signInResult)
+        
+        if (signInResult?.ok && !signInResult.error) {
+          console.log("[REGISTER] Login automático realizado com sucesso")
+          // Aguardar um pouco para a sessão ser estabelecida
+          setTimeout(() => {
+            router.push("/pending-payment")
+          }, 1000)
+        } else {
+          console.error("[REGISTER] Erro no login automático:", signInResult?.error)
+          toast({
+            title: "Conta criada!",
+            description: "Faça login para continuar.",
+          })
+          router.push("/login")
+        }
       } else {
         const data = await response.json()
         toast({
