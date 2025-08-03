@@ -139,6 +139,22 @@ export async function PUT(
       )
     }
     
+    // Verificar se é erro de CPF duplicado
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+      const prismaError = error as any
+      
+      // Verificar se a violação é da constraint 'unique_cpf_per_user'
+      if (prismaError.meta?.target?.includes('cpf') && 
+          prismaError.meta?.target?.includes('userId')) {
+        // Se a constraint violada inclui tanto cpf quanto userId,
+        // significa que esse usuário específico já cadastrou esse CPF
+        return NextResponse.json(
+          { error: 'Você já cadastrou um cliente com este CPF' },
+          { status: 409 }
+        )
+      }
+    }
+    
     console.error('Erro ao atualizar cliente:', error)
     return NextResponse.json(
       { error: 'Erro interno do servidor' },

@@ -6,7 +6,7 @@ WORKDIR /app
 # Instalar dependências
 FROM base AS deps
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Estágio de build
 FROM base AS builder

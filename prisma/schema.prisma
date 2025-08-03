@@ -103,7 +103,7 @@ model Route {
 
 model Customer {
   id           String   @id @default(cuid())
-  cpf          String   @unique
+  cpf          String
   nomeCompleto String
   celular      String
   cep          String
@@ -121,6 +121,7 @@ model Customer {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   
+  @@unique([cpf, userId], name: "unique_cpf_per_user")
   @@map("customers")
 }
 
