@@ -146,7 +146,7 @@ export default function PaymentsProofsPendingPage() {
                       }}
                     />
                     <div 
-                      className="hidden w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500"
+                      className="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500"
                     >
                       <div className="text-center">
                         <p>Erro ao carregar imagem</p>
