@@ -8,15 +8,11 @@ export async function POST(request: Request) {
     const session = await getServerSession()
     
     if (!session) {
-      return new NextResponse(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-      })
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
     
-    if (session.user.role !== "ADMIN") {
-      return new NextResponse(JSON.stringify({ error: "Acesso negado" }), {
-        status: 403,
-      })
+    if (!session.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
     }
 
     // Obter dados do corpo da requisição

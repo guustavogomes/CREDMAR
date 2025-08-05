@@ -72,6 +72,8 @@ export default function AdminLayout({
     { name: 'Painel Admin', href: '/admin', icon: ShieldCheck },
     { name: 'Usuários', href: '/admin/users', icon: Users },
     { name: 'Pagamentos', href: '/admin/payments', icon: CreditCard },
+    { name: 'Aprovação de Comprovantes', href: '/installments/proofs-pending', icon: Bell },
+    { name: 'Aprovação de Comprovantes de Pagamentos', href: '/payments/proofs-pending', icon: CreditCard },
     { name: 'Periodicidades', href: '/admin/periodicities', icon: Calendar },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Configurações', href: '/admin/settings', icon: Settings },

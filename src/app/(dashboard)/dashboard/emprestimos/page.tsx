@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ interface Loan {
   status: string
   transactionDate: string
   customer: {
+    [x: string]: string
     id: string
     nomeCompleto: string
     cpf: string
@@ -33,11 +35,18 @@ interface Loan {
   }
 }
 
+interface Route {
+  id: string
+  description: string
+}
+
 export default function EmprestimosPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { toast } = useToast()
   const [loans, setLoans] = useState<Loan[]>([])
+const [routes, setRoutes] = useState<Route[]>([])
+const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -50,7 +59,20 @@ export default function EmprestimosPage() {
     if (status === "authenticated") {
       fetchLoans()
     }
+      fetchRoutes()
   }, [status, router])
+
+  const fetchRoutes = async () => {
+    try {
+      const response = await fetch('/api/routes')
+      if (response.ok) {
+        const data = await response.json()
+        setRoutes(data)
+      }
+    } catch (error) {
+      // erro silencioso
+    }
+  }
 
   const fetchLoans = async () => {
     try {
@@ -76,10 +98,15 @@ export default function EmprestimosPage() {
     }
   }
 
-  const filteredLoans = loans.filter(loan =>
-    loan.customer.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    loan.customer.cpf.includes(searchTerm)
-  )
+  const filteredLoans = loans.filter(loan => {
+    const matchSearch = loan.customer.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      loan.customer.cpf.includes(searchTerm)
+    const matchRoute =
+  selectedRoute === 'no-route'
+    ? !loan.customer.routeId
+    : loan.customer.routeId === selectedRoute
+    return matchSearch && matchRoute
+  })
 
   // Funções de formatação movidas para @/lib/date-utils
 
@@ -135,6 +162,21 @@ export default function EmprestimosPage() {
         </CardContent>
       </Card>
 
+      {/* Filtro por Rota */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center">
+        <label className="font-medium text-sm text-muted-foreground">Filtrar por rota:</label>
+        <Select value={selectedRoute} onValueChange={setSelectedRoute}>
+  <SelectTrigger className="w-64">
+    <SelectValue placeholder="Clientes sem rota" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="no-route">Clientes sem rota</SelectItem>
+    {routes.map((route) => (
+      <SelectItem key={route.id} value={route.id}>{route.description}</SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+      </div>
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card className="border-border bg-card">
@@ -142,7 +184,7 @@ export default function EmprestimosPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total de Empréstimos</p>
-                <p className="text-2xl font-bold text-foreground">{loans.length}</p>
+                <p className="text-2xl font-bold text-foreground">{filteredLoans.length}</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
             </div>
@@ -155,7 +197,7 @@ export default function EmprestimosPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Empréstimos Ativos</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {loans.filter(loan => loan.status === 'ACTIVE').length}
+                  {filteredLoans.filter(loan => loan.status === 'ACTIVE').length}
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
@@ -169,7 +211,7 @@ export default function EmprestimosPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Valor Total</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {formatCurrency(loans.reduce((sum, loan) => sum + loan.totalAmount, 0))}
+                  {formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0))}
                 </p>
               </div>
               <User className="w-8 h-8 text-purple-600" />

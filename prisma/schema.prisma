@@ -179,6 +179,12 @@ enum LoanStatus {
   CANCELLED
 }
 
+enum ProofStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Installment {
   id                String            @id @default(cuid())
   loanId            String
@@ -188,6 +194,8 @@ model Installment {
   paidAmount        Float             @default(0)
   fineAmount        Float             @default(0)
   status            InstallmentStatus @default(PENDING)
+  proofImage        String?
+  proofStatus       ProofStatus       @default(PENDING)
   paidAt            DateTime?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

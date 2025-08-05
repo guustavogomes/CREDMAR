@@ -24,6 +24,7 @@ interface Payment {
   status: string
   description: string | null
   createdAt: string
+  proofImage?: string
 }
 
 interface PaymentStats {
@@ -34,6 +35,61 @@ interface PaymentStats {
 }
 
 export default function PaymentsPage() {
+  const [uploading, setUploading] = useState(false)
+
+  // Upload de comprovante
+  const handleUploadProof = async (e: React.FormEvent<HTMLFormElement>, paymentId: string) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const fileInput = form.elements.namedItem("file") as HTMLInputElement
+    if (!fileInput?.files?.[0]) return
+    setUploading(true)
+    const formData = new FormData()
+    formData.append("paymentId", paymentId)
+    formData.append("file", fileInput.files[0])
+    try {
+      const res = await fetch("/api/payments/upload-proof", {
+        method: "POST",
+        body: formData
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast({ title: "Comprovante enviado!", description: "Aguardando aprovação." })
+        fetchPayments()
+      } else {
+        toast({ title: "Erro", description: data.error || "Erro ao enviar comprovante", variant: "destructive" })
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao conectar ao servidor", variant: "destructive" })
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // Remover comprovante enviado (antes de aprovação)
+  const handleRemoveProof = async (paymentId: string) => {
+    if (!window.confirm("Remover comprovante enviado?")) return
+    setUploading(true)
+    try {
+      const res = await fetch("/api/payments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId, removeProof: true })
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast({ title: "Comprovante removido." })
+        fetchPayments()
+      } else {
+        toast({ title: "Erro", description: data.error || "Erro ao remover comprovante", variant: "destructive" })
+      }
+    } catch (err) {
+      toast({ title: "Erro", description: "Falha ao conectar ao servidor", variant: "destructive" })
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const [payments, setPayments] = useState<Payment[]>([])
   const [stats, setStats] = useState<PaymentStats>({
     totalReceived: 0,
@@ -244,13 +300,70 @@ export default function PaymentsPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right min-w-[180px] flex flex-col items-end gap-2">
                     <p className="font-semibold text-foreground">
                       {formatCurrency(payment.amount)}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {payment.method}
                     </p>
+                    {/* Comprovante UI */}
+                    {payment.status === "PENDING" && (
+                      <>
+                        {payment.proofImage ? (
+                          <div className="flex flex-col items-end">
+                            <img
+                              src={payment.proofImage}
+                              alt="Comprovante enviado"
+                              className="w-24 h-24 object-contain border rounded mb-1"
+                            />
+                            <span className="text-xs text-yellow-700 mb-1">Aguardando aprovação</span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemoveProof(payment.id)}
+                              className="text-xs"
+                            >Remover</Button>
+                          </div>
+                        ) : (
+                          <form onSubmit={e => handleUploadProof(e, payment.id)} className="flex flex-col items-end gap-1">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              name="file"
+                              required
+                              className="block text-xs"
+                            />
+                            <Button type="submit" size="sm" className="text-xs">Enviar comprovante</Button>
+                          </form>
+                        )}
+                      </>
+                    )}
+                    {payment.status === "APPROVED" && payment.proofImage && (
+                      <div className="flex flex-col items-end">
+                        <img
+                          src={payment.proofImage}
+                          alt="Comprovante aprovado"
+                          className="w-24 h-24 object-contain border rounded mb-1"
+                        />
+                        <span className="text-xs text-green-700">Comprovante aprovado</span>
+                      </div>
+                    )}
+                    {payment.status === "REJECTED" && (
+                      <div className="flex flex-col items-end">
+                        <span className="text-xs text-red-700 mb-1">Comprovante rejeitado</span>
+                        <form onSubmit={e => handleUploadProof(e, payment.id)} className="flex flex-col items-end gap-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            name="file"
+                            required
+                            className="block text-xs"
+                          />
+                          <Button type="submit" size="sm" className="text-xs">Reenviar comprovante</Button>
+                        </form>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

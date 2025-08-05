@@ -1,82 +1,103 @@
+// Teste para verificar se a constraint do CPF está funcionando
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: "postgresql://postgres:postgres123@159.65.225.133:5433/tapago"
+    }
+  }
+});
 
 async function testCpfConstraint() {
   try {
-    console.log('🧪 Testando restrição de CPF...');
+    console.log('🧪 Testando constraint do CPF...');
     
-    // Buscar dois usuários diferentes
-    const users = await prisma.user.findMany({
-      take: 2
+    // Criar dois usuários diferentes
+    const user1 = await prisma.user.create({
+      data: {
+        email: 'teste1@example.com',
+        name: 'Usuário Teste 1',
+        password: 'senha123'
+      }
     });
     
-    if (users.length < 2) {
-      console.log('❌ Precisa de pelo menos 2 usuários para testar');
-      return;
-    }
-    
-    console.log('👥 Usuários encontrados:');
-    users.forEach((user, index) => {
-      console.log(`  ${index + 1}. ${user.name} (${user.email})`);
+    const user2 = await prisma.user.create({
+      data: {
+        email: 'teste2@example.com', 
+        name: 'Usuário Teste 2',
+        password: 'senha123'
+      }
     });
     
-    const testCpf = '12345678901';
+    console.log('✅ Usuários criados:', user1.id, user2.id);
     
-    // Tentar criar cliente com mesmo CPF para usuário 1
-    console.log('\n📝 Criando cliente para usuário 1...');
+    // Tentar criar cliente com mesmo CPF para usuários diferentes
+    const customer1 = await prisma.customer.create({
+      data: {
+        cpf: '12345678901',
+        nomeCompleto: 'Cliente Teste 1',
+        celular: '11999999999',
+        cep: '01234567',
+        endereco: 'Rua Teste 1',
+        cidade: 'São Paulo',
+        estado: 'SP',
+        bairro: 'Centro',
+        userId: user1.id
+      }
+    });
+    
+    console.log('✅ Cliente 1 criado para usuário 1');
+    
+    const customer2 = await prisma.customer.create({
+      data: {
+        cpf: '12345678901', // MESMO CPF
+        nomeCompleto: 'Cliente Teste 2',
+        celular: '11888888888',
+        cep: '01234567',
+        endereco: 'Rua Teste 2',
+        cidade: 'São Paulo',
+        estado: 'SP',
+        bairro: 'Centro',
+        userId: user2.id // USUÁRIO DIFERENTE
+      }
+    });
+    
+    console.log('✅ Cliente 2 criado para usuário 2 com MESMO CPF!');
+    console.log('🎉 SUCESSO: Constraint funcionando - mesmo CPF permitido para usuários diferentes');
+    
+    // Tentar criar cliente com mesmo CPF para o MESMO usuário (deve falhar)
     try {
-      const customer1 = await prisma.customer.create({
+      await prisma.customer.create({
         data: {
-          cpf: testCpf,
-          nomeCompleto: 'Cliente Teste 1',
-          celular: '11999999999',
-          cep: '01000000',
-          endereco: 'Rua Teste, 123',
+          cpf: '12345678901', // MESMO CPF
+          nomeCompleto: 'Cliente Teste 3',
+          celular: '11777777777',
+          cep: '01234567',
+          endereco: 'Rua Teste 3',
           cidade: 'São Paulo',
           estado: 'SP',
           bairro: 'Centro',
-          userId: users[0].id
+          userId: user1.id // MESMO USUÁRIO
         }
       });
-      console.log('✅ Cliente 1 criado com sucesso:', customer1.id);
+      console.log('❌ ERRO: Deveria ter falhado ao criar cliente com mesmo CPF para mesmo usuário');
     } catch (error) {
-      console.log('❌ Erro ao criar cliente 1:', error.message);
+      console.log('✅ SUCESSO: Constraint funcionando - mesmo CPF rejeitado para mesmo usuário');
     }
     
-    // Tentar criar cliente com mesmo CPF para usuário 2
-    console.log('\n📝 Criando cliente para usuário 2...');
-    try {
-      const customer2 = await prisma.customer.create({
-        data: {
-          cpf: testCpf,
-          nomeCompleto: 'Cliente Teste 2',
-          celular: '11888888888',
-          cep: '02000000',
-          endereco: 'Rua Teste, 456',
-          cidade: 'Rio de Janeiro',
-          estado: 'RJ',
-          bairro: 'Centro',
-          userId: users[1].id
-        }
-      });
-      console.log('✅ Cliente 2 criado com sucesso:', customer2.id);
-      console.log('🎉 SUCESSO: Mesmo CPF pode ser usado por usuários diferentes!');
-    } catch (error) {
-      console.log('❌ Erro ao criar cliente 2:', error.message);
-      if (error.message.includes('unique constraint')) {
-        console.log('⚠️  A restrição ainda não foi aplicada corretamente');
-      }
-    }
-    
-    // Limpar dados de teste
-    console.log('\n🧹 Limpando dados de teste...');
+    // Limpeza
     await prisma.customer.deleteMany({
-      where: { cpf: testCpf }
+      where: { cpf: '12345678901' }
     });
-    console.log('✅ Dados de teste removidos');
+    await prisma.user.deleteMany({
+      where: { email: { in: ['teste1@example.com', 'teste2@example.com'] } }
+    });
+    
+    console.log('🧹 Dados de teste removidos');
     
   } catch (error) {
-    console.error('❌ Erro geral:', error);
+    console.error('❌ Erro no teste:', error.message);
   } finally {
     await prisma.$disconnect();
   }

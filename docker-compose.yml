@@ -19,7 +19,7 @@ services:
   app:
     build: .
     ports:
-      - "3002:3000"
+      - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/tapago
       - NEXTAUTH_SECRET=your-secret-key-here

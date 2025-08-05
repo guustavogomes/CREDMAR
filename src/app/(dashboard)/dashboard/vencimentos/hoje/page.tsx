@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, ArrowLeft, Phone, Mail, MapPin, Clock, DollarSign } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
 interface InstallmentWithLoan {
   id: string
@@ -33,6 +34,7 @@ export default function VencimentosHojePage() {
   const [installments, setInstallments] = useState<InstallmentWithLoan[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchTodaysDues()
@@ -69,6 +71,40 @@ export default function VencimentosHojePage() {
   }
 
   const totalAmount = installments.reduce((sum, inst) => sum + inst.amount, 0)
+
+  const handleMarkAsPaid = async (installmentId: string) => {
+    try {
+      const response = await fetch(`/api/loans/${installments.find(i => i.id === installmentId)?.loan.id}/installments/${installmentId}/pay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          amount: installments.find(i => i.id === installmentId)?.amount || 0,
+          fineAmount: installments.find(i => i.id === installmentId)?.fineAmount || 0,
+          paymentDate: new Date().toISOString().split('T')[0]
+        })
+      })
+
+      if (response.ok) {
+        // Remover a parcela da lista após marcar como paga
+        setInstallments(prev => prev.filter(inst => inst.id !== installmentId))
+        toast({
+          title: "Sucesso!",
+          description: "Parcela marcada como paga com sucesso.",
+        })
+      } else {
+        throw new Error('Erro ao marcar como paga')
+      }
+    } catch (error) {
+      console.error('Erro ao marcar parcela como paga:', error)
+      toast({
+        title: "Erro",
+        description: "Erro ao marcar parcela como paga. Tente novamente.",
+        variant: "destructive",
+      })
+    }
+  }
 
   if (loading) {
     return (
@@ -199,7 +235,11 @@ export default function VencimentosHojePage() {
                               Ver Detalhes
                             </Button>
                           </Link>
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => handleMarkAsPaid(installment.id)}
+                          >
                             Marcar como Pago
                           </Button>
                         </div>

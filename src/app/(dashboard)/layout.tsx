@@ -18,6 +18,7 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState } from "react"
+import { Toaster } from "@/components/ui/toaster"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -207,6 +208,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }
