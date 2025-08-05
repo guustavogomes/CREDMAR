@@ -53,6 +53,7 @@ export default function PaymentDetailsPage() {
       setLoading(true)
       try {
         const response = await fetch(`/api/admin/payments/${params.id}`)
+        
         if (response.ok) {
           const data = await response.json()
           setPayment(data)
@@ -62,6 +63,7 @@ export default function PaymentDetailsPage() {
         }
       } catch (error) {
         console.error("Erro ao carregar detalhes do pagamento:", error)
+        router.push("/admin/payments")
       } finally {
         setLoading(false)
       }
@@ -299,8 +301,36 @@ export default function PaymentDetailsPage() {
               <img 
                 src={payment.proofImage} 
                 alt="Comprovante de Pagamento" 
-                className="max-w-full max-h-96 object-contain rounded-md shadow-md" 
+                className="max-w-full max-h-96 object-contain rounded-md shadow-md border" 
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `
+                      <div class="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500">
+                        <div class="text-center">
+                          <p>Erro ao carregar comprovante</p>
+                          <p class="text-xs mt-1">URL: ${payment.proofImage}</p>
+                          <a href="${payment.proofImage}" target="_blank" class="text-blue-500 text-xs hover:underline mt-2 block">
+                            Tentar abrir em nova aba
+                          </a>
+                        </div>
+                      </div>
+                    `;
+                  }
+                }}
               />
+            </div>
+            <div className="mt-4 text-center">
+              <a 
+                href={payment.proofImage} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline text-sm"
+              >
+                Abrir comprovante em nova aba
+              </a>
             </div>
           </CardContent>
         </Card>

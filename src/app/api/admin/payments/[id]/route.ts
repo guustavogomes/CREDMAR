@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     // Verificar autenticação e permissões
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
     if (!session) {
       return new NextResponse(JSON.stringify({ error: "Não autorizado" }), {
