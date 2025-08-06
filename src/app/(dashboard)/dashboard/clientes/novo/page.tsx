@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, DollarSign } from 'lucide-react'
+import { ArrowLeft, DollarSign, Search } from 'lucide-react'
 import Link from 'next/link'
 import { validateCPF, formatCPF } from '@/lib/cpf'
+import { useCustomerScore } from '@/hooks/use-customer-score'
+import { CustomerScore } from '@/components/ui/customer-score'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +41,7 @@ interface AddressData {
 export default function NovoClientePage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { loading: scoreLoading, scoreData, error: scoreError, fetchScore, clearScore } = useCustomerScore()
   const [routes, setRoutes] = useState<Route[]>([])
   const [loading, setLoading] = useState(false)
   const [cepLoading, setCepLoading] = useState(false)
@@ -47,6 +50,7 @@ export default function NovoClientePage() {
   const [showLoanDialog, setShowLoanDialog] = useState(false)
   const [createdCustomerId, setCreatedCustomerId] = useState<string>('')
   const [createdCustomerName, setCreatedCustomerName] = useState<string>('')
+  const [showScoreModal, setShowScoreModal] = useState(false)
 
   const [formData, setFormData] = useState({
     cpf: '',
@@ -113,6 +117,39 @@ export default function NovoClientePage() {
         setCepLoading(false)
       }
     }
+  }
+
+  const handleCpfChange = (cpf: string) => {
+    const formattedCpf = formatCPF(cpf)
+    setFormData(prev => ({ ...prev, cpf: formattedCpf }))
+  }
+
+  const handleConsultarScore = async () => {
+    const cleanCpf = formData.cpf.replace(/\D/g, '')
+    
+    if (cleanCpf.length !== 11) {
+      toast({
+        title: 'CPF Incompleto',
+        description: 'Por favor, digite um CPF completo',
+        variant: 'destructive'
+      })
+      return
+    }
+    
+    if (!validateCPF(cleanCpf)) {
+      toast({
+        title: 'CPF Inválido',
+        description: 'Por favor, digite um CPF válido',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Limpar dados anteriores
+    clearScore()
+    
+    // Buscar score do cliente
+    await fetchScore(cleanCpf)
   }
 
   const handleCreateRoute = async () => {
@@ -239,10 +276,7 @@ export default function NovoClientePage() {
     router.push('/dashboard/clientes')
   }
 
-  const formatCpfInput = (value: string) => {
-    const numbers = value.replace(/\D/g, '')
-    return numbers.slice(0, 11)
-  }
+
 
   const formatCepInput = (value: string) => {
     const numbers = value.replace(/\D/g, '')
@@ -270,16 +304,67 @@ export default function NovoClientePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="cpf">CPF *</Label>
-                <Input
-                  id="cpf"
-                  placeholder="00000000000"
-                  value={formData.cpf}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    cpf: formatCpfInput(e.target.value) 
-                  }))}
-                  required
-                />
+                <div className="flex space-x-2">
+                  <Input
+                    id="cpf"
+                    placeholder="000.000.000-00"
+                    value={formData.cpf}
+                    onChange={(e) => handleCpfChange(e.target.value)}
+                    required
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleConsultarScore}
+                    disabled={scoreLoading || !formData.cpf || formData.cpf.replace(/\D/g, '').length !== 11}
+                    className="px-4"
+                  >
+                    {scoreLoading ? (
+                      <Search className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Search className="h-4 w-4" />
+                    )}
+                    Score
+                  </Button>
+                </div>
+                {scoreData && scoreData.found && (
+                  <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-medium text-blue-800">
+                          Cliente encontrado na base!
+                        </div>
+                        <div className="text-xs text-blue-600">
+                          Score: {scoreData.score?.value} ({scoreData.score?.class})
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowScoreModal(true)}
+                        className="bg-white"
+                      >
+                        Ver Detalhes
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {scoreData && !scoreData.found && (
+                  <div className="mt-2 p-2 bg-gray-50 border border-gray-200 rounded-md">
+                    <span className="text-sm text-gray-600">
+                      Cliente não encontrado na base de dados
+                    </span>
+                  </div>
+                )}
+                {scoreError && (
+                  <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                    <span className="text-sm text-red-600">
+                      Erro ao consultar score: {scoreError}
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div>
@@ -504,6 +589,14 @@ export default function NovoClientePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Modal do Score do Cliente */}
+      {showScoreModal && (
+        <CustomerScore 
+          scoreData={scoreData} 
+          onClose={() => setShowScoreModal(false)} 
+        />
+      )}
     </div>
   )
 }

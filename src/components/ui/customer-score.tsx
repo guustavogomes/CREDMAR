@@ -1,0 +1,303 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { 
+  User, 
+  Phone, 
+  MapPin, 
+  TrendingUp, 
+  TrendingDown, 
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Building,
+  X
+} from "lucide-react"
+
+type CustomerScore = {
+  found: boolean
+  customer?: {
+    cpf: string
+    nomeCompleto: string
+    celular: string
+    foto?: string
+    endereco: string
+  }
+  score?: {
+    value: number
+    class: string
+    color: string
+  }
+  statistics?: {
+    totalLoans: number
+    activeLoans: number
+    completedLoans: number
+    cancelledLoans: number
+    totalInstallments: number
+    paidInstallments: number
+    overdueInstallments: number
+    pendingInstallments: number
+    averageDelayDays: number
+    paymentRate: number
+  }
+  companies?: Array<{
+    name: string
+    email: string
+    activeLoans: number
+    totalLoans: number
+  }>
+  riskAnalysis?: {
+    hasOverduePayments: boolean
+    hasActiveLoans: boolean
+    hasCancelledLoans: boolean
+    averageDelayDays: number
+    recommendation: string
+  }
+}
+
+interface CustomerScoreProps {
+  scoreData: CustomerScore | null
+  onClose: () => void
+}
+
+export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
+  if (!scoreData || !scoreData.found) {
+    return null
+  }
+
+  const { customer, score, statistics, companies, riskAnalysis } = scoreData
+
+  const getScoreColor = (scoreValue: number) => {
+    if (scoreValue >= 700) return "text-green-600 bg-green-50"
+    if (scoreValue >= 500) return "text-blue-600 bg-blue-50"
+    if (scoreValue >= 300) return "text-orange-600 bg-orange-50"
+    return "text-red-600 bg-red-50"
+  }
+
+  const getRiskIcon = (recommendation: string) => {
+    switch (recommendation) {
+      case 'BAIXO_RISCO':
+        return <CheckCircle className="h-5 w-5 text-green-500" />
+      case 'MEDIO_RISCO':
+        return <Clock className="h-5 w-5 text-orange-500" />
+      case 'ALTO_RISCO':
+        return <AlertTriangle className="h-5 w-5 text-red-500" />
+      default:
+        return <AlertTriangle className="h-5 w-5 text-gray-500" />
+    }
+  }
+
+  const getRiskText = (recommendation: string) => {
+    switch (recommendation) {
+      case 'BAIXO_RISCO':
+        return 'Baixo Risco'
+      case 'MEDIO_RISCO':
+        return 'Médio Risco'
+      case 'ALTO_RISCO':
+        return 'Alto Risco'
+      default:
+        return 'Risco Indefinido'
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-900">Score do Cliente</h2>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Informações do Cliente */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <User className="h-5 w-5" />
+                <span>Informações do Cliente</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  {customer?.foto ? (
+                    <img 
+                      src={customer.foto} 
+                      alt={customer.nomeCompleto}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="h-8 w-8 text-gray-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h3 className="text-lg font-semibold">{customer?.nomeCompleto}</h3>
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <span>CPF: {customer?.cpf}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Phone className="h-4 w-4" />
+                    <span>{customer?.celular}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    <span>{customer?.endereco}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Score e Classificação */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="h-5 w-5" />
+                  <span>Score de Crédito</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <div className={`text-4xl font-bold mb-2 ${getScoreColor(score?.value || 0)}`}>
+                    {score?.value}
+                  </div>
+                  <Badge variant="outline" className={getScoreColor(score?.value || 0)}>
+                    {score?.class}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  {getRiskIcon(riskAnalysis?.recommendation || '')}
+                  <span>Análise de Risco</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Classificação:</span>
+                    <span className="font-semibold">
+                      {getRiskText(riskAnalysis?.recommendation || '')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Atraso Médio:</span>
+                    <span className="font-semibold">
+                      {riskAnalysis?.averageDelayDays || 0} dias
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Taxa de Pagamento:</span>
+                    <span className="font-semibold">
+                      {statistics?.paymentRate || 0}%
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Estatísticas */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico de Empréstimos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{statistics?.totalLoans || 0}</div>
+                  <div className="text-sm text-gray-600">Total</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{statistics?.activeLoans || 0}</div>
+                  <div className="text-sm text-gray-600">Ativos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-600">{statistics?.completedLoans || 0}</div>
+                  <div className="text-sm text-gray-600">Concluídos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">{statistics?.overdueInstallments || 0}</div>
+                  <div className="text-sm text-gray-600">Em Atraso</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Empresas Relacionadas - COMENTADO TEMPORARIAMENTE PARA APROVAÇÃO DAS EMPRESAS */}
+          {/* 
+          {companies && companies.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Building className="h-5 w-5" />
+                  <span>Empresas com Relacionamento</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {companies.map((company, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div className="font-semibold">{company.name}</div>
+                        <div className="text-sm text-gray-600">{company.email}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm">
+                          <span className="font-semibold text-green-600">{company.activeLoans}</span> ativos
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {company.totalLoans} total
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          */}
+
+          {/* Alertas */}
+          {(riskAnalysis?.hasOverduePayments || riskAnalysis?.hasCancelledLoans) && (
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 text-orange-800">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span>Alertas</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {riskAnalysis?.hasOverduePayments && (
+                    <div className="flex items-center space-x-2 text-orange-700">
+                      <Clock className="h-4 w-4" />
+                      <span>Cliente possui parcelas em atraso</span>
+                    </div>
+                  )}
+                  {riskAnalysis?.hasCancelledLoans && (
+                    <div className="flex items-center space-x-2 text-orange-700">
+                      <X className="h-4 w-4" />
+                      <span>Cliente possui empréstimos cancelados</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
