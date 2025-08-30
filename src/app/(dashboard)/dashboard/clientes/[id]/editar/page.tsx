@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Camera, User, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { validateCPF, formatCPF } from '@/lib/cpf'
 
@@ -236,6 +236,31 @@ export default function EditarClientePage() {
     setLoading(true)
     
     try {
+      let fotoUrl = formData.foto
+
+      // Upload da foto se houver uma nova
+      if (fotoFile) {
+        const fotoFormData = new FormData()
+        fotoFormData.append('foto', fotoFile)
+        fotoFormData.append('customerId', params.id as string)
+
+        const fotoResponse = await fetch('/api/customers/upload-foto', {
+          method: 'POST',
+          body: fotoFormData
+        })
+
+        if (fotoResponse.ok) {
+          const fotoData = await fotoResponse.json()
+          fotoUrl = fotoData.url
+        } else {
+          toast({
+            title: 'Aviso',
+            description: 'Erro ao fazer upload da foto, mas os dados serão salvos',
+            variant: 'destructive'
+          })
+        }
+      }
+
       const response = await fetch(`/api/customers/${params.id}`, {
         method: 'PUT',
         headers: {
@@ -243,6 +268,7 @@ export default function EditarClientePage() {
         },
         body: JSON.stringify({
           ...formData,
+          foto: fotoUrl,
           routeId: formData.routeId || null // Garantir que seja null se vazio
         })
       })
@@ -306,6 +332,73 @@ export default function EditarClientePage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Seção da Foto do Cliente */}
+            <div className="flex flex-col items-center space-y-4 p-6 bg-gray-50 rounded-lg">
+              <div className="relative">
+                {formData.foto || fotoFile ? (
+                  <div className="relative">
+                    <img 
+                      src={fotoFile ? URL.createObjectURL(fotoFile) : formData.foto} 
+                      alt={formData.nomeCompleto}
+                      className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFotoFile(null)
+                        setFormData(prev => ({ ...prev, foto: '' }))
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+                    <User className="w-12 h-12 text-gray-400" />
+                  </div>
+                )}
+                
+                <label 
+                  htmlFor="foto-upload"
+                  className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors shadow-lg"
+                >
+                  <Camera className="w-5 h-5" />
+                </label>
+                
+                <input
+                  id="foto-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        toast({
+                          title: 'Erro',
+                          description: 'A imagem deve ter no máximo 5MB',
+                          variant: 'destructive'
+                        })
+                        return
+                      }
+                      setFotoFile(file)
+                    }
+                  }}
+                  className="hidden"
+                />
+              </div>
+              
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700">Foto do Cliente</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Clique no ícone da câmera para alterar a foto
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Formatos aceitos: JPG, PNG (máx. 5MB)
+                </p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="cpf">CPF *</Label>

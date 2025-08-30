@@ -72,12 +72,33 @@ export default function PaymentsProofsPendingPage() {
   }
 
   const handleStatus = async (id: string, status: 'APPROVED' | 'REJECTED') => {
-    await fetch(`/api/admin/payments/${id}/proof-status`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    })
-    setPayments(prev => prev.filter(p => p.id !== id))
+    try {
+      console.log(`Processando ${status} para pagamento ${id}`)
+      
+      const response = await fetch(`/api/admin/payments/${id}/proof-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+
+      const result = await response.json()
+      
+      if (!response.ok) {
+        console.error('Erro na API:', result)
+        alert(`Erro: ${result.error || 'Erro desconhecido'}`)
+        return
+      }
+
+      console.log('Sucesso:', result)
+      alert(`Pagamento ${status === 'APPROVED' ? 'aprovado' : 'rejeitado'} com sucesso!${status === 'APPROVED' ? ' Email enviado.' : ''}`)
+      
+      // Remover da lista apenas se foi bem-sucedido
+      setPayments(prev => prev.filter(p => p.id !== id))
+      
+    } catch (error) {
+      console.error('Erro ao processar status:', error)
+      alert('Erro ao processar solicitação')
+    }
   }
 
   if (status === 'loading' || loading) {
@@ -130,12 +151,10 @@ export default function PaymentsProofsPendingPage() {
               <div className="mb-4">
                 {payment.proofImage ? (
                   <div className="relative">
-                    <Image 
+                    <img 
                       src={payment.proofImage} 
                       alt="Comprovante" 
-                      width={300} 
-                      height={200} 
-                      className="rounded border"
+                      className="w-full max-w-sm h-48 object-contain rounded border"
                       onError={(e) => {
                         console.error('Erro ao carregar imagem:', payment.proofImage);
                         e.currentTarget.style.display = 'none';
@@ -144,13 +163,20 @@ export default function PaymentsProofsPendingPage() {
                           nextElement.style.display = 'block';
                         }
                       }}
+                      onLoad={() => {
+                        console.log('Imagem carregada com sucesso:', payment.proofImage);
+                      }}
                     />
                     <div 
                       className="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500"
+                      style={{ display: 'none' }}
                     >
                       <div className="text-center">
                         <p>Erro ao carregar imagem</p>
                         <p className="text-xs mt-1">URL: {payment.proofImage}</p>
+                        <a href={payment.proofImage} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline text-xs">
+                          Tentar abrir em nova aba
+                        </a>
                       </div>
                     </div>
                   </div>

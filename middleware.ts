@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { NextRequest } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-// Criar instância do Prisma para o middleware
-const prisma = new PrismaClient()
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -41,28 +37,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
   
-  // Se o usuário estiver autenticado, buscar dados atualizados do banco
+  // Usar dados da sessão (que são atualizados no login)
   let userRole = session?.role
   let userStatus = session?.status
-  
-  if (session?.sub) {
-    try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: session.sub },
-        select: { role: true, status: true }
-      })
-      
-      if (dbUser) {
-        userRole = dbUser.role
-        userStatus = dbUser.status
-        console.log(`[MIDDLEWARE] Dados atualizados do DB para usuário ${session.sub}: role=${userRole}, status=${userStatus}`)
-      } else {
-        console.log(`[MIDDLEWARE] Usuário ${session.sub} não encontrado no banco`)
-      }
-    } catch (error) {
-      console.error('[MIDDLEWARE] Erro ao buscar dados do usuário no middleware:', error)
-    }
-  }
   
   // PRIMEIRO: Se o usuário for ADMIN, aplicar regras específicas
   if (session && userRole === 'ADMIN') {

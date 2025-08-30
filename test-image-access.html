@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Imagem</title>
+</head>
+<body>
+    <h1>Teste de Acesso às Imagens</h1>
+    
+    <h2>PNG:</h2>
+    <img src="/uploads/proofs/test-comprovante-email.png" alt="PNG Test" style="border: 1px solid red;">
+    
+    <h2>JPG:</h2>
+    <img src="/uploads/proofs/test-comprovante-email.jpg" alt="JPG Test" style="border: 1px solid blue;">
+    
+    <h2>SVG:</h2>
+    <img src="/uploads/proofs/test-comprovante-email.svg" alt="SVG Test" style="border: 1px solid green;">
+    
+    <p>Se as imagens não aparecerem, há um problema com o servidor estático.</p>
+    
+    <script>
+        // Testar acesso via fetch
+        fetch('/uploads/proofs/test-comprovante-email.png')
+            .then(response => {
+                console.log('PNG Response:', response.status, response.statusText);
+                if (response.ok) {
+                    document.body.innerHTML += '<p style="color: green;">✅ PNG acessível via fetch</p>';
+                } else {
+                    document.body.innerHTML += '<p style="color: red;">❌ PNG não acessível: ' + response.status + '</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao acessar PNG:', error);
+                document.body.innerHTML += '<p style="color: red;">❌ Erro ao acessar PNG: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

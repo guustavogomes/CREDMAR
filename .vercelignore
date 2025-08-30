@@ -1,0 +1,42 @@
+# Arquivos que não precisam ser enviados para a Vercel
+node_modules
+.env.local
+.env
+*.log
+.DS_Store
+Thumbs.db
+
+# Arquivos de desenvolvimento
+*.test.js
+*.test.ts
+test-*.js
+simple-test.js
+check-*.js
+clean-*.js
+create-*.js
+fix-*.js
+reset-*.js
+update-*.js
+use-*.js
+
+# Arquivos de documentação desnecessários para build
+*.md
+!README.md
+
+# Arquivos de configuração local
+docker-compose.yml
+Dockerfile
+.dockerignore
+health-check.sh
+update-vps.*
+
+# Screenshots e imagens de teste
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Arquivos de configuração do VPS
+*.bat
+*.ps1
+*.sh

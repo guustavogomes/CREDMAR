@@ -44,6 +44,8 @@ model User {
   password            String
   role                Role                 @default(USER)
   status              UserStatus           @default(PENDING_PAYMENT)
+  resetToken          String?              // Token para reset de senha
+  resetTokenExpiry    DateTime?            // Expiração do token
   customers           Customer[]
   routes              Route[]
   payments            Payment[]

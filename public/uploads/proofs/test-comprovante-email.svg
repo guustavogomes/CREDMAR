@@ -1,0 +1,24 @@
+
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="400" height="60" fill="#007bff"/>
+  <text x="200" y="35" text-anchor="middle" fill="white" font-family="Arial" font-size="18" font-weight="bold">COMPROVANTE PIX</text>
+  
+  <!-- Content -->
+  <text x="20" y="90" fill="#333" font-family="Arial" font-size="14" font-weight="bold">Banco: Banco Teste</text>
+  <text x="20" y="110" fill="#666" font-family="Arial" font-size="12">Agência: 1234-5</text>
+  <text x="20" y="130" fill="#666" font-family="Arial" font-size="12">Conta: 12345-6</text>
+  
+  <text x="20" y="160" fill="#333" font-family="Arial" font-size="14" font-weight="bold">Valor: R$ 100,00</text>
+  <text x="20" y="180" fill="#666" font-family="Arial" font-size="12">Data: 23/08/2025</text>
+  <text x="20" y="200" fill="#666" font-family="Arial" font-size="12">Hora: 10:30:45</text>
+  
+  <text x="20" y="230" fill="#333" font-family="Arial" font-size="14" font-weight="bold">Destinatário: TaPago</text>
+  <text x="20" y="250" fill="#666" font-family="Arial" font-size="12">Chave PIX: organizaemprestimos@gmail.com</text>
+  
+  <!-- Footer -->
+  <rect x="20" y="270" width="360" height="20" fill="#28a745"/>
+  <text x="200" y="283" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">✓ TRANSAÇÃO APROVADA</text>
+</svg>

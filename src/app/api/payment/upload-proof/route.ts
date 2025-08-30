@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { v4 as uuidv4 } from "uuid"
+import { writeFile, mkdir } from "fs/promises"
+import path from "path"
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,12 +75,57 @@ export async function POST(request: NextRequest) {
 
     console.log(`[UPLOAD PROOF] Processando novo comprovante para usuário ${user.email}`)
 
-    // Em um ambiente real, você processaria o upload do arquivo aqui
-    // e salvaria o URL da imagem no banco de dados
-    // Para este exemplo, vamos simular o processo
+    // Processar o arquivo enviado
+    const formData = await request.formData()
+    const file = formData.get("file") as File
 
-    // Simular URL do comprovante (em produção, seria o URL real do arquivo)
-    const proofImageUrl = `https://example.com/proofs/${user.id}_${Date.now()}.jpg`
+    if (!file) {
+      console.log("[UPLOAD PROOF] ERRO: Nenhum arquivo enviado")
+      return NextResponse.json(
+        { error: "Nenhum arquivo enviado" },
+        { status: 400 }
+      )
+    }
+
+    console.log(`[UPLOAD PROOF] Arquivo recebido: ${file.name}, tamanho: ${file.size} bytes`)
+
+    // Validar tipo de arquivo
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      console.log(`[UPLOAD PROOF] ERRO: Tipo de arquivo não permitido: ${file.type}`)
+      return NextResponse.json(
+        { error: "Tipo de arquivo não permitido. Use apenas JPG, PNG ou WebP." },
+        { status: 400 }
+      )
+    }
+
+    // Validar tamanho do arquivo (máximo 5MB)
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      console.log(`[UPLOAD PROOF] ERRO: Arquivo muito grande: ${file.size} bytes`)
+      return NextResponse.json(
+        { error: "Arquivo muito grande. Máximo 5MB." },
+        { status: 400 }
+      )
+    }
+
+    // Salvar arquivo
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const fileName = `${uuidv4()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "proofs")
+    
+    // Garantir que o diretório existe
+    try {
+      await mkdir(uploadDir, { recursive: true })
+    } catch (error) {
+      console.log(`[UPLOAD PROOF] Diretório já existe ou erro ao criar: ${error}`)
+    }
+
+    const filePath = path.join(uploadDir, fileName)
+    await writeFile(filePath, buffer)
+    
+    const proofImageUrl = `/uploads/proofs/${fileName}`
+    console.log(`[UPLOAD PROOF] Arquivo salvo em: ${proofImageUrl}`)
 
     // Criar um novo pagamento com o comprovante
     const payment = await db.payment.create({
