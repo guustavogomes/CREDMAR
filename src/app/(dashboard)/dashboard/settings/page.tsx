@@ -209,7 +209,7 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="theme">Tema</Label>
                 <Select value={theme} onValueChange={setTheme}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white dark:bg-[hsl(222.2_84%_4.9%)]">
                     <SelectValue placeholder="Selecione um tema" />
                   </SelectTrigger>
                   <SelectContent>
