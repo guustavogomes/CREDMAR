@@ -1,188 +1,117 @@
 "use client"
 
-import { useState } from "react"
+import { AsaasPayment } from "@/components/ui/asaas-payment"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { QrCode, Copy, Check } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import QRCodeReact from "qrcode.react"
+import { Badge } from "@/components/ui/badge"
+import { CheckCircle, Shield, Zap, CreditCard } from "lucide-react"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
 
 export default function PixPaymentPage() {
-  const [amount, setAmount] = useState("")
-  const [description, setDescription] = useState("")
-  const [pixCode, setPixCode] = useState("")
-  const [qrCodeData, setQrCodeData] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const { toast } = useToast()
-
-  const generatePixPayment = async () => {
-    if (!amount || parseFloat(amount) <= 0) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira um valor válido.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const response = await fetch("/api/payment/pix", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: parseFloat(amount),
-          description: description || "Pagamento PIX",
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setPixCode(data.pixCode)
-        setQrCodeData(data.qrCodeData)
-        toast({
-          title: "PIX gerado com sucesso!",
-          description: "Compartilhe o QR Code ou código PIX com o pagador.",
-        })
-      } else {
-        throw new Error("Erro ao gerar PIX")
-      }
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível gerar o PIX. Tente novamente.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const copyPixCode = async () => {
-    try {
-      await navigator.clipboard.writeText(pixCode)
-      setCopied(true)
-      toast({
-        title: "Copiado!",
-        description: "Código PIX copiado para a área de transferência.",
-      })
-      setTimeout(() => setCopied(false), 2000)
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível copiar o código.",
-        variant: "destructive",
-      })
-    }
-  }
-
   return (
     <div className="p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Pagamento PIX</h1>
-          <p className="text-gray-600">Gere um QR Code para receber pagamentos instantâneos</p>
+          <h1 className="text-3xl font-bold text-gray-900">Pagamento TaPago</h1>
+          <p className="text-gray-600">Pague sua mensalidade de forma rápida e segura com o Asaas</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dados do Pagamento</CardTitle>
-              <CardDescription>
-                Preencha as informações para gerar o PIX
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Valor (R$)</label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0,00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Descrição (opcional)</label>
-                <Input
-                  placeholder="Descrição do pagamento"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-              <Button 
-                onClick={generatePixPayment} 
-                disabled={isLoading}
-                className="w-full"
-              >
-                {isLoading ? "Gerando..." : "Gerar PIX"}
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Componente de Pagamento */}
+          <div className="lg:col-span-2">
+            <AsaasPayment 
+              valor={100}
+              onPaymentCreated={(payment) => {
+                console.log('Pagamento criado:', payment)
+              }}
+              onPaymentStatusChange={(status) => {
+                console.log('Status alterado:', status)
+              }}
+            />
+          </div>
 
-          {/* QR Code */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <QrCode className="h-5 w-5" />
-                QR Code PIX
-              </CardTitle>
-              <CardDescription>
-                Escaneie o código ou copie o código PIX
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {qrCodeData ? (
-                <div className="space-y-4">
-                  <div className="flex justify-center">
-                    <div className="p-4 bg-white rounded-lg border">
-                      <QRCodeReact value={qrCodeData} size={200} />
-                    </div>
+          {/* Benefícios */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-green-600" />
+                  Segurança Garantida
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Criptografia SSL 256-bit</span>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium">Código PIX:</label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        value={pixCode}
-                        readOnly
-                        className="font-mono text-xs"
-                      />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={copyPixCode}
-                      >
-                        {copied ? (
-                          <Check className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Compliance LGPD</span>
                   </div>
-                  <div className="text-center text-sm text-gray-600">
-                    <p>Valor: <span className="font-bold">R$ {parseFloat(amount).toFixed(2)}</span></p>
-                    {description && <p>Descrição: {description}</p>}
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Certificação PCI DSS</span>
                   </div>
                 </div>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <QrCode className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Preencha os dados e clique em "Gerar PIX" para ver o QR Code</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-blue-600" />
+                  Formas de Pagamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">PIX</span>
+                    <Badge variant="outline" className="text-green-600">Instantâneo</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Cartão de Crédito</span>
+                    <Badge variant="outline" className="text-blue-600">Seguro</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Boleto Bancário</span>
+                    <Badge variant="outline" className="text-orange-600">Tradicional</Badge>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-purple-600" />
+                  Sobre o Asaas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-3">
+                  Utilizamos o Asaas, uma das principais plataformas de pagamento do Brasil, 
+                  para garantir a segurança e confiabilidade das suas transações.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">+500.000 empresas</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">99.9% de uptime</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Suporte 24/7</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

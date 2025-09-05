@@ -27,8 +27,6 @@ enum PaymentStatus {
 
 enum PaymentMethod {
   PIX
-  CREDIT_CARD
-  BANK_SLIP
 }
 
 enum InstallmentStatus {
@@ -44,6 +42,7 @@ model User {
   password            String
   role                Role                 @default(USER)
   status              UserStatus           @default(PENDING_PAYMENT)
+  activatedAt         DateTime?            // Data de ativação da conta
   resetToken          String?              // Token para reset de senha
   resetTokenExpiry    DateTime?            // Expiração do token
   customers           Customer[]
@@ -66,11 +65,24 @@ model Payment {
   description String?
   pixCode     String?
   proofImage  String?       // URL da imagem do comprovante
+  transactionId String?     // ID da transação do banco
   month       String?       // Mês de referência (YYYY-MM)
   approvedBy  String?       // ID do admin que aprovou
   approvedAt  DateTime?
   rejectedAt  DateTime?
   rejectionReason String?
+  
+  // Campos específicos do Asaas
+  asaasPaymentId String?    // ID da cobrança no Asaas
+  asaasCustomerId String?   // ID do cliente no Asaas
+  asaasExternalReference String? // Referência externa no Asaas
+  asaasPixQrCode String?    // QR Code PIX do Asaas
+  asaasPixPayload String?   // Payload PIX do Asaas
+  asaasDueDate DateTime?    // Data de vencimento no Asaas
+  asaasNetValue Float?      // Valor líquido recebido
+  asaasOriginalValue Float? // Valor original da cobrança
+  asaasInterestValue Float? // Valor de juros
+  
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   

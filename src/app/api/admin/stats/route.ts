@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 
+// Prevent static generation
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     // Verificar autenticação e permissões
@@ -19,6 +22,7 @@ export async function GET() {
         status: 403,
       })
     }
+
 
     // Buscar estatísticas
     const pendingApproval = await db.user.count({
@@ -41,11 +45,19 @@ export async function GET() {
     })
     console.log("Usuários suspensos:", suspendedUsers)
 
-    return NextResponse.json({
+    const stats = {
       pendingApproval,
       activeUsers,
       pendingPayments,
       suspendedUsers,
+    }
+
+    return NextResponse.json(stats, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate', // Sempre buscar dados atualizados
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     })
   } catch (error) {
     console.error("Erro ao buscar estatísticas:", error)

@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { QrCode, Upload, AlertTriangle, Copy, Check, ArrowRight, CheckCircle, Brain, Shield, Users, Zap, Star, TrendingDown, Globe, Lock, Smartphone, BarChart3, Quote } from 'lucide-react'
+import { QrCode, Upload, AlertTriangle, Copy, Check, ArrowRight, CheckCircle, Brain, Shield, Users, Zap, Star, TrendingDown, Globe, Lock, Smartphone, BarChart3, Quote, Server, Database, Clock, Cloud, HardDrive, Activity } from 'lucide-react'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
@@ -218,6 +218,248 @@ export default function HomePage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Security & Reliability Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full -ml-48 -mt-48"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full -mr-48 -mb-48"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 sm:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Seus dados estão
+              <span className="block bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                100% seguros conosco
+              </span>
+            </h2>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+              Investimos em infraestrutura de ponta para garantir que seus dados nunca sejam perdidos e sua operação nunca pare. 
+              Nossa plataforma é construída com as melhores práticas de segurança do mercado.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <Card className="group relative overflow-hidden border-0 shadow-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardHeader className="relative z-10 text-center pb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Cloud className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors">
+                  Infraestrutura em Nuvem
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 text-center">
+                <CardDescription className="text-blue-100 leading-relaxed">
+                  Hospedado na Vercel com infraestrutura global. Seus dados ficam seguros com alta disponibilidade e performance otimizada.
+                </CardDescription>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <Activity className="h-4 w-4 text-green-400" />
+                  <span className="text-sm font-medium text-green-400">99.9% Uptime</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group relative overflow-hidden border-0 shadow-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardHeader className="relative z-10 text-center pb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <HardDrive className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">
+                  Backup Automático
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 text-center">
+                <CardDescription className="text-blue-100 leading-relaxed">
+                  Backup automático a cada 6 horas em 3 localizações diferentes. Seus dados nunca são perdidos, mesmo em situações extremas.
+                </CardDescription>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <Database className="h-4 w-4 text-emerald-400" />
+                  <span className="text-sm font-medium text-emerald-400">3x Redundância</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group relative overflow-hidden border-0 shadow-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardHeader className="relative z-10 text-center pb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Clock className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
+                  Disponibilidade 24x7
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 text-center">
+                <CardDescription className="text-blue-100 leading-relaxed">
+                  Monitoramento contínuo 24 horas por dia. Nossa equipe técnica está sempre alerta para garantir que sua operação nunca pare.
+                </CardDescription>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <Globe className="h-4 w-4 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-400">24/7 Monitoramento</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group relative overflow-hidden border-0 shadow-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardHeader className="relative z-10 text-center pb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Shield className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-white group-hover:text-orange-300 transition-colors">
+                  Segurança Avançada
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 text-center">
+                <CardDescription className="text-blue-100 leading-relaxed">
+                  Criptografia SSL 256-bit, autenticação de dois fatores e compliance total com a LGPD. Seus dados são protegidos como em um banco.
+                </CardDescription>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <Lock className="h-4 w-4 text-orange-400" />
+                  <span className="text-sm font-medium text-orange-400">LGPD Compliant</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group relative overflow-hidden border-0 shadow-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardHeader className="relative z-10 text-center pb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Server className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                  Escalabilidade Automática
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 text-center">
+                <CardDescription className="text-blue-100 leading-relaxed">
+                  Nossa infraestrutura se adapta automaticamente ao seu crescimento. Não importa quantos clientes você tenha, sempre terá performance máxima.
+                </CardDescription>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <Zap className="h-4 w-4 text-cyan-400" />
+                  <span className="text-sm font-medium text-cyan-400">Auto Scaling</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group relative overflow-hidden border-0 shadow-2xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <CardHeader className="relative z-10 text-center pb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Users className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-white group-hover:text-violet-300 transition-colors">
+                  Suporte Especializado
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative z-10 text-center">
+                <CardDescription className="text-blue-100 leading-relaxed">
+                  Equipe técnica especializada disponível 24/7. Em caso de qualquer dúvida ou problema, você tem suporte imediato e personalizado.
+                </CardDescription>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-violet-400" />
+                  <span className="text-sm font-medium text-violet-400">Suporte 24/7</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Security Stats */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-2">99.9%</div>
+              <div className="text-blue-200">Uptime Garantido</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-2">&lt; 1s</div>
+              <div className="text-blue-200">Tempo de Resposta</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-2">256-bit</div>
+              <div className="text-blue-200">Criptografia SSL</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-2">0</div>
+              <div className="text-blue-200">Perda de Dados</div>
+            </div>
+          </div>
+
+          {/* Additional Security Features */}
+          <div className="mt-16 bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Por que escolher nossa plataforma?
+              </h3>
+              <p className="text-blue-100 max-w-2xl mx-auto">
+                Nossa infraestrutura foi projetada pensando na segurança e confiabilidade que sua empresa precisa
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Backup em Tempo Real</h4>
+                    <p className="text-blue-100 text-sm">Seus dados são salvos automaticamente a cada transação, garantindo que nada seja perdido</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Recuperação Instantânea</h4>
+                    <p className="text-blue-100 text-sm">Em caso de falha, sua operação volta ao normal em menos de 1 minuto</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Monitoramento Proativo</h4>
+                    <p className="text-blue-100 text-sm">Detectamos e resolvemos problemas antes que afetem sua operação</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Certificações de Segurança</h4>
+                    <p className="text-blue-100 text-sm">Compliance total com LGPD e certificações internacionais de segurança</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Auditoria Contínua</h4>
+                    <p className="text-blue-100 text-sm">Nossos sistemas passam por auditorias regulares de segurança</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Atualizações Automáticas</h4>
+                    <p className="text-blue-100 text-sm">Sempre com as últimas tecnologias e correções de segurança</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Badge */}
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center space-x-4 bg-white/10 backdrop-blur-sm rounded-full px-8 py-4 border border-white/20">
+              <Shield className="h-6 w-6 text-green-400" />
+              <span className="text-white font-semibold">Seus dados estão 100% protegidos</span>
+              <CheckCircle className="h-6 w-6 text-green-400" />
+            </div>
           </div>
         </div>
       </section>

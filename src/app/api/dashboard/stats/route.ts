@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
 
+// Prevent static generation
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession()
@@ -13,6 +16,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
+
     const user = await db.user.findUnique({
       where: { email: session.user.email }
     })
@@ -23,6 +27,7 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       )
     }
+
 
     const today = new Date()
     const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
@@ -38,15 +43,14 @@ export async function GET(request: NextRequest) {
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
 
-    // Vencimentos de hoje
+    // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
       where: {
         loan: { userId: user.id },
         dueDate: {
           gte: startOfToday,
           lt: endOfToday
-        },
-        status: { in: ['PENDING', 'OVERDUE'] }
+        }
       },
       include: {
         loan: {
@@ -172,11 +176,14 @@ export async function GET(request: NextRequest) {
       take: 10
     })
 
+    // Filtrar apenas parcelas pendentes (não pagas) que vencem hoje
+    const duesTodayPending = duesToday.filter(inst => inst.status === 'PENDING' || inst.status === 'OVERDUE')
+
     const stats = {
       duesToday: {
-        count: duesToday.length,
-        amount: duesToday.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: duesToday
+        count: duesTodayPending.length, // Apenas parcelas pendentes
+        amount: duesTodayPending.reduce((sum: number, inst: any) => sum + inst.amount, 0),
+        items: duesTodayPending
       },
       duesThisWeek: {
         count: duesThisWeek.length,
@@ -200,7 +207,13 @@ export async function GET(request: NextRequest) {
       upcomingDues
     }
 
-    return NextResponse.json(stats)
+    return NextResponse.json(stats, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate', // Sempre buscar dados atualizados
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Erro ao buscar estatísticas:', error)
     return NextResponse.json(

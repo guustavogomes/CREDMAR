@@ -79,6 +79,7 @@ if (allPassed) {
 console.log('\n📋 Variáveis de ambiente necessárias:');
 console.log('- DATABASE_URL (já configurada)');
 console.log('- NEXTAUTH_SECRET (gerar nova)');
-console.log('- NEXTAUTH_URL: https://organizaemprestimos.com.br');
-console.log('\n🌐 Domínio configurado: organizaemprestimos.com.br');
+console.log('- NEXTAUTH_URL: https://tapago-blond.vercel.app (temporária)');
+console.log('\n🌐 URL temporária: https://tapago-blond.vercel.app
+🎯 Domínio futuro: organizaemprestimos.com.br');
 console.log('📄 Veja DNS_CONFIG.md para configurações de DNS');

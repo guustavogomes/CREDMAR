@@ -3,6 +3,11 @@ import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 
+// Cache de periodicidades em memória
+let periodicitiesCache: any[] | null = null
+let cacheTimestamp: number = 0
+const CACHE_DURATION = 60 * 60 * 1000 // 1 hora
+
 const periodicitySchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
@@ -15,13 +20,32 @@ const periodicitySchema = z.object({
 
 export async function GET() {
   try {
+    // Verificar cache primeiro
+    if (periodicitiesCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
+      return NextResponse.json(periodicitiesCache, {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400', // 1 hora + 1 dia stale
+          'X-Cache': 'HIT'
+        }
+      })
+    }
+    
     const periodicities = await db.periodicity.findMany({
       orderBy: {
         createdAt: 'asc'
       }
     })
     
-    return NextResponse.json(periodicities)
+    // Atualizar cache
+    periodicitiesCache = periodicities
+    cacheTimestamp = Date.now()
+    
+    return NextResponse.json(periodicities, {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400', // 1 hora + 1 dia stale
+        'X-Cache': 'MISS'
+      }
+    })
   } catch (error) {
     console.error('Erro ao buscar periodicidades:', error)
     return NextResponse.json(
@@ -56,6 +80,10 @@ export async function POST(request: NextRequest) {
         allowedMonths: validatedData.allowedMonths || null
       }
     })
+    
+    // Invalidar cache
+    periodicitiesCache = null
+    cacheTimestamp = 0
     
     return NextResponse.json(periodicity, { status: 201 })
   } catch (error) {

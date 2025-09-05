@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { v4 as uuidv4 } from "uuid"
-import { writeFile, mkdir } from "fs/promises"
-import path from "path"
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,23 +107,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Salvar arquivo
+    // Converter arquivo para base64 (Vercel não permite escrita no filesystem)
     const buffer = Buffer.from(await file.arrayBuffer())
-    const fileName = `${uuidv4()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "proofs")
+    const base64String = `data:${file.type};base64,${buffer.toString('base64')}`
     
-    // Garantir que o diretório existe
-    try {
-      await mkdir(uploadDir, { recursive: true })
-    } catch (error) {
-      console.log(`[UPLOAD PROOF] Diretório já existe ou erro ao criar: ${error}`)
-    }
-
-    const filePath = path.join(uploadDir, fileName)
-    await writeFile(filePath, buffer)
-    
-    const proofImageUrl = `/uploads/proofs/${fileName}`
-    console.log(`[UPLOAD PROOF] Arquivo salvo em: ${proofImageUrl}`)
+    console.log(`[UPLOAD PROOF] Arquivo convertido para base64, tamanho: ${base64String.length} caracteres`)
 
     // Criar um novo pagamento com o comprovante
     const payment = await db.payment.create({
@@ -135,7 +121,7 @@ export async function POST(request: NextRequest) {
         method: "PIX",
         status: "PENDING",
         description: "Mensalidade TaPago",
-        proofImage: proofImageUrl,
+        proofImage: base64String,
       }
     })
 

@@ -41,13 +41,14 @@ export async function POST(request: NextRequest) {
     })
 
     // Configurar Resend
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
     // URL de reset
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`
 
     // Enviar email usando Resend
-    await resend.emails.send({
+    if (resend) {
+      await resend.emails.send({
       from: process.env.EMAIL_FROM || 'TaPago <noreply@tapago.com>',
       to: email,
       subject: 'TaPago - Recuperação de Senha',
@@ -108,7 +109,10 @@ export async function POST(request: NextRequest) {
           </div>
         </div>
       `
-    })
+      })
+    } else {
+      console.log('⚠️ RESEND_API_KEY não configurada, email não enviado')
+    }
 
     return NextResponse.json(
       { message: "Email de recuperação enviado com sucesso" },

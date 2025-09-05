@@ -15,7 +15,7 @@ const nextConfig = {
   },
   experimental: {
     // Add any experimental features you need here
-  }
+  },
 }
 
 module.exports = nextConfig

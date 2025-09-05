@@ -61,6 +61,12 @@ export async function GET(request: NextRequest) {
         proofImage: payment.proofImage
       })),
       stats
+    }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate', // Sempre buscar dados atualizados
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     })
 
   } catch (error) {

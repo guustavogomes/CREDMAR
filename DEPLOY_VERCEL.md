@@ -32,7 +32,7 @@ Na página de configuração do projeto na Vercel, adicione as seguintes variáv
 **Obrigatórias:**
 - `DATABASE_URL`: `postgresql://tapago_9e3w_user:nfgPLXXxPaktDTy4cFwzTVwNfo5qp1AK@dpg-d2pgjuv5r7bs739mgg3g-a.oregon-postgres.render.com/tapago_9e3w`
 - `NEXTAUTH_SECRET`: Gere uma chave secreta (pode usar: https://generate-secret.vercel.app/32)
-- `NEXTAUTH_URL`: `https://organizaemprestimos.com.br`
+- `NEXTAUTH_URL`: `https://tapago-blond.vercel.app` (temporária até configurar domínio personalizado)
 
 **Opcionais (para email):**
 - `EMAIL_SERVER_HOST`

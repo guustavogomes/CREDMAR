@@ -184,7 +184,7 @@ export default function DashboardPage() {
                 {stats.duesToday.count}
               </div>
               <div className="text-sm text-red-600 mb-2">
-                {formatCurrency(stats.duesToday.amount)}
+                parcelas pendentes
               </div>
               <div className="flex items-center text-xs text-red-500">
                 <Clock className="h-3 w-3 mr-1" />
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                 {stats.duesThisWeek.count}
               </div>
               <div className="text-sm text-amber-600 mb-2">
-                {formatCurrency(stats.duesThisWeek.amount)}
+                parcelas pendentes
               </div>
               <div className="flex items-center text-xs text-amber-500">
                 <Calendar className="h-3 w-3 mr-1" />
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                 {stats.overdue.count}
               </div>
               <div className="text-sm text-red-600 mb-2">
-                {formatCurrency(stats.overdue.amount)}
+                parcelas em atraso
               </div>
               <div className="flex items-center text-xs text-red-500">
                 <TrendingDown className="h-3 w-3 mr-1" />
@@ -261,7 +261,7 @@ export default function DashboardPage() {
               {formatCurrency(stats.totalReceivedThisMonth)}
             </div>
             <div className="text-sm text-emerald-600 mb-2">
-              {stats.uniqueCustomers} clientes ativos
+              recebido este mês
             </div>
             <div className="flex items-center text-xs text-emerald-500">
               <ArrowUpRight className="h-3 w-3 mr-1" />

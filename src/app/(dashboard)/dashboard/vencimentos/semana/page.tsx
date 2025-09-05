@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, ArrowLeft, Phone, Mail, MapPin, TrendingUp, DollarSign } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { formatDate as formatDateUtil } from "@/lib/date-utils"
 
 interface InstallmentWithLoan {
   id: string
@@ -61,11 +62,7 @@ export default function VencimentosSemanaPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+    return formatDateUtil(dateString)
   }
 
   const getDaysUntilDue = (dueDate: string) => {

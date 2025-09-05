@@ -168,7 +168,13 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json(scoreData)
+    return NextResponse.json(scoreData, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate', // Sempre buscar dados atualizados
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error("Erro ao buscar score do cliente:", error)
     return new NextResponse(JSON.stringify({ error: "Erro interno do servidor" }), {

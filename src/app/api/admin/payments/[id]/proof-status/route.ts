@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 export async function POST(
   request: NextRequest,
@@ -74,7 +74,8 @@ export async function POST(
 
       // Enviar email de aprovação
       try {
-        const emailResult = await resend.emails.send({
+        if (resend) {
+          const emailResult = await resend.emails.send({
           from: process.env.EMAIL_FROM || 'TaPago <onboarding@resend.dev>',
           to: payment.user.email,
           subject: 'TaPago - Pagamento Aprovado! 🎉',
@@ -155,7 +156,10 @@ export async function POST(
           `
         })
 
-        console.log(`✅ Email de aprovação enviado para ${payment.user.email}:`, emailResult.data?.id)
+          console.log(`✅ Email de aprovação enviado para ${payment.user.email}:`, emailResult.data?.id)
+        } else {
+          console.log('⚠️ RESEND_API_KEY não configurada, email não enviado')
+        }
       } catch (emailError) {
         console.error('❌ Erro ao enviar email de aprovação:', emailError)
         // Não falhar a aprovação por causa do email
@@ -165,7 +169,8 @@ export async function POST(
     // Se rejeitado, enviar email de rejeição
     if (status === 'REJECTED') {
       try {
-        const emailResult = await resend.emails.send({
+        if (resend) {
+          const emailResult = await resend.emails.send({
           from: process.env.EMAIL_FROM || 'TaPago <onboarding@resend.dev>',
           to: payment.user.email,
           subject: 'TaPago - Comprovante Rejeitado',
@@ -233,7 +238,10 @@ export async function POST(
           `
         })
 
-        console.log(`📧 Email de rejeição enviado para ${payment.user.email}:`, emailResult.data?.id)
+          console.log(`📧 Email de rejeição enviado para ${payment.user.email}:`, emailResult.data?.id)
+        } else {
+          console.log('⚠️ RESEND_API_KEY não configurada, email não enviado')
+        }
       } catch (emailError) {
         console.error('❌ Erro ao enviar email de rejeição:', emailError)
       }

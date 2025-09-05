@@ -5,31 +5,25 @@
 export function formatDate(dateString: string | Date): string {
   if (!dateString) return ''
   
-  // Se já é um objeto Date, usar os componentes UTC para evitar fuso horário
+  let date: Date
+  
   if (dateString instanceof Date) {
-    const utcDate = dateString
-    const localDate = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
-    return localDate.toLocaleDateString('pt-BR')
-  }
-  
-  // Se a string já tem horário (formato ISO), usar componentes UTC
-  if (dateString.includes('T')) {
+    date = dateString
+  } else if (dateString.includes('T')) {
+    // Se a string já tem horário (formato ISO), usar componentes UTC
     const utcDate = new Date(dateString)
-    const localDate = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
-    return localDate.toLocaleDateString('pt-BR')
-  }
-  
-  // Se é apenas data (YYYY-MM-DD), criar data local para evitar problemas de fuso horário
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    date = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+  } else if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    // Se é apenas data (YYYY-MM-DD), criar data local para evitar problemas de fuso horário
     const [year, month, day] = dateString.split('-').map(Number)
-    const date = new Date(year, month - 1, day) // month é 0-indexed
-    return date.toLocaleDateString('pt-BR')
+    date = new Date(year, month - 1, day) // month é 0-indexed
+  } else {
+    // Fallback para outros formatos - usar componentes UTC
+    const utcDate = new Date(dateString)
+    date = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
   }
   
-  // Fallback para outros formatos
-  const utcDate = new Date(dateString)
-  const localDate = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
-  return localDate.toLocaleDateString('pt-BR')
+  return date.toLocaleDateString('pt-BR')
 }
 
 /**
@@ -49,7 +43,23 @@ export function isOverdue(dueDate: string | Date, status?: string): boolean {
   if (status === 'PAID') return false
   
   const today = new Date()
-  const due = dueDate instanceof Date ? dueDate : new Date(dueDate)
+  let due: Date
+  
+  if (dueDate instanceof Date) {
+    due = dueDate
+  } else if (dueDate.includes('T')) {
+    // Se a string já tem horário (formato ISO), usar componentes UTC
+    const utcDate = new Date(dueDate)
+    due = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+  } else if (dueDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    // Se é apenas data (YYYY-MM-DD), criar data local
+    const [year, month, day] = dueDate.split('-').map(Number)
+    due = new Date(year, month - 1, day) // month é 0-indexed
+  } else {
+    // Fallback para outros formatos - usar componentes UTC
+    const utcDate = new Date(dueDate)
+    due = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+  }
   
   // Zerar horários para comparar apenas as datas
   today.setHours(0, 0, 0, 0)

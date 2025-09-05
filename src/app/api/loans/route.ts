@@ -56,6 +56,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar o empréstimo
+    // Converter a data para o fuso horário local para evitar problemas de UTC
+    const nextPaymentDate = new Date(validatedData.nextPaymentDate + 'T00:00:00')
+    
     const newLoan = await db.loan.create({
       data: {
         customerId: validatedData.customerId,
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest) {
         periodicityId: validatedData.periodicityId,
         installments: validatedData.installments,
         installmentValue: validatedData.installmentValue,
-        nextPaymentDate: new Date(validatedData.nextPaymentDate),
+        nextPaymentDate: nextPaymentDate,
         userId: user.id,
         status: 'ACTIVE'
       },
@@ -111,11 +114,36 @@ export async function POST(request: NextRequest) {
     console.log('Parcelas a serem criadas:', installmentsData.length)
 
     // Criar todas as parcelas
-    await db.installment.createMany({
+    const createResult = await db.installment.createMany({
       data: installmentsData
     })
 
-    console.log('Parcelas criadas com sucesso')
+    console.log('Parcelas criadas com sucesso:', createResult.count)
+
+    // VERIFICAÇÃO AUTOMÁTICA: Conferir se o número de parcelas criadas corresponde ao configurado
+    const actualInstallments = await db.installment.count({
+      where: { loanId: newLoan.id }
+    })
+
+    console.log(`Verificação: ${actualInstallments} parcelas criadas de ${validatedData.installments} configuradas`)
+
+    if (actualInstallments !== validatedData.installments) {
+      console.error(`ERRO: Inconsistência detectada! Configurado: ${validatedData.installments}, Criado: ${actualInstallments}`)
+      
+      // Log detalhado para debug
+      const createdInstallments = await db.installment.findMany({
+        where: { loanId: newLoan.id },
+        orderBy: { installmentNumber: 'asc' }
+      })
+      
+      console.log('Parcelas criadas:', createdInstallments.map(inst => ({
+        number: inst.installmentNumber,
+        dueDate: inst.dueDate,
+        amount: inst.amount
+      })))
+    } else {
+      console.log('✅ Verificação OK: Número de parcelas correto')
+    }
 
     return NextResponse.json(newLoan, { status: 201 })
   } catch (error) {
@@ -163,7 +191,13 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json(loans)
+    return NextResponse.json(loans, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate', // Sempre buscar dados atualizados
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Erro ao buscar empréstimos:', error)
     return NextResponse.json(

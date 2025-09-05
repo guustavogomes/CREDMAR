@@ -90,6 +90,9 @@ export async function PUT(
       )
     }
 
+    // Converter a data para o fuso horário local para evitar problemas de UTC
+    const nextPaymentDate = new Date(validatedData.nextPaymentDate + 'T00:00:00')
+    
     const updatedLoan = await db.loan.update({
       where: { id: params.id },
       data: {
@@ -98,7 +101,7 @@ export async function PUT(
         periodicityId: validatedData.periodicityId,
         installments: validatedData.installments,
         installmentValue: validatedData.installmentValue,
-        nextPaymentDate: new Date(validatedData.nextPaymentDate)
+        nextPaymentDate: nextPaymentDate
       },
       include: {
         customer: true,

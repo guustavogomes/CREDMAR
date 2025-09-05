@@ -191,6 +191,60 @@ export default function NovoClientePage() {
     }
   }
 
+  const compressImage = (file: File, maxWidth: number = 400, quality: number = 0.7): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+      
+      img.onload = () => {
+        // Calcular novas dimensões mantendo proporção
+        let { width, height } = img
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxWidth) {
+            width = (width * maxWidth) / height
+            height = maxWidth
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // Desenhar imagem redimensionada
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        // Converter para blob
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            resolve(compressedFile)
+          } else {
+            resolve(file) // Fallback para arquivo original
+          }
+        }, 'image/jpeg', quality)
+      }
+      
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = error => reject(error)
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -216,14 +270,45 @@ export default function NovoClientePage() {
     setLoading(true)
     
     try {
-      console.log('Dados sendo enviados:', formData)
+      // Converter foto para base64 se houver
+      let fotoBase64 = ''
+      if (fotoFile) {
+        try {
+          // Comprimir imagem antes de converter para base64
+          const compressedFile = await compressImage(fotoFile)
+          fotoBase64 = await convertFileToBase64(compressedFile)
+          
+          // Verificar se ainda está muito grande (limite de ~1MB em base64)
+          if (fotoBase64.length > 1000000) {
+            // Tentar compressão mais agressiva
+            const moreCompressed = await compressImage(fotoFile, 300, 0.5)
+            fotoBase64 = await convertFileToBase64(moreCompressed)
+          }
+        } catch (error) {
+          console.error('Erro ao processar foto:', error)
+          toast({
+            title: 'Aviso',
+            description: 'Erro ao processar a foto, cliente será salvo sem foto',
+            variant: 'destructive'
+          })
+        }
+      }
+
+      // Preparar dados para envio - remover formatação do CPF
+      const dataToSend = {
+        ...formData,
+        cpf: formData.cpf.replace(/\D/g, ''), // Remove pontos, traços e espaços
+        foto: fotoBase64 || null
+      }
+      
+      console.log('Dados sendo enviados:', dataToSend)
       
       const response = await fetch('/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       })
 
       console.log('Response status:', response.status)
@@ -512,7 +597,7 @@ export default function NovoClientePage() {
                     }
                   }}
                 >
-                  <SelectTrigger className="flex-1">
+                  <SelectTrigger className="flex-1 bg-white dark:bg-[hsl(222.2_84%_4.9%)]">
                     <SelectValue placeholder="Selecione uma rota (opcional)" />
                   </SelectTrigger>
                   <SelectContent>

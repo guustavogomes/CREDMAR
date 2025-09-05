@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Calculator, Search, X } from 'lucide-react'
+import { ArrowLeft, Calculator, Search, X, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
@@ -48,6 +48,7 @@ export default function NovoEmprestimoPage() {
     installmentValue: 0,
     showCalculation: false
   })
+  const [isRenewal, setIsRenewal] = useState(false)
 
   // Filtrar clientes baseado na pesquisa
   const filteredCustomers = customers.filter(customer =>
@@ -61,10 +62,31 @@ export default function NovoEmprestimoPage() {
     fetchCustomers()
     fetchPeriodicities()
     
-    // Verificar se há um customerId na URL
-    const preSelectedCustomerId = searchParams.get('customerId')
-    if (preSelectedCustomerId) {
-      setFormData(prev => ({ ...prev, customerId: preSelectedCustomerId }))
+    // Verificar se há dados de renovação na URL
+    const renewalData = searchParams.get('data')
+    if (renewalData) {
+      try {
+        const decodedData = JSON.parse(decodeURIComponent(renewalData))
+        if (decodedData.isRenewal) {
+          setIsRenewal(true)
+          setFormData({
+            customerId: decodedData.customerId || '',
+            totalAmount: decodedData.totalAmount?.toString() || '',
+            advanceAmount: decodedData.advanceAmount?.toString() || '0',
+            periodicityId: decodedData.periodicityId || '',
+            installments: decodedData.installments?.toString() || '',
+            nextPaymentDate: decodedData.nextPaymentDate || ''
+          })
+        }
+      } catch (error) {
+        console.error('Erro ao processar dados de renovação:', error)
+      }
+    } else {
+      // Verificar se há um customerId na URL (comportamento original)
+      const preSelectedCustomerId = searchParams.get('customerId')
+      if (preSelectedCustomerId) {
+        setFormData(prev => ({ ...prev, customerId: preSelectedCustomerId }))
+      }
     }
   }, [searchParams])
 
@@ -206,14 +228,24 @@ export default function NovoEmprestimoPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center mb-6">
-        <Link href="/dashboard/emprestimos">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold ml-4">Novo Empréstimo</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Link href="/dashboard/emprestimos">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold ml-4">
+            {isRenewal ? 'Renovar Empréstimo' : 'Novo Empréstimo'}
+          </h1>
+        </div>
+        {isRenewal && (
+          <div className="flex items-center space-x-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+            <RotateCcw className="h-4 w-4 text-blue-600" />
+            <span className="text-blue-700 font-medium text-sm">Renovação</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

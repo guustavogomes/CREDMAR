@@ -211,6 +211,60 @@ export default function EditarClientePage() {
     }
   }
 
+  const compressImage = (file: File, maxWidth: number = 400, quality: number = 0.7): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+      
+      img.onload = () => {
+        // Calcular novas dimensões mantendo proporção
+        let { width, height } = img
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxWidth) {
+            width = (width * maxWidth) / height
+            height = maxWidth
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // Desenhar imagem redimensionada
+        ctx?.drawImage(img, 0, 0, width, height)
+        
+        // Converter para blob
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            resolve(compressedFile)
+          } else {
+            resolve(file) // Fallback para arquivo original
+          }
+        }, 'image/jpeg', quality)
+      }
+      
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = error => reject(error)
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -236,26 +290,26 @@ export default function EditarClientePage() {
     setLoading(true)
     
     try {
-      let fotoUrl = formData.foto
+      let fotoBase64 = formData.foto
 
-      // Upload da foto se houver uma nova
+      // Converter nova foto para base64 se houver
       if (fotoFile) {
-        const fotoFormData = new FormData()
-        fotoFormData.append('foto', fotoFile)
-        fotoFormData.append('customerId', params.id as string)
-
-        const fotoResponse = await fetch('/api/customers/upload-foto', {
-          method: 'POST',
-          body: fotoFormData
-        })
-
-        if (fotoResponse.ok) {
-          const fotoData = await fotoResponse.json()
-          fotoUrl = fotoData.url
-        } else {
+        try {
+          // Comprimir imagem antes de converter para base64
+          const compressedFile = await compressImage(fotoFile)
+          fotoBase64 = await convertFileToBase64(compressedFile)
+          
+          // Verificar se ainda está muito grande (limite de ~1MB em base64)
+          if (fotoBase64.length > 1000000) {
+            // Tentar compressão mais agressiva
+            const moreCompressed = await compressImage(fotoFile, 300, 0.5)
+            fotoBase64 = await convertFileToBase64(moreCompressed)
+          }
+        } catch (error) {
+          console.error('Erro ao processar foto:', error)
           toast({
             title: 'Aviso',
-            description: 'Erro ao fazer upload da foto, mas os dados serão salvos',
+            description: 'Erro ao processar a foto, dados serão salvos sem alterar a foto',
             variant: 'destructive'
           })
         }
@@ -268,7 +322,8 @@ export default function EditarClientePage() {
         },
         body: JSON.stringify({
           ...formData,
-          foto: fotoUrl,
+          cpf: formData.cpf.replace(/\D/g, ''), // Remove formatação do CPF
+          foto: fotoBase64,
           routeId: formData.routeId || null // Garantir que seja null se vazio
         })
       })
@@ -515,7 +570,7 @@ export default function EditarClientePage() {
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white dark:bg-[hsl(222.2_84%_4.9%)]">
                   <SelectValue placeholder="Selecione uma rota (opcional)" />
                 </SelectTrigger>
                 <SelectContent>

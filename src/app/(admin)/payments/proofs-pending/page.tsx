@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { useToast } from '@/hooks/use-toast'
+import { Toaster } from '@/components/ui/toaster'
 
 interface Payment {
   id: string
@@ -22,6 +24,7 @@ interface Payment {
 export default function PaymentsProofsPendingPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { toast } = useToast()
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -85,19 +88,31 @@ export default function PaymentsProofsPendingPage() {
       
       if (!response.ok) {
         console.error('Erro na API:', result)
-        alert(`Erro: ${result.error || 'Erro desconhecido'}`)
+        toast({
+          title: "Erro",
+          description: result.error || 'Erro desconhecido',
+          variant: "destructive"
+        })
         return
       }
 
       console.log('Sucesso:', result)
-      alert(`Pagamento ${status === 'APPROVED' ? 'aprovado' : 'rejeitado'} com sucesso!${status === 'APPROVED' ? ' Email enviado.' : ''}`)
+      toast({
+        title: "Sucesso!",
+        description: `Pagamento ${status === 'APPROVED' ? 'aprovado' : 'rejeitado'} com sucesso!${status === 'APPROVED' ? ' Email enviado.' : ''}`,
+        variant: status === 'APPROVED' ? "default" : "destructive"
+      })
       
       // Remover da lista apenas se foi bem-sucedido
       setPayments(prev => prev.filter(p => p.id !== id))
       
     } catch (error) {
       console.error('Erro ao processar status:', error)
-      alert('Erro ao processar solicitação')
+      toast({
+        title: "Erro",
+        description: 'Erro ao processar solicitação',
+        variant: "destructive"
+      })
     }
   }
 
@@ -134,66 +149,69 @@ export default function PaymentsProofsPendingPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Comprovantes de Pagamento Pendentes</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {payments.map(payment => (
-          <Card key={payment.id} className="border-border bg-card">
-            <CardHeader>
-              <CardTitle>
-                {payment.user.nome} ({payment.user.email})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-2">Valor: <b>R$ {payment.amount.toFixed(2)}</b></div>
-              <div className="mb-2">Método: <b>{payment.method}</b></div>
-              <div className="mb-2">Data: <b>{new Date(payment.createdAt).toLocaleDateString()}</b></div>
-              <div className="mb-4">
-                {payment.proofImage ? (
-                  <div className="relative">
-                    <img 
-                      src={payment.proofImage} 
-                      alt="Comprovante" 
-                      className="w-full max-w-sm h-48 object-contain rounded border"
-                      onError={(e) => {
-                        console.error('Erro ao carregar imagem:', payment.proofImage);
-                        e.currentTarget.style.display = 'none';
-                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (nextElement) {
-                          nextElement.style.display = 'block';
-                        }
-                      }}
-                      onLoad={() => {
-                        console.log('Imagem carregada com sucesso:', payment.proofImage);
-                      }}
-                    />
-                    <div 
-                      className="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500"
-                      style={{ display: 'none' }}
-                    >
-                      <div className="text-center">
-                        <p>Erro ao carregar imagem</p>
-                        <p className="text-xs mt-1">URL: {payment.proofImage}</p>
-                        <a href={payment.proofImage} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline text-xs">
-                          Tentar abrir em nova aba
-                        </a>
+    <>
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-6">Comprovantes de Pagamento Pendentes</h1>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {payments.map(payment => (
+            <Card key={payment.id} className="border-border bg-card">
+              <CardHeader>
+                <CardTitle>
+                  {payment.user.nome} ({payment.user.email})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-2">Valor: <b>R$ {payment.amount.toFixed(2)}</b></div>
+                <div className="mb-2">Método: <b>{payment.method}</b></div>
+                <div className="mb-2">Data: <b>{new Date(payment.createdAt).toLocaleDateString()}</b></div>
+                <div className="mb-4">
+                  {payment.proofImage ? (
+                    <div className="relative">
+                      <img 
+                        src={payment.proofImage} 
+                        alt="Comprovante" 
+                        className="w-full max-w-sm h-48 object-contain rounded border"
+                        onError={(e) => {
+                          console.error('Erro ao carregar imagem:', payment.proofImage);
+                          e.currentTarget.style.display = 'none';
+                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (nextElement) {
+                            nextElement.style.display = 'block';
+                          }
+                        }}
+                        onLoad={() => {
+                          console.log('Imagem carregada com sucesso:', payment.proofImage);
+                        }}
+                      />
+                      <div 
+                        className="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500"
+                        style={{ display: 'none' }}
+                      >
+                        <div className="text-center">
+                          <p>Erro ao carregar imagem</p>
+                          <p className="text-xs mt-1">URL: {payment.proofImage}</p>
+                          <a href={payment.proofImage} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline text-xs">
+                            Tentar abrir em nova aba
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500">
-                    Nenhuma imagem disponível
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button variant="default" onClick={() => handleStatus(payment.id, 'APPROVED')}>Aprovar</Button>
-                <Button variant="destructive" onClick={() => handleStatus(payment.id, 'REJECTED')}>Rejeitar</Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  ) : (
+                    <div className="w-full h-48 bg-gray-100 border rounded flex items-center justify-center text-gray-500">
+                      Nenhuma imagem disponível
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="default" onClick={() => handleStatus(payment.id, 'APPROVED')}>Aprovar</Button>
+                  <Button variant="destructive" onClick={() => handleStatus(payment.id, 'REJECTED')}>Rejeitar</Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
+      <Toaster />
+    </>
   )
 }

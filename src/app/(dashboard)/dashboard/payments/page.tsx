@@ -14,8 +14,10 @@ import {
   Calendar,
   Receipt,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from "lucide-react"
+import { PixPayment } from "@/components/ui/pix-payment"
 
 interface Payment {
   id: string
@@ -36,6 +38,7 @@ interface PaymentStats {
 
 export default function PaymentsPage() {
   const [uploading, setUploading] = useState(false)
+  const [showPixPayment, setShowPixPayment] = useState(false)
 
   // Upload de comprovante
   const handleUploadProof = async (e: React.FormEvent<HTMLFormElement>, paymentId: string) => {
@@ -202,8 +205,28 @@ export default function PaymentsPage() {
             <p className="text-muted-foreground">Gerencie suas mensalidades e pagamentos do sistema</p>
           </div>
         </div>
-
+        
+        <Button 
+          onClick={() => setShowPixPayment(!showPixPayment)}
+          className="bg-green-600 hover:bg-green-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Novo Pagamento PIX
+        </Button>
       </div>
+
+      {/* PIX Payment Component */}
+      {showPixPayment && (
+        <Card className="p-6">
+          <PixPayment 
+            valor={100} 
+            onPaymentGenerated={(data) => {
+              console.log('PIX gerado:', data)
+              // Aqui você pode adicionar lógica para salvar o pagamento no banco
+            }}
+          />
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

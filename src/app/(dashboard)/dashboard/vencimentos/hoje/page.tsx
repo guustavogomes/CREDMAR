@@ -8,6 +8,7 @@ import { Calendar, ArrowLeft, Phone, Mail, MapPin, Clock, DollarSign } from "luc
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
+import { formatDate as formatDateUtil } from "@/lib/date-utils"
 
 interface InstallmentWithLoan {
   id: string
@@ -63,11 +64,7 @@ export default function VencimentosHojePage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+    return formatDateUtil(dateString)
   }
 
   const totalAmount = installments.reduce((sum, inst) => sum + inst.amount, 0)

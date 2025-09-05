@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Plus, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Plus, X, CreditCard, RotateCcw } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency, isOverdue } from '@/lib/date-utils'
 
@@ -60,6 +60,14 @@ export default function InstallmentsPage() {
   // Adicionar estes novos estados:
   const [showReverseDialog, setShowReverseDialog] = useState(false)
   const [selectedInstallmentForReverse, setSelectedInstallmentForReverse] = useState<Installment | null>(null)
+  
+  // Estados para quitação total e renovação
+  const [showPayAllDialog, setShowPayAllDialog] = useState(false)
+  const [showRenewDialog, setShowRenewDialog] = useState(false)
+  const [renewData, setRenewData] = useState({
+    nextPaymentDate: ''
+  })
+  const [payAllData, setPayAllData] = useState<any>(null)
 
   useEffect(() => {
     fetchLoanAndInstallments()
@@ -277,6 +285,93 @@ export default function InstallmentsPage() {
     setShowReverseDialog(true)
   }
 
+  // Função para quitação total
+  const handlePayAll = async () => {
+    try {
+      const response = await fetch(`/api/loans/${params.id}/pay-all`, {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setPayAllData(data)
+        setShowPayAllDialog(false)
+        setShowRenewDialog(true)
+        
+        toast({
+          title: 'Sucesso',
+          description: 'Empréstimo quitado com sucesso!'
+        })
+        
+        fetchLoanAndInstallments()
+      } else {
+        const error = await response.json()
+        toast({
+          title: 'Erro',
+          description: error.error || 'Erro ao quitar empréstimo',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao quitar empréstimo',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  // Função para renovação
+  const handleRenew = () => {
+    if (!renewData.nextPaymentDate) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione a data do próximo pagamento',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!payAllData?.loan) {
+      toast({
+        title: 'Erro',
+        description: 'Dados do empréstimo não encontrados',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Preparar os dados para a tela de criação
+    const loanData = {
+      customerId: payAllData.loan.customer.id,
+      totalAmount: payAllData.loan.totalAmount,
+      advanceAmount: payAllData.loan.advanceAmount,
+      periodicityId: payAllData.loan.periodicity.id,
+      installments: payAllData.loan.installments,
+      installmentValue: payAllData.loan.installmentValue,
+      nextPaymentDate: renewData.nextPaymentDate,
+      isRenewal: true,
+      originalLoanId: params.id
+    }
+
+    // Codificar os dados para passar via URL
+    const encodedData = encodeURIComponent(JSON.stringify(loanData))
+    
+    setShowRenewDialog(false)
+    setRenewData({ nextPaymentDate: '' })
+    setPayAllData(null)
+    
+    // Redirecionar para a tela de criação com dados preenchidos
+    router.push(`/dashboard/emprestimos/novo?data=${encodedData}`)
+  }
+
+  // Função para cancelar renovação
+  const handleCancelRenew = () => {
+    setShowRenewDialog(false)
+    setRenewData({ nextPaymentDate: '' })
+    setPayAllData(null)
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -288,24 +383,37 @@ export default function InstallmentsPage() {
   return (
     <div className="container mx-auto p-4 lg:p-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button 
-          variant="outline" 
-          onClick={() => router.push('/dashboard/emprestimos')}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar
-        </Button>
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">
-            Gerenciar Parcelas
-          </h1>
-          {loan && (
-            <p className="text-slate-600">
-              {loan.customer.nomeCompleto} - {formatCurrency(loan.totalAmount)} em {loan.installments}x
-            </p>
-          )}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => router.push('/dashboard/emprestimos')}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
+          </Button>
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">
+              Gerenciar Parcelas
+            </h1>
+            {loan && (
+              <p className="text-slate-600">
+                {loan.customer.nomeCompleto} - {formatCurrency(loan.totalAmount)} em {loan.installments}x
+              </p>
+            )}
+          </div>
         </div>
+        
+        {/* Botão de Quitação Total */}
+        {installments.length > 0 && installments.some(inst => inst.status === 'PENDING' || inst.status === 'OVERDUE') && (
+          <Button 
+            onClick={() => setShowPayAllDialog(true)}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            Quitar Total
+          </Button>
+        )}
       </div>
 
       {/* Installments Table */}
@@ -559,6 +667,100 @@ export default function InstallmentsPage() {
               className="bg-red-600 hover:bg-red-700"
             >
               Confirmar Estorno
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pay All Dialog */}
+      <Dialog open={showPayAllDialog} onOpenChange={setShowPayAllDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-green-600" />
+              Confirmar Quitação Total
+            </DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja quitar todas as parcelas pendentes deste empréstimo?
+              <br />
+              <span className="text-sm text-gray-600 mt-2 block">
+                Esta ação irá:
+              </span>
+              <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+                <li>Marcar todas as parcelas pendentes como pagas</li>
+                <li>Incluir multas aplicadas no valor total</li>
+                <li>Marcar o empréstimo como concluído</li>
+                <li>Oferecer opção de renovação</li>
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowPayAllDialog(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handlePayAll}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Confirmar Quitação
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Renew Dialog */}
+      <Dialog open={showRenewDialog} onOpenChange={setShowRenewDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <RotateCcw className="w-5 h-5 text-blue-600" />
+              Renovar Empréstimo
+            </DialogTitle>
+            <DialogDescription>
+              Empréstimo quitado com sucesso! Deseja renovar o empréstimo?
+              <br />
+              <span className="text-sm text-gray-600 mt-2 block">
+                Você será redirecionado para a tela de criação com os dados preenchidos:
+              </span>
+              <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+                <li>Cliente: {payAllData?.loan?.customer?.nomeCompleto}</li>
+                <li>Valor: {payAllData?.loan && formatCurrency(payAllData.loan.totalAmount)}</li>
+                <li>Parcelas: {payAllData?.loan?.installments}x</li>
+                <li>Valor por parcela: {payAllData?.loan && formatCurrency(payAllData.loan.installmentValue)}</li>
+              </ul>
+              <span className="text-sm text-blue-600 mt-2 block">
+                Você poderá alterar qualquer informação antes de salvar.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="nextPaymentDate">Data do Próximo Pagamento *</Label>
+              <Input
+                id="nextPaymentDate"
+                type="date"
+                value={renewData.nextPaymentDate}
+                onChange={(e) => setRenewData(prev => ({ ...prev, nextPaymentDate: e.target.value }))}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={handleCancelRenew}
+            >
+              Não Renovar
+            </Button>
+            <Button
+              onClick={handleRenew}
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={!renewData.nextPaymentDate}
+            >
+              Ir para Criação
             </Button>
           </div>
         </DialogContent>
