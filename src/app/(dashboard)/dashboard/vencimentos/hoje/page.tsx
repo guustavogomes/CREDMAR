@@ -113,28 +113,28 @@ export default function VencimentosHojePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-4 lg:space-y-6 max-w-7xl mx-auto p-4 lg:p-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex items-start lg:items-center flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0">
           <Button 
             variant="outline" 
             onClick={() => router.back()}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 self-start"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Voltar</span>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">Vencimentos de Hoje</h1>
-            <p className="text-slate-600 mt-1">
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">Vencimentos de Hoje</h1>
+            <p className="text-slate-600 mt-1 text-sm lg:text-base">
               {installments.length} parcelas vencem hoje • {formatCurrency(totalAmount)}
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-xl px-4 py-2">
-          <Clock className="h-5 w-5 text-red-600" />
-          <span className="text-red-700 font-medium">Atenção Imediata</span>
+        <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2 self-start lg:self-center">
+          <Clock className="h-4 w-4 lg:h-5 lg:w-5 text-red-600" />
+          <span className="text-red-700 font-medium text-sm lg:text-base">Atenção Imediata</span>
         </div>
       </div>
 
@@ -178,68 +178,132 @@ export default function VencimentosHojePage() {
         <div className="grid gap-4">
           {installments.map((installment) => (
             <Card key={installment.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-start space-x-4 flex-1">
-                    <div className="p-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      <DollarSign className="h-6 w-6 text-white" />
+              <CardContent className="p-4 lg:p-6">
+                {/* Mobile Layout */}
+                <div className="block lg:hidden">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex-shrink-0">
+                      <DollarSign className="h-5 w-5 text-white" />
                     </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-xl font-bold text-slate-800">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-lg font-bold text-slate-800 truncate">
                           {installment.loan.customer.nomeCompleto}
                         </h3>
-                        <div className="flex items-center space-x-3">
-                          <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200">
-                            Vence Hoje
-                          </Badge>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-red-700">
-                              {formatCurrency(installment.amount)}
-                            </div>
-                            {installment.fineAmount > 0 && (
-                              <div className="text-sm text-red-600">
-                                + {formatCurrency(installment.fineAmount)} multa
+                        <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200 text-xs whitespace-nowrap">
+                          Vence Hoje
+                        </Badge>
+                      </div>
+                      
+                      <div className="text-xl font-bold text-red-700 mb-1">
+                        {formatCurrency(installment.amount)}
+                      </div>
+                      {installment.fineAmount > 0 && (
+                        <div className="text-sm text-red-600 mb-3">
+                          + {formatCurrency(installment.fineAmount)} multa
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4 text-sm">
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Phone className="h-4 w-4 flex-shrink-0" />
+                      <a href={`tel:${installment.loan.customer.celular}`} className="text-blue-600 hover:underline">
+                        {installment.loan.customer.celular}
+                      </a>
+                    </div>
+                    <div className="flex items-start gap-2 text-slate-600">
+                      <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <span className="break-words">
+                        {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
+                      </span>
+                    </div>
+                    <div className="text-slate-500">
+                      Parcela {installment.installmentNumber} • Vencimento: {formatDate(installment.dueDate)}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`} className="w-full">
+                      <Button variant="outline" size="sm" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50">
+                        Ver Detalhes
+                      </Button>
+                    </Link>
+                    <Button 
+                      size="sm" 
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={() => handleMarkAsPaid(installment.id)}
+                    >
+                      Marcar como Pago
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden lg:block">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start space-x-4 flex-1">
+                      <div className="p-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <DollarSign className="h-6 w-6 text-white" />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-xl font-bold text-slate-800">
+                            {installment.loan.customer.nomeCompleto}
+                          </h3>
+                          <div className="flex items-center space-x-3">
+                            <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200">
+                              Vence Hoje
+                            </Badge>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-red-700">
+                                {formatCurrency(installment.amount)}
                               </div>
-                            )}
+                              {installment.fineAmount > 0 && (
+                                <div className="text-sm text-red-600">
+                                  + {formatCurrency(installment.fineAmount)} multa
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="flex items-center space-x-2 text-slate-600">
-                          <Phone className="h-4 w-4" />
-                          <span className="text-sm">{installment.loan.customer.celular}</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-slate-600">
-                          <MapPin className="h-4 w-4" />
-                          <span className="text-sm">
-                            {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 text-sm text-slate-500">
-                          <span>Parcela {installment.installmentNumber}</span>
-                          <span>•</span>
-                          <span>Vencimento: {formatDate(installment.dueDate)}</span>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="flex items-center space-x-2 text-slate-600">
+                            <Phone className="h-4 w-4" />
+                            <span className="text-sm">{installment.loan.customer.celular}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-slate-600">
+                            <MapPin className="h-4 w-4" />
+                            <span className="text-sm">
+                              {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
+                            </span>
+                          </div>
                         </div>
                         
-                        <div className="flex items-center space-x-2">
-                          <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`}>
-                            <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                              Ver Detalhes
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 text-sm text-slate-500">
+                            <span>Parcela {installment.installmentNumber}</span>
+                            <span>•</span>
+                            <span>Vencimento: {formatDate(installment.dueDate)}</span>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`}>
+                              <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50">
+                                Ver Detalhes
+                              </Button>
+                            </Link>
+                            <Button 
+                              size="sm" 
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => handleMarkAsPaid(installment.id)}
+                            >
+                              Marcar como Pago
                             </Button>
-                          </Link>
-                          <Button 
-                            size="sm" 
-                            className="bg-green-600 hover:bg-green-700"
-                            onClick={() => handleMarkAsPaid(installment.id)}
-                          >
-                            Marcar como Pago
-                          </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
