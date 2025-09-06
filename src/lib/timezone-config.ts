@@ -15,22 +15,22 @@ if (typeof window !== 'undefined') {
   const originalToLocaleDateString = Date.prototype.toLocaleDateString
   const originalToLocaleTimeString = Date.prototype.toLocaleTimeString
   
-  Date.prototype.toLocaleString = function(locales = 'pt-BR', options = {}) {
-    return originalToLocaleString.call(this, locales, {
+  Date.prototype.toLocaleString = function(locales?: string | string[], options?: Intl.DateTimeFormatOptions) {
+    return originalToLocaleString.call(this, locales || 'pt-BR', {
       timeZone: 'America/Sao_Paulo',
       ...options
     })
   }
   
-  Date.prototype.toLocaleDateString = function(locales = 'pt-BR', options = {}) {
-    return originalToLocaleDateString.call(this, locales, {
+  Date.prototype.toLocaleDateString = function(locales?: string | string[], options?: Intl.DateTimeFormatOptions) {
+    return originalToLocaleDateString.call(this, locales || 'pt-BR', {
       timeZone: 'America/Sao_Paulo',
       ...options
     })
   }
   
-  Date.prototype.toLocaleTimeString = function(locales = 'pt-BR', options = {}) {
-    return originalToLocaleTimeString.call(this, locales, {
+  Date.prototype.toLocaleTimeString = function(locales?: string | string[], options?: Intl.DateTimeFormatOptions) {
+    return originalToLocaleTimeString.call(this, locales || 'pt-BR', {
       timeZone: 'America/Sao_Paulo',
       ...options
     })
