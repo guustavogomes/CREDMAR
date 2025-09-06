@@ -8,7 +8,7 @@ import { Calendar, ArrowLeft, Phone, Mail, MapPin, TrendingUp, DollarSign } from
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatDate as formatDateUtil } from "@/lib/date-utils"
-import { getBrazilStartOfDay } from "@/lib/timezone-utils"
+import { getBrazilStartOfDay, parseBrazilDateString } from "@/lib/timezone-utils"
 
 interface InstallmentWithLoan {
   id: string
@@ -68,7 +68,7 @@ export default function VencimentosSemanaPage() {
 
   const getDaysUntilDue = (dueDate: string) => {
     const today = getBrazilStartOfDay() // Usar timezone do Brasil
-    const due = getBrazilStartOfDay(new Date(dueDate)) // Usar timezone do Brasil
+    const due = getBrazilStartOfDay(parseBrazilDateString(dueDate)) // Parse correto da data
     const diffTime = due.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
@@ -157,7 +157,21 @@ export default function VencimentosSemanaPage() {
         </Card>
       ) : (
         <div className="space-y-6">
-          {Object.entries(groupedInstallments).map(([period, periodInstallments]) => (
+          {Object.entries(groupedInstallments)
+            .sort(([periodA], [periodB]) => {
+              // Definir ordem de prioridade
+              const getPriority = (period: string) => {
+                if (period === 'Hoje') return 0
+                if (period === 'Amanhã') return 1
+                if (period.endsWith(' dias')) {
+                  const days = parseInt(period.split(' ')[0])
+                  return days + 1
+                }
+                return 999
+              }
+              return getPriority(periodA) - getPriority(periodB)
+            })
+            .map(([period, periodInstallments]) => (
             <div key={period}>
               <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center space-x-2">
                 <Calendar className="h-5 w-5 text-amber-600" />

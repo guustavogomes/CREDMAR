@@ -4,6 +4,7 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/components/auth-provider'
 import { Toaster } from '@/components/ui/toaster'
+import '@/lib/timezone-config' // Configura timezone brasileiro globalmente
 
 const inter = Inter({ subsets: ['latin'] })
 

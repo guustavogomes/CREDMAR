@@ -15,10 +15,13 @@ import {
   Bell,
   Search,
   Users,
-  DollarSign
+  DollarSign,
+  Route
 } from "lucide-react"
 import { useState } from "react"
 import { Toaster } from "@/components/ui/toaster"
+import { CurrentDateTime, CurrentDateTimeCompact } from "@/components/current-datetime"
+import { NotificationsDropdown } from "@/components/notifications"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -75,6 +78,7 @@ export default function DashboardLayout({
     { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
     { name: 'Empréstimos', href: '/dashboard/emprestimos', icon: DollarSign },
     { name: 'Pagamentos', href: '/dashboard/payments', icon: CreditCard },
+    { name: 'Rotas', href: '/dashboard/rotas', icon: Route },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
   ]
 
@@ -114,6 +118,30 @@ export default function DashboardLayout({
               )
             })}
           </nav>
+          <div className="flex-shrink-0 border-t border-border p-4">
+            <div className="flex items-center bg-muted/50 rounded-xl p-4">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary-foreground" />
+                </div>
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-semibold text-foreground">{session.user?.name || session.user?.email}</p>
+                <p className="text-xs text-muted-foreground">{session.user?.email}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSidebarOpen(false)
+                  signOut()
+                }}
+                className="ml-2 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -192,10 +220,12 @@ export default function DashboardLayout({
               </div>
             </div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <button className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
-              </button>
+              {/* Data e Hora Atual */}
+              <div className="hidden md:block">
+                <CurrentDateTimeCompact />
+              </div>
+              
+              <NotificationsDropdown />
               <div className="hidden sm:flex items-center">
                 <span className="text-sm font-medium text-foreground">Olá, {session.user?.name || session.user?.email}</span>
               </div>

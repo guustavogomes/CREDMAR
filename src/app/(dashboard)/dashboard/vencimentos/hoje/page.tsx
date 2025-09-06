@@ -9,6 +9,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { formatDate as formatDateUtil } from "@/lib/date-utils"
+import { getBrazilianNow, formatBrazilianDate } from "@/lib/timezone-config"
 
 interface InstallmentWithLoan {
   id: string
@@ -148,7 +149,7 @@ export default function VencimentosHojePage() {
               <div>
                 <CardTitle className="text-xl text-red-800">Resumo do Dia</CardTitle>
                 <CardDescription className="text-red-600">
-                  Parcelas que vencem hoje - {formatDate(new Date().toISOString())}
+                  Parcelas que vencem hoje - {formatBrazilianDate(getBrazilianNow())}
                 </CardDescription>
               </div>
             </div>

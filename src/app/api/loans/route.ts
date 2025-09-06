@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { InstallmentStatus } from '@prisma/client'
@@ -18,7 +19,7 @@ const loanSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -129,19 +130,23 @@ export async function POST(request: NextRequest) {
     console.log(`Verificação: ${actualInstallments} parcelas criadas de ${validatedData.installments} configuradas`)
 
     if (actualInstallments !== validatedData.installments) {
-      console.error(`ERRO: Inconsistência detectada! Configurado: ${validatedData.installments}, Criado: ${actualInstallments}`)
+      console.error(`ERRO CRÍTICO: Falha na geração automática de parcelas! Configurado: ${validatedData.installments}, Criado: ${actualInstallments}`)
       
-      // Log detalhado para debug
-      const createdInstallments = await db.installment.findMany({
-        where: { loanId: newLoan.id },
-        orderBy: { installmentNumber: 'asc' }
+      // Remover empréstimo e parcelas criadas para manter consistência
+      await db.installment.deleteMany({
+        where: { loanId: newLoan.id }
+      })
+      await db.loan.delete({
+        where: { id: newLoan.id }
       })
       
-      console.log('Parcelas criadas:', createdInstallments.map(inst => ({
-        number: inst.installmentNumber,
-        dueDate: inst.dueDate,
-        amount: inst.amount
-      })))
+      return NextResponse.json(
+        { 
+          error: 'Erro na geração automática de parcelas',
+          details: `Esperado ${validatedData.installments} parcelas, mas só foram criadas ${actualInstallments}` 
+        },
+        { status: 500 }
+      )
     } else {
       console.log('✅ Verificação OK: Número de parcelas correto')
     }
@@ -168,7 +173,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
       return NextResponse.json(

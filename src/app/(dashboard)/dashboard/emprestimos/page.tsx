@@ -64,8 +64,8 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
     
     if (status === "authenticated") {
       fetchLoans()
-    }
       fetchRoutes()
+    }
   }, [status, router])
 
   const fetchRoutes = async () => {
@@ -276,7 +276,7 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
         <CardHeader className="border-b border-border">
           <CardTitle className="text-foreground">Lista de Empréstimos</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -363,7 +363,7 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
               </div>
 
               {/* Mobile Cards */}
-              <div className="md:hidden space-y-4">
+              <div className="md:hidden space-y-4 pt-4">
                 {filteredLoans.map((loan) => (
                   <Card key={loan.id} className="border-l-4 border-l-green-500 border-border bg-card">
                     <CardContent className="p-4">
@@ -394,34 +394,36 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                         </div>
                       </div>
                       
-                      <div className="flex space-x-2 mt-4">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 hover:bg-primary/10 hover:border-primary/30"
-                          onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 bg-primary/10 hover:bg-primary/20 border-primary/20"
-                          onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
-                        >
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Parcelas
-                        </Button>
+                      <div className="flex flex-col gap-2 mt-4">
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 hover:bg-primary/10 hover:border-primary/30"
+                            onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Editar
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 bg-primary/10 hover:bg-primary/20 border-primary/20"
+                            onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
+                          >
+                            <Calendar className="w-4 h-4 mr-1" />
+                            Parcelas
+                          </Button>
+                        </div>
                         {loan.status === 'ACTIVE' && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(loan.id, loan.customer.nomeCompleto)}
-                            className="flex-1 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"
+                            className="w-full hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Excluir
+                            Excluir Empréstimo
                           </Button>
                         )}
                       </div>

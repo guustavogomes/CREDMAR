@@ -613,25 +613,41 @@ export default function NovoClientePage() {
               </div>
               
               {showNewRouteInput && (
-                <div className="mt-2 flex gap-2">
+                <div className="mt-3 space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nova Rota
+                  </div>
                   <Input
-                    placeholder="Descrição da nova rota"
+                    placeholder="Digite a descrição da nova rota (ex: Centro, Bairro Sul, etc.)"
                     value={newRouteDescription}
                     onChange={(e) => setNewRouteDescription(e.target.value)}
+                    className="w-full"
+                    autoFocus
                   />
-                  <Button type="button" onClick={handleCreateRoute}>
-                    Criar
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={() => {
-                      setShowNewRouteInput(false)
-                      setNewRouteDescription('')
-                    }}
-                  >
-                    Cancelar
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button 
+                      type="button" 
+                      onClick={handleCreateRoute}
+                      disabled={!newRouteDescription.trim()}
+                      className="flex-1"
+                    >
+                      Criar Rota
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => {
+                        setShowNewRouteInput(false)
+                        setNewRouteDescription('')
+                      }}
+                      className="flex-1"
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

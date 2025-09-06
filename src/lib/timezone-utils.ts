@@ -39,26 +39,32 @@ export function createBrazilDate(year: number, month: number, day: number, hour:
  * Obtém o início do dia atual no timezone do Brasil
  */
 export function getBrazilStartOfDay(date?: Date): Date {
-  const brazilDate = date ? toBrazilTime(date) : getBrazilNow()
-  return createBrazilDate(
-    brazilDate.getFullYear(),
-    brazilDate.getMonth(),
-    brazilDate.getDate(),
-    0, 0, 0
-  )
+  const baseDate = date || new Date()
+  
+  // Usar o mesmo padrão do timezone-config.ts
+  const formatter = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+  
+  const parts = formatter.formatToParts(baseDate)
+  const year = parseInt(parts.find(p => p.type === 'year')?.value || '0')
+  const month = parseInt(parts.find(p => p.type === 'month')?.value || '1') - 1
+  const day = parseInt(parts.find(p => p.type === 'day')?.value || '1')
+  
+  // Retornar data local (não UTC) seguindo o padrão do timezone-config.ts
+  return new Date(year, month, day, 0, 0, 0, 0)
 }
 
 /**
  * Obtém o fim do dia atual no timezone do Brasil
  */
 export function getBrazilEndOfDay(date?: Date): Date {
-  const brazilDate = date ? toBrazilTime(date) : getBrazilNow()
-  return createBrazilDate(
-    brazilDate.getFullYear(),
-    brazilDate.getMonth(),
-    brazilDate.getDate() + 1,
-    0, 0, 0
-  )
+  const startOfDay = getBrazilStartOfDay(date)
+  // Adicionar 24 horas para o fim do dia
+  return new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
 }
 
 /**
@@ -121,7 +127,8 @@ export function formatBrazilDateToString(date: Date): string {
  */
 export function parseBrazilDateString(dateString: string): Date {
   const [year, month, day] = dateString.split('-').map(Number)
-  return createBrazilDate(year, month - 1, day) // month é 0-indexed
+  // Criar data local para evitar conversão de timezone
+  return new Date(year, month - 1, day, 0, 0, 0, 0) // month é 0-indexed
 }
 
 /**

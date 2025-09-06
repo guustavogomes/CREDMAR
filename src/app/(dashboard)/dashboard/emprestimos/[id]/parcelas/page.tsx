@@ -161,34 +161,6 @@ export default function InstallmentsPage() {
 
 
 
-  const generateInstallments = async () => {
-    try {
-      const response = await fetch(`/api/loans/${params.id}/generate-installments`, {
-        method: 'POST'
-      })
-
-      if (response.ok) {
-        toast({
-          title: 'Sucesso',
-          description: 'Parcelas geradas com sucesso'
-        })
-        fetchLoanAndInstallments()
-      } else {
-        const error = await response.json()
-        toast({
-          title: 'Erro',
-          description: error.error || 'Erro ao gerar parcelas',
-          variant: 'destructive'
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Erro ao gerar parcelas',
-        variant: 'destructive'
-      })
-    }
-  }
 
   const openFineDialog = (installment: any) => {
     setSelectedInstallmentForFine(installment)
@@ -426,15 +398,11 @@ export default function InstallmentsPage() {
             <div className="text-center py-8">
               <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhuma parcela encontrada
+                Erro ao carregar parcelas
               </h3>
               <p className="text-gray-500 mb-4">
-                Este empréstimo ainda não possui parcelas geradas.
+                Não foi possível carregar as parcelas deste empréstimo. As parcelas devem ser geradas automaticamente na criação do empréstimo.
               </p>
-              <Button onClick={generateInstallments} className="bg-blue-600 hover:bg-blue-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Gerar Parcelas
-              </Button>
             </div>
           ) : (
             <Table>

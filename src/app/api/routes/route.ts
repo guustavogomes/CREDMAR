@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { Role } from '@prisma/client'
 
 const routeSchema = z.object({
-  description: z.string().min(1, 'Descrição é obrigatória')
+  description: z.string().min(1, 'Descrição é obrigatória').transform(val => val.trim())
 })
 
 // GET - Listar rotas do usuário
@@ -33,6 +33,11 @@ export async function GET() {
             id: true,
             name: true,
             email: true
+          }
+        },
+        _count: {
+          select: {
+            customers: true
           }
         }
       }
@@ -63,10 +68,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = routeSchema.parse(body)
     
-    // Check if route with same description exists for this user
+    // Check if route with same description exists for this user (case-insensitive)
     const existingRoute = await db.route.findFirst({
       where: {
-        description: validatedData.description,
+        description: {
+          equals: validatedData.description,
+          mode: 'insensitive'
+        },
         userId: session.user.id
       }
     })

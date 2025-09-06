@@ -590,10 +590,25 @@ export default function HomePage() {
       </section>
 
       {/* Footer Premium */}
-      <footer className="bg-slate-900 text-white py-12">
+      <footer className="bg-slate-900 text-white py-8 md:py-12">
         <div className="container mx-auto px-6 sm:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
+          {/* Logo e descrição - Mobile First */}
+          <div className="mb-8 md:hidden">
+            <div className="flex items-center space-x-3 mb-4 justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">T</span>
+              </div>
+              <span className="text-2xl font-bold">TaPago</span>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed text-center px-4">
+              A plataforma de gestão de empréstimos mais inteligente do Brasil.
+            </p>
+          </div>
+
+          {/* Grid de links - Responsivo */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
+            {/* Logo para Desktop */}
+            <div className="hidden md:block">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold">T</span>
@@ -605,45 +620,48 @@ export default function HomePage() {
               </p>
             </div>
             
-            <div>
-              <h3 className="font-semibold mb-4">Produto</h3>
+            <div className="text-center md:text-left">
+              <h3 className="font-semibold mb-3 text-white">Produto</h3>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="#" className="hover:text-white transition-colors">IA Anti-Fraude</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Análise de Risco</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Dashboard</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">IA Anti-Fraude</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Análise de Risco</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Dashboard</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">API</Link></li>
               </ul>
             </div>
             
-            <div>
-              <h3 className="font-semibold mb-4">Empresa</h3>
+            <div className="text-center md:text-left">
+              <h3 className="font-semibold mb-3 text-white">Empresa</h3>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Sobre</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Carreiras</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Cases</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contato</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Sobre</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Carreiras</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Cases</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Contato</Link></li>
               </ul>
             </div>
             
-            <div>
-              <h3 className="font-semibold mb-4">Suporte</h3>
+            <div className="col-span-2 md:col-span-1 text-center md:text-left">
+              <h3 className="font-semibold mb-3 text-white">Suporte</h3>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Central de Ajuda</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Documentação</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Treinamentos</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Segurança</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Central de Ajuda</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Documentação</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Treinamentos</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Segurança</Link></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between">
-            <p className="text-slate-400 text-sm">
-              &copy; 2024 TaPago. Todos os direitos reservados.
-            </p>
-            <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              <Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Privacidade</Link>
-              <Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Termos</Link>
-              <Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Cookies</Link>
+          {/* Copyright e Links Legais */}
+          <div className="border-t border-slate-800 pt-6 md:pt-8">
+            <div className="flex flex-col items-center space-y-4 md:space-y-0 md:flex-row md:justify-between">
+              <p className="text-slate-400 text-sm text-center md:text-left">
+                &copy; 2024 TaPago. Todos os direitos reservados.
+              </p>
+              <div className="flex items-center gap-6">
+                <Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm py-2 md:py-0">Privacidade</Link>
+                <Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm py-2 md:py-0">Termos</Link>
+                <Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm py-2 md:py-0">Cookies</Link>
+              </div>
             </div>
           </div>
         </div>

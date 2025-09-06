@@ -585,16 +585,29 @@ export default function EditarClientePage() {
               </Select>
 
               {showNewRouteInput && (
-                <div className="mt-2 space-y-2">
+                <div className="mt-3 space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nova Rota
+                  </div>
                   <Input
                     type="text"
                     value={newRouteDescription}
                     onChange={(e) => setNewRouteDescription(e.target.value)}
-                    placeholder="Digite a descrição da nova rota"
+                    placeholder="Digite a descrição da nova rota (ex: Centro, Bairro Sul, etc.)"
+                    className="w-full"
+                    autoFocus
                   />
-                  <div className="flex space-x-2">
-                    <Button type="button" onClick={handleCreateRoute}>
-                      Criar
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button 
+                      type="button" 
+                      onClick={handleCreateRoute}
+                      disabled={!newRouteDescription.trim()}
+                      className="flex-1"
+                    >
+                      Criar Rota
                     </Button>
                     <Button 
                       type="button" 
@@ -603,6 +616,7 @@ export default function EditarClientePage() {
                         setShowNewRouteInput(false)
                         setNewRouteDescription('')
                       }}
+                      className="flex-1"
                     >
                       Cancelar
                     </Button>
