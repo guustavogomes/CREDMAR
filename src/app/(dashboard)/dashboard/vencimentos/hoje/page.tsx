@@ -113,7 +113,7 @@ export default function VencimentosHojePage() {
   }
 
   return (
-    <div className="space-y-4 lg:space-y-6 max-w-7xl mx-auto p-4 lg:p-0">
+    <div className="space-y-4 lg:space-y-6 max-w-7xl mx-auto px-4 lg:px-0">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-start lg:items-center flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0">
@@ -177,20 +177,20 @@ export default function VencimentosHojePage() {
       ) : (
         <div className="grid gap-4">
           {installments.map((installment) => (
-            <Card key={installment.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <CardContent className="p-4 lg:p-6">
+            <Card key={installment.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden">
+              <CardContent className="p-4 lg:p-6 overflow-hidden">
                 {/* Mobile Layout */}
-                <div className="block lg:hidden">
-                  <div className="flex items-start gap-3 mb-4">
+                <div className="block lg:hidden w-full max-w-full">
+                  <div className="flex items-start gap-3 mb-4 w-full">
                     <div className="p-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex-shrink-0">
                       <DollarSign className="h-5 w-5 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="text-lg font-bold text-slate-800 truncate">
+                    <div className="flex-1 min-w-0 max-w-full">
+                      <div className="flex items-start justify-between gap-2 mb-2 w-full">
+                        <h3 className="text-lg font-bold text-slate-800 truncate flex-1 min-w-0">
                           {installment.loan.customer.nomeCompleto}
                         </h3>
-                        <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200 text-xs whitespace-nowrap">
+                        <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200 text-xs whitespace-nowrap flex-shrink-0">
                           Vence Hoje
                         </Badge>
                       </div>
@@ -206,33 +206,33 @@ export default function VencimentosHojePage() {
                     </div>
                   </div>
                   
-                  <div className="space-y-2 mb-4 text-sm">
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <div className="space-y-2 mb-4 text-sm w-full max-w-full">
+                    <div className="flex items-center gap-2 text-slate-600 w-full">
                       <Phone className="h-4 w-4 flex-shrink-0" />
-                      <a href={`tel:${installment.loan.customer.celular}`} className="text-blue-600 hover:underline">
+                      <a href={`tel:${installment.loan.customer.celular}`} className="text-blue-600 hover:underline truncate">
                         {installment.loan.customer.celular}
                       </a>
                     </div>
-                    <div className="flex items-start gap-2 text-slate-600">
+                    <div className="flex items-start gap-2 text-slate-600 w-full">
                       <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                      <span className="break-words">
+                      <span className="break-words flex-1 min-w-0">
                         {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
                       </span>
                     </div>
-                    <div className="text-slate-500">
+                    <div className="text-slate-500 w-full">
                       Parcela {installment.installmentNumber} • Vencimento: {formatDate(installment.dueDate)}
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 w-full max-w-full">
                     <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`} className="w-full">
-                      <Button variant="outline" size="sm" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50">
+                      <Button variant="outline" size="sm" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 max-w-full">
                         Ver Detalhes
                       </Button>
                     </Link>
                     <Button 
                       size="sm" 
-                      className="w-full bg-green-600 hover:bg-green-700"
+                      className="w-full bg-green-600 hover:bg-green-700 max-w-full"
                       onClick={() => handleMarkAsPaid(installment.id)}
                     >
                       Marcar como Pago
