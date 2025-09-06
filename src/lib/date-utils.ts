@@ -1,6 +1,8 @@
+import { toBrazilTime, getBrazilStartOfDay } from './timezone-utils'
+
 /**
  * Formata uma data para o formato brasileiro (dd/mm/aaaa)
- * Lida corretamente com strings de data para evitar problemas de fuso horário
+ * Usa timezone UTC-3 (Brasil) para evitar problemas de fuso horário
  */
 export function formatDate(dateString: string | Date): string {
   if (!dateString) return ''
@@ -10,17 +12,17 @@ export function formatDate(dateString: string | Date): string {
   if (dateString instanceof Date) {
     date = dateString
   } else if (dateString.includes('T')) {
-    // Se a string já tem horário (formato ISO), usar componentes UTC
+    // Se a string já tem horário (formato ISO), converter para timezone do Brasil
     const utcDate = new Date(dateString)
-    date = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+    date = toBrazilTime(utcDate)
   } else if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    // Se é apenas data (YYYY-MM-DD), criar data local para evitar problemas de fuso horário
+    // Se é apenas data (YYYY-MM-DD), criar data no timezone do Brasil
     const [year, month, day] = dateString.split('-').map(Number)
     date = new Date(year, month - 1, day) // month é 0-indexed
   } else {
-    // Fallback para outros formatos - usar componentes UTC
+    // Fallback para outros formatos - converter para timezone do Brasil
     const utcDate = new Date(dateString)
-    date = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+    date = toBrazilTime(utcDate)
   }
   
   return date.toLocaleDateString('pt-BR')
@@ -38,32 +40,29 @@ export function formatDateTime(dateString: string | Date): string {
 
 /**
  * Verifica se uma data está vencida (comparando apenas as datas, ignorando horário)
+ * Usa timezone UTC-3 (Brasil) para evitar problemas de fuso horário
  */
 export function isOverdue(dueDate: string | Date, status?: string): boolean {
   if (status === 'PAID') return false
   
-  const today = new Date()
+  const today = getBrazilStartOfDay()
   let due: Date
   
   if (dueDate instanceof Date) {
-    due = dueDate
+    due = getBrazilStartOfDay(dueDate)
   } else if (dueDate.includes('T')) {
-    // Se a string já tem horário (formato ISO), usar componentes UTC
+    // Se a string já tem horário (formato ISO), converter para timezone do Brasil
     const utcDate = new Date(dueDate)
-    due = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+    due = getBrazilStartOfDay(toBrazilTime(utcDate))
   } else if (dueDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    // Se é apenas data (YYYY-MM-DD), criar data local
+    // Se é apenas data (YYYY-MM-DD), criar data no timezone do Brasil
     const [year, month, day] = dueDate.split('-').map(Number)
-    due = new Date(year, month - 1, day) // month é 0-indexed
+    due = getBrazilStartOfDay(new Date(year, month - 1, day)) // month é 0-indexed
   } else {
-    // Fallback para outros formatos - usar componentes UTC
+    // Fallback para outros formatos - converter para timezone do Brasil
     const utcDate = new Date(dueDate)
-    due = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate())
+    due = getBrazilStartOfDay(toBrazilTime(utcDate))
   }
-  
-  // Zerar horários para comparar apenas as datas
-  today.setHours(0, 0, 0, 0)
-  due.setHours(0, 0, 0, 0)
   
   return due < today
 }

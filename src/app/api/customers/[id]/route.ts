@@ -36,7 +36,8 @@ export async function GET(
     const customer = await db.customer.findUnique({
       where: {
         id: params.id,
-        userId: session.user.id
+        userId: session.user.id,
+        deletedAt: null
       },
       include: {
         route: true
@@ -82,7 +83,8 @@ export async function PUT(
     const existingCustomer = await db.customer.findUnique({
       where: {
         id: params.id,
-        userId: session.user.id
+        userId: session.user.id,
+        deletedAt: null
       }
     })
     
@@ -163,7 +165,7 @@ export async function PUT(
   }
 }
 
-// DELETE - Excluir cliente
+// DELETE - Excluir cliente (soft delete)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -182,7 +184,8 @@ export async function DELETE(
     const existingCustomer = await db.customer.findUnique({
       where: {
         id: params.id,
-        userId: session.user.id
+        userId: session.user.id,
+        deletedAt: null
       }
     })
     
@@ -192,11 +195,30 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    // Verificar se o cliente possui empréstimos ativos
+    const activeLoans = await db.loan.count({
+      where: {
+        customerId: params.id,
+        status: 'ACTIVE',
+        deletedAt: null
+      }
+    })
+
+    if (activeLoans > 0) {
+      return NextResponse.json(
+        { error: 'Não é possível excluir cliente com empréstimos ativos' },
+        { status: 400 }
+      )
+    }
     
-    // Excluir cliente
-    await db.customer.delete({
+    // Soft delete - apenas marca como deletado
+    await db.customer.update({
       where: {
         id: params.id
+      },
+      data: {
+        deletedAt: new Date()
       }
     })
     

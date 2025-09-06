@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const existingRoute = await db.route.findFirst({
       where: {
         description: validatedData.description,
-        userId: session.user.role === 'ADMIN' ? undefined : session.user.id
+        userId: session.user.id
       }
     })
     

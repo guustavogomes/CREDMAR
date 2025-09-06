@@ -1,3 +1,5 @@
+import { parseBrazilDateString } from './timezone-utils'
+
 interface PeriodicityConfig {
   intervalType: string
   intervalValue: number
@@ -7,7 +9,7 @@ interface PeriodicityConfig {
 }
 
 /**
- * Cria uma data local a partir de uma string no formato YYYY-MM-DD
+ * Cria uma data no timezone do Brasil a partir de uma string no formato YYYY-MM-DD
  * Evita problemas de fuso horário
  */
 function createLocalDate(dateString: string | Date): Date {
@@ -15,10 +17,9 @@ function createLocalDate(dateString: string | Date): Date {
     return dateString
   }
   
-  // Se é uma string no formato YYYY-MM-DD, criar data local
+  // Se é uma string no formato YYYY-MM-DD, usar timezone do Brasil
   if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const [year, month, day] = dateString.split('-').map(Number)
-    return new Date(year, month - 1, day) // month é 0-indexed
+    return parseBrazilDateString(dateString)
   }
   
   return new Date(dateString)

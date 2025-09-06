@@ -29,6 +29,7 @@ import {
   XCircle
 } from "lucide-react"
 import Link from "next/link"
+import { formatDate as formatDateUtil } from "@/lib/date-utils"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -125,11 +126,7 @@ export default function DashboardPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+    return formatDateUtil(dateString)
   }
 
   return (

@@ -129,6 +129,7 @@ model Customer {
   routeId      String?
   foto         String?
   userId       String
+  deletedAt    DateTime? // Soft delete field
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   route        Route?   @relation(fields: [routeId], references: [id])
   loans        Loan[]
@@ -176,6 +177,7 @@ model Loan {
   nextPaymentDate DateTime
   status          LoanStatus    @default(ACTIVE)
   userId          String
+  deletedAt       DateTime?     // Soft delete field
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   

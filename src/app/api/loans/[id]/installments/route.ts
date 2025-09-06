@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
+import { formatBrazilDateToString } from '@/lib/timezone-utils'
 
 export async function GET(
   request: NextRequest,
@@ -30,7 +31,15 @@ export async function GET(
       }
     })
 
-    return NextResponse.json(installments)
+          // Corrigir as datas usando timezone do Brasil
+      const correctedInstallments = installments.map(installment => ({
+        ...installment,
+        dueDate: formatBrazilDateToString(installment.dueDate), // Converter para YYYY-MM-DD usando timezone do Brasil
+        paidAt: installment.paidAt ? formatBrazilDateToString(installment.paidAt) : null,
+        createdAt: formatBrazilDateToString(installment.createdAt)
+      }))
+
+    return NextResponse.json(correctedInstallments)
   } catch (error) {
     console.error('Erro ao buscar parcelas:', error)
     return NextResponse.json(

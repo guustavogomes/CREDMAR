@@ -297,7 +297,7 @@ const filteredCustomers = customers.filter(customer =>
         onClose={() => setConfirmModal({ isOpen: false, customerId: '', customerName: '' })}
         onConfirm={confirmDelete}
         title="Excluir Cliente"
-        description={`Tem certeza que deseja excluir ${confirmModal.customerName}? Esta ação não pode ser desfeita.`}
+        description={`Tem certeza que deseja excluir ${confirmModal.customerName}? Esta ação não poderá ser desfeita e o cliente não aparecerá mais no sistema. Apenas clientes sem empréstimos ativos podem ser excluídos.`}
         confirmText="Excluir"
         cancelText="Cancelar"
         variant="destructive"

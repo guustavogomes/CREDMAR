@@ -8,6 +8,7 @@ import { Calendar, ArrowLeft, Phone, Mail, MapPin, TrendingUp, DollarSign } from
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatDate as formatDateUtil } from "@/lib/date-utils"
+import { getBrazilStartOfDay } from "@/lib/timezone-utils"
 
 interface InstallmentWithLoan {
   id: string
@@ -66,8 +67,8 @@ export default function VencimentosSemanaPage() {
   }
 
   const getDaysUntilDue = (dueDate: string) => {
-    const today = new Date()
-    const due = new Date(dueDate)
+    const today = getBrazilStartOfDay() // Usar timezone do Brasil
+    const due = getBrazilStartOfDay(new Date(dueDate)) // Usar timezone do Brasil
     const diffTime = due.getTime() - today.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays

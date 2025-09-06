@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { z } from 'zod'
 import { InstallmentStatus } from '@prisma/client'
 import { generatePaymentSchedule } from '@/lib/periodicity-utils'
+import { parseBrazilDateString, formatBrazilDateToString } from '@/lib/timezone-utils'
 
 const loanSchema = z.object({
   customerId: z.string().min(1),
@@ -56,8 +57,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar o empréstimo
-    // Converter a data para o fuso horário local para evitar problemas de UTC
-    const nextPaymentDate = new Date(validatedData.nextPaymentDate + 'T00:00:00')
+    // Converter a data usando timezone do Brasil
+    const nextPaymentDate = parseBrazilDateString(validatedData.nextPaymentDate)
     
     const newLoan = await db.loan.create({
       data: {
@@ -180,7 +181,8 @@ export async function GET() {
       where: {
         user: {
           email: session.user.email
-        }
+        },
+        deletedAt: null
       },
       include: {
         customer: true,
@@ -191,7 +193,16 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json(loans, {
+    // Corrigir as datas usando timezone do Brasil
+    const correctedLoans = loans.map(loan => ({
+      ...loan,
+      transactionDate: formatBrazilDateToString(loan.transactionDate),
+      nextPaymentDate: formatBrazilDateToString(loan.nextPaymentDate),
+      createdAt: formatBrazilDateToString(loan.createdAt),
+      updatedAt: formatBrazilDateToString(loan.updatedAt)
+    }))
+
+    return NextResponse.json(correctedLoans, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate', // Sempre buscar dados atualizados
         'Pragma': 'no-cache',

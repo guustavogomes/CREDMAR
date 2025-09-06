@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
+import { 
+  getBrazilStartOfDay, 
+  getBrazilEndOfDay, 
+  getBrazilStartOfWeek, 
+  getBrazilEndOfWeek,
+  getBrazilStartOfMonth,
+  getBrazilEndOfMonth,
+  formatBrazilDateToString,
+  addBrazilDays
+} from '@/lib/timezone-utils'
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -29,19 +39,13 @@ export async function GET(request: NextRequest) {
     }
 
 
-    const today = new Date()
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
-    
-    const startOfWeek = new Date(today)
-    startOfWeek.setDate(today.getDate() - today.getDay())
-    startOfWeek.setHours(0, 0, 0, 0)
-    
-    const endOfWeek = new Date(startOfWeek)
-    endOfWeek.setDate(startOfWeek.getDate() + 7)
-    
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+    // Usar timezone UTC-3 (Brasil) para todas as operações de data
+    const startOfToday = getBrazilStartOfDay()
+    const endOfToday = getBrazilEndOfDay()
+    const startOfWeek = getBrazilStartOfWeek()
+    const endOfWeek = getBrazilEndOfWeek()
+    const startOfMonth = getBrazilStartOfMonth()
+    const endOfMonth = getBrazilEndOfMonth()
 
     // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
@@ -97,7 +101,7 @@ export async function GET(request: NextRequest) {
     const overdueInstallments = await db.installment.findMany({
       where: {
         loan: { userId: user.id },
-        dueDate: { lt: startOfToday },
+        dueDate: { lt: startOfToday }, // Usar startOfToday que já está em UTC
         status: { in: ['PENDING', 'OVERDUE'] }
       },
       include: {
@@ -153,8 +157,7 @@ export async function GET(request: NextRequest) {
     const defaultRate = totalInstallments > 0 ? (overdueCount / totalInstallments) * 100 : 0
 
     // Próximos vencimentos (próximos 7 dias)
-    const nextWeek = new Date(today)
-    nextWeek.setDate(today.getDate() + 7)
+    const nextWeek = addBrazilDays(endOfToday, 7)
     
     const upcomingDues = await db.installment.findMany({
       where: {
@@ -176,6 +179,16 @@ export async function GET(request: NextRequest) {
       take: 10
     })
 
+    // Função para corrigir datas das parcelas usando timezone do Brasil
+    const correctInstallmentDates = (installments: any[]) => {
+      return installments.map(installment => ({
+        ...installment,
+        dueDate: formatBrazilDateToString(installment.dueDate), // Converter para YYYY-MM-DD usando timezone do Brasil
+        paidAt: installment.paidAt ? formatBrazilDateToString(installment.paidAt) : null,
+        createdAt: formatBrazilDateToString(installment.createdAt)
+      }))
+    }
+
     // Filtrar apenas parcelas pendentes (não pagas) que vencem hoje
     const duesTodayPending = duesToday.filter(inst => inst.status === 'PENDING' || inst.status === 'OVERDUE')
 
@@ -183,28 +196,28 @@ export async function GET(request: NextRequest) {
       duesToday: {
         count: duesTodayPending.length, // Apenas parcelas pendentes
         amount: duesTodayPending.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: duesTodayPending
+        items: correctInstallmentDates(duesTodayPending)
       },
       duesThisWeek: {
         count: duesThisWeek.length,
         amount: duesThisWeek.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: duesThisWeek
+        items: correctInstallmentDates(duesThisWeek)
       },
       duesThisMonth: {
         count: duesThisMonth.length,
         amount: duesThisMonth.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: duesThisMonth
+        items: correctInstallmentDates(duesThisMonth)
       },
       overdue: {
         count: overdueInstallments.length,
         amount: overdueInstallments.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: overdueInstallments
+        items: correctInstallmentDates(overdueInstallments)
       },
       totalReceivedThisMonth: totalReceivedThisMonth._sum.paidAmount || 0,
       activeLoans,
       uniqueCustomers: uniqueCustomers.length,
       defaultRate: Math.round(defaultRate * 100) / 100,
-      upcomingDues
+      upcomingDues: correctInstallmentDates(upcomingDues)
     }
 
     return NextResponse.json(stats, {

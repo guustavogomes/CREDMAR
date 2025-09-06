@@ -41,10 +41,11 @@ export async function GET() {
       )
     }
     
-    // Buscar clientes do usuário logado
+    // Buscar clientes do usuário logado (apenas não deletados)
     const customers = await db.customer.findMany({
       where: {
-        userId: session.user.id
+        userId: session.user.id,
+        deletedAt: null
       },
       include: {
         route: true,

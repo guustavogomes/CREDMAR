@@ -13,6 +13,7 @@ import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User } from 'lucide-r
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency } from '@/lib/date-utils'
+import { ConfirmationModal } from '@/components/ui/confirmation-modal'
 
 interface Loan {
   id: string
@@ -46,9 +47,14 @@ export default function EmprestimosPage() {
   const { toast } = useToast()
   const [loans, setLoans] = useState<Loan[]>([])
 const [routes, setRoutes] = useState<Route[]>([])
-const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
+const [selectedRoute, setSelectedRoute] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    loanId: '',
+    customerName: ''
+  })
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -101,12 +107,56 @@ const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
   const filteredLoans = loans.filter(loan => {
     const matchSearch = loan.customer.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
       loan.customer.cpf.includes(searchTerm)
-    const matchRoute =
-  selectedRoute === 'no-route'
-    ? !loan.customer.routeId
-    : loan.customer.routeId === selectedRoute
+    
+    let matchRoute = true
+    if (selectedRoute === 'all') {
+      matchRoute = true // Mostra todos
+    } else if (selectedRoute === 'no-route') {
+      matchRoute = !loan.customer.routeId // Apenas sem rota
+    } else {
+      matchRoute = loan.customer.routeId === selectedRoute // Rota específica
+    }
+    
     return matchSearch && matchRoute
   })
+
+  const handleDelete = (loanId: string, customerName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      loanId,
+      customerName
+    })
+  }
+
+  const confirmDelete = async () => {
+    try {
+      const response = await fetch(`/api/loans/${confirmModal.loanId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        setLoans(loans.filter(loan => loan.id !== confirmModal.loanId))
+        toast({
+          title: 'Sucesso',
+          description: 'Empréstimo excluído com sucesso'
+        })
+      } else {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao excluir empréstimo',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao excluir empréstimo',
+        variant: 'destructive'
+      })
+    } finally {
+      setConfirmModal({ isOpen: false, loanId: '', customerName: '' })
+    }
+  }
 
   // Funções de formatação movidas para @/lib/date-utils
 
@@ -167,9 +217,10 @@ const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
         <label className="font-medium text-sm text-muted-foreground">Filtrar por rota:</label>
         <Select value={selectedRoute} onValueChange={setSelectedRoute}>
   <SelectTrigger className="w-64">
-    <SelectValue placeholder="Clientes sem rota" />
+    <SelectValue placeholder="Todos os empréstimos" />
   </SelectTrigger>
   <SelectContent>
+    <SelectItem value="all">Todos os empréstimos</SelectItem>
     <SelectItem value="no-route">Clientes sem rota</SelectItem>
     {routes.map((route) => (
       <SelectItem key={route.id} value={route.id}>{route.description}</SelectItem>
@@ -293,6 +344,16 @@ const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
                             >
                               <Calendar className="w-4 h-4" />
                             </Button>
+                            {loan.status === 'ACTIVE' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(loan.id, loan.customer.nomeCompleto)}
+                                className="hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -352,6 +413,17 @@ const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
                           <Calendar className="w-4 h-4 mr-2" />
                           Parcelas
                         </Button>
+                        {loan.status === 'ACTIVE' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(loan.id, loan.customer.nomeCompleto)}
+                            className="flex-1 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Excluir
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -361,6 +433,18 @@ const [selectedRoute, setSelectedRoute] = useState<string>('no-route')
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, loanId: '', customerName: '' })}
+        onConfirm={confirmDelete}
+        title="Excluir Empréstimo"
+        description={`Tem certeza que deseja excluir o empréstimo de ${confirmModal.customerName}? Esta ação não poderá ser desfeita e marcará o empréstimo como cancelado.`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
+      />
     </div>
   )
 }
