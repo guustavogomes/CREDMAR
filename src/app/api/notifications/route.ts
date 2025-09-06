@@ -126,15 +126,24 @@ export async function GET(request: NextRequest) {
     }
 
     // 5. Empréstimos sem parcelas (erro de sistema)
-    const loansWithoutInstallments = await db.loan.count({
+    const loansWithInstallments = await db.loan.count({
       where: {
         userId: user.id,
         status: 'ACTIVE',
         installments: {
-          none: {}
+          some: {}
         }
       }
     })
+    
+    const totalActiveLoans = await db.loan.count({
+      where: {
+        userId: user.id,
+        status: 'ACTIVE'
+      }
+    })
+    
+    const loansWithoutInstallments = totalActiveLoans - loansWithInstallments
 
     if (loansWithoutInstallments > 0) {
       notifications.push({
@@ -176,16 +185,24 @@ export async function GET(request: NextRequest) {
     }
 
     // 7. Clientes sem empréstimos ativos (possíveis novos empréstimos)
-    const customersWithoutActiveLoans = await db.customer.count({
+    const customersWithActiveLoans = await db.customer.count({
       where: {
         user: { email: session.user.email },
         loans: {
-          none: {
+          some: {
             status: 'ACTIVE'
           }
         }
       }
     })
+    
+    const totalCustomers = await db.customer.count({
+      where: {
+        user: { email: session.user.email }
+      }
+    })
+    
+    const customersWithoutActiveLoans = totalCustomers - customersWithActiveLoans
 
     if (customersWithoutActiveLoans > 3) {
       notifications.push({
