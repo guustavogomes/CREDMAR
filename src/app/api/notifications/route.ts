@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       where: {
         userId: user.id,
         status: 'ACTIVE',
-        installments: {
+        installmentRecords: {
           some: {}
         }
       }
