@@ -4,7 +4,13 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { Resend } from 'resend'
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+// Função helper para obter instância do Resend quando necessário
+function getResendInstance() {
+  if (!process.env.RESEND_API_KEY) {
+    return null
+  }
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 export async function POST(
   request: NextRequest,
@@ -74,8 +80,9 @@ export async function POST(
 
       // Enviar email de aprovação
       try {
-        if (resend) {
-          const emailResult = await resend.emails.send({
+        const resendInstance = getResendInstance()
+        if (resendInstance) {
+          const emailResult = await resendInstance.emails.send({
           from: process.env.EMAIL_FROM || 'TaPago <onboarding@resend.dev>',
           to: payment.user.email,
           subject: 'TaPago - Pagamento Aprovado! 🎉',
@@ -169,8 +176,9 @@ export async function POST(
     // Se rejeitado, enviar email de rejeição
     if (status === 'REJECTED') {
       try {
-        if (resend) {
-          const emailResult = await resend.emails.send({
+        const resendInstance = getResendInstance()
+        if (resendInstance) {
+          const emailResult = await resendInstance.emails.send({
           from: process.env.EMAIL_FROM || 'TaPago <onboarding@resend.dev>',
           to: payment.user.email,
           subject: 'TaPago - Comprovante Rejeitado',

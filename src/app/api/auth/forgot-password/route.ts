@@ -3,6 +3,14 @@ import { db } from "@/lib/db"
 import crypto from "crypto"
 import { Resend } from "resend"
 
+// Função helper para obter instância do Resend quando necessário
+function getResendInstance() {
+  if (!process.env.RESEND_API_KEY) {
+    return null
+  }
+  return new Resend(process.env.RESEND_API_KEY)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
@@ -41,7 +49,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Configurar Resend
-    const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+    const resend = getResendInstance()
 
     // URL de reset
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`
