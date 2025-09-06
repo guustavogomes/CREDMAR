@@ -27,6 +27,7 @@ export function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const [data, setData] = useState<NotificationsData | null>(null)
   const [loading, setLoading] = useState(false)
+  const [viewedNotifications, setViewedNotifications] = useState<Set<string>>(new Set())
   const router = useRouter()
 
   const fetchNotifications = async () => {
@@ -68,11 +69,18 @@ export function NotificationsDropdown() {
   }
 
   const handleNotificationClick = (notification: Notification) => {
+    // Marcar notificação como vista
+    setViewedNotifications(prev => new Set([...prev, notification.id]))
+    
     if (notification.action) {
       router.push(notification.action)
       setIsOpen(false)
     }
   }
+
+  // Filtrar notificações já visualizadas
+  const visibleNotifications = data?.notifications.filter(n => !viewedNotifications.has(n.id)) || []
+  const unreadCount = visibleNotifications.filter(n => n.priority <= 2).length
 
   return (
     <div className="relative">
@@ -83,11 +91,11 @@ export function NotificationsDropdown() {
         className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
       >
         <Bell className="h-5 w-5" />
-        {data && data.unread > 0 && (
+        {unreadCount > 0 && (
           <Badge 
             className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-red-500 hover:bg-red-500"
           >
-            {data.unread > 9 ? '9+' : data.unread}
+            {unreadCount > 9 ? '9+' : unreadCount}
           </Badge>
         )}
       </Button>
@@ -101,17 +109,15 @@ export function NotificationsDropdown() {
           />
           
           {/* Dropdown */}
-          <div className="absolute right-0 top-12 z-50 w-80 sm:w-96">
+          <div className="absolute right-0 top-12 z-50 w-80 sm:w-96 max-w-[calc(100vw-2rem)]">
             <Card className="shadow-xl border border-border bg-background">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold">Notificações</CardTitle>
-                  <div className="flex items-center gap-2">
-                    {data && (
-                      <Badge variant="outline" className="text-xs">
-                        {data.total} total
-                      </Badge>
-                    )}
+                  <CardTitle className="text-lg font-semibold truncate">Notificações</CardTitle>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge variant="outline" className="text-xs">
+                      {visibleNotifications.length} total
+                    </Badge>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -124,14 +130,14 @@ export function NotificationsDropdown() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-96 overflow-y-auto overflow-x-hidden">
                   {loading ? (
                     <div className="flex items-center justify-center py-8">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                     </div>
-                  ) : data && data.notifications.length > 0 ? (
+                  ) : visibleNotifications.length > 0 ? (
                     <div className="space-y-1">
-                      {data.notifications.map((notification) => (
+                      {visibleNotifications.map((notification) => (
                         <div
                           key={notification.id}
                           className={`p-3 border-l-4 cursor-pointer transition-colors ${getNotificationColor(notification.type)} ${
@@ -139,20 +145,20 @@ export function NotificationsDropdown() {
                           }`}
                           onClick={() => handleNotificationClick(notification)}
                         >
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-3 min-w-0">
                             <span className="text-lg flex-shrink-0 mt-0.5">
                               {notification.icon}
                             </span>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-sm text-foreground">
+                            <div className="flex-1 min-w-0 overflow-hidden">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <h4 className="font-semibold text-sm text-foreground truncate">
                                   {notification.title}
                                 </h4>
                                 {notification.priority <= 2 && (
                                   <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
                                 )}
                               </div>
-                              <p className="text-sm text-muted-foreground mt-1 leading-tight">
+                              <p className="text-sm text-muted-foreground leading-tight break-words">
                                 {notification.message}
                               </p>
                               {notification.action && (
