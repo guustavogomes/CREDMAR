@@ -8,6 +8,7 @@ import { AlertTriangle, ArrowLeft, Phone, Mail, MapPin, TrendingDown, DollarSign
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatDate as formatDateUtil } from "@/lib/date-utils"
+import { getBrazilStartOfDay, parseBrazilDateString } from "@/lib/timezone-utils"
 
 interface InstallmentWithLoan {
   id: string
@@ -66,8 +67,8 @@ export default function VencimentosAtrasoPage() {
   }
 
   const getDaysOverdue = (dueDate: string) => {
-    const today = new Date()
-    const due = new Date(dueDate)
+    const today = getBrazilStartOfDay() // Usar timezone do Brasil
+    const due = getBrazilStartOfDay(parseBrazilDateString(dueDate)) // Parse correto da data
     const diffTime = today.getTime() - due.getTime()
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
@@ -89,28 +90,28 @@ export default function VencimentosAtrasoPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-4 lg:space-y-6 max-w-7xl mx-auto px-4 lg:px-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex items-start lg:items-center flex-col lg:flex-row lg:space-x-4 space-y-2 lg:space-y-0">
           <Button 
             variant="outline" 
             onClick={() => router.back()}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 self-start"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Voltar</span>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">Parcelas em Atraso</h1>
-            <p className="text-slate-600 mt-1">
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800">Parcelas em Atraso</h1>
+            <p className="text-slate-600 mt-1 text-sm lg:text-base">
               {installments.length} parcelas em atraso • {formatCurrency(totalAmount)}
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-xl px-4 py-2">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
-          <span className="text-red-700 font-medium">Ação Urgente</span>
+        <div className="flex items-center space-x-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2 self-start lg:self-center">
+          <AlertTriangle className="h-4 w-4 lg:h-5 lg:w-5 text-red-600" />
+          <span className="text-red-700 font-medium text-sm lg:text-base">Ação Urgente</span>
         </div>
       </div>
 
@@ -155,71 +156,138 @@ export default function VencimentosAtrasoPage() {
           {sortedInstallments.map((installment) => {
             const daysOverdue = getDaysOverdue(installment.dueDate)
             return (
-              <Card key={installment.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group border-l-4 border-l-red-500">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-start space-x-4 flex-1">
-                      <div className="p-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <AlertTriangle className="h-6 w-6 text-white" />
+              <Card key={installment.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group border-l-4 border-l-red-500 overflow-hidden">
+                <CardContent className="p-4 lg:p-6 overflow-hidden">
+                  {/* Mobile Layout */}
+                  <div className="block lg:hidden w-full max-w-full">
+                    <div className="flex items-start gap-3 mb-4 w-full">
+                      <div className="p-2 bg-gradient-to-r from-red-600 to-red-700 rounded-lg flex-shrink-0">
+                        <AlertTriangle className="h-5 w-5 text-white" />
                       </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-xl font-bold text-slate-800">
+                      <div className="flex-1 min-w-0 max-w-full">
+                        <div className="flex items-start justify-between gap-2 mb-2 w-full">
+                          <h3 className="text-lg font-bold text-slate-800 truncate flex-1 min-w-0">
                             {installment.loan.customer.nomeCompleto}
                           </h3>
-                          <div className="flex items-center space-x-3">
-                            <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200">
-                              {daysOverdue} dias em atraso
-                            </Badge>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold text-red-700">
-                                {formatCurrency(installment.amount + installment.fineAmount)}
-                              </div>
-                              <div className="text-sm text-red-600">
-                                Principal: {formatCurrency(installment.amount)}
-                                {installment.fineAmount > 0 && (
-                                  <span> + Multa: {formatCurrency(installment.fineAmount)}</span>
-                                )}
+                          <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200 text-xs whitespace-nowrap flex-shrink-0">
+                            {daysOverdue} dias
+                          </Badge>
+                        </div>
+                        
+                        <div className="text-xl font-bold text-red-700 mb-1">
+                          {formatCurrency(installment.amount + installment.fineAmount)}
+                        </div>
+                        <div className="text-sm text-red-600 mb-3">
+                          Principal: {formatCurrency(installment.amount)}
+                          {installment.fineAmount > 0 && (
+                            <span className="block">+ Multa: {formatCurrency(installment.fineAmount)}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 mb-4 text-sm w-full max-w-full">
+                      <div className="flex items-center gap-2 text-slate-600 w-full">
+                        <Phone className="h-4 w-4 flex-shrink-0" />
+                        <a href={`tel:${installment.loan.customer.celular}`} className="text-blue-600 hover:underline truncate">
+                          {installment.loan.customer.celular}
+                        </a>
+                      </div>
+                      <div className="flex items-start gap-2 text-slate-600 w-full">
+                        <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                        <span className="break-words flex-1 min-w-0">
+                          {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
+                        </span>
+                      </div>
+                      <div className="text-slate-500 w-full">
+                        Parcela {installment.installmentNumber} • Venceu: {formatDate(installment.dueDate)}
+                      </div>
+                      <div className="text-red-600 font-medium w-full">
+                        {daysOverdue} dias de atraso
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2 w-full max-w-full">
+                      <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`} className="w-full">
+                        <Button variant="outline" size="sm" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 max-w-full">
+                          Ver Detalhes
+                        </Button>
+                      </Link>
+                      <Button size="sm" className="w-full bg-orange-600 hover:bg-orange-700 max-w-full">
+                        Aplicar Multa
+                      </Button>
+                      <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 max-w-full">
+                        Marcar como Pago
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <div className="hidden lg:block">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-start space-x-4 flex-1">
+                        <div className="p-3 bg-gradient-to-r from-red-600 to-red-700 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                          <AlertTriangle className="h-6 w-6 text-white" />
+                        </div>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-xl font-bold text-slate-800">
+                              {installment.loan.customer.nomeCompleto}
+                            </h3>
+                            <div className="flex items-center space-x-3">
+                              <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-200">
+                                {daysOverdue} dias em atraso
+                              </Badge>
+                              <div className="text-right">
+                                <div className="text-2xl font-bold text-red-700">
+                                  {formatCurrency(installment.amount + installment.fineAmount)}
+                                </div>
+                                <div className="text-sm text-red-600">
+                                  Principal: {formatCurrency(installment.amount)}
+                                  {installment.fineAmount > 0 && (
+                                    <span> + Multa: {formatCurrency(installment.fineAmount)}</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center space-x-2 text-slate-600">
-                            <Phone className="h-4 w-4" />
-                            <span className="text-sm">{installment.loan.customer.celular}</span>
-                          </div>
-                          <div className="flex items-center space-x-2 text-slate-600">
-                            <MapPin className="h-4 w-4" />
-                            <span className="text-sm">
-                              {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 text-sm text-slate-500">
-                            <span>Parcela {installment.installmentNumber}</span>
-                            <span>•</span>
-                            <span>Venceu em: {formatDate(installment.dueDate)}</span>
-                            <span>•</span>
-                            <span className="text-red-600 font-medium">{daysOverdue} dias de atraso</span>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="flex items-center space-x-2 text-slate-600">
+                              <Phone className="h-4 w-4" />
+                              <span className="text-sm">{installment.loan.customer.celular}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-slate-600">
+                              <MapPin className="h-4 w-4" />
+                              <span className="text-sm">
+                                {installment.loan.customer.endereco}, {installment.loan.customer.bairro} - {installment.loan.customer.cidade}/{installment.loan.customer.estado}
+                              </span>
+                            </div>
                           </div>
                           
-                          <div className="flex items-center space-x-2">
-                            <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`}>
-                              <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                                Ver Detalhes
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4 text-sm text-slate-500">
+                              <span>Parcela {installment.installmentNumber}</span>
+                              <span>•</span>
+                              <span>Venceu em: {formatDate(installment.dueDate)}</span>
+                              <span>•</span>
+                              <span className="text-red-600 font-medium">{daysOverdue} dias de atraso</span>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <Link href={`/dashboard/emprestimos/${installment.loan.id}/parcelas`}>
+                                <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50">
+                                  Ver Detalhes
+                                </Button>
+                              </Link>
+                              <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                                Aplicar Multa
                               </Button>
-                            </Link>
-                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
-                              Aplicar Multa
-                            </Button>
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                              Marcar como Pago
-                            </Button>
+                              <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                                Marcar como Pago
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
