@@ -66,7 +66,10 @@ export async function GET(request: NextRequest) {
     // Vencimentos da semana
     const duesThisWeek = await db.installment.findMany({
       where: {
-        loan: { userId: user.id },
+        loan: { 
+          userId: user.id,
+          status: 'ACTIVE' // Apenas empréstimos ativos
+        },
         dueDate: {
           gte: startOfWeek,
           lt: endOfWeek
@@ -83,7 +86,10 @@ export async function GET(request: NextRequest) {
     // Vencimentos do mês
     const duesThisMonth = await db.installment.findMany({
       where: {
-        loan: { userId: user.id },
+        loan: { 
+          userId: user.id,
+          status: 'ACTIVE' // Apenas empréstimos ativos
+        },
         dueDate: {
           gte: startOfMonth,
           lt: endOfMonth
@@ -100,7 +106,10 @@ export async function GET(request: NextRequest) {
     // Parcelas em atraso
     const overdueInstallments = await db.installment.findMany({
       where: {
-        loan: { userId: user.id },
+        loan: { 
+          userId: user.id,
+          status: 'ACTIVE' // Apenas empréstimos ativos
+        },
         dueDate: { lt: startOfToday }, // Usar startOfToday que já está em UTC
         status: { in: ['PENDING', 'OVERDUE'] }
       },
@@ -161,7 +170,10 @@ export async function GET(request: NextRequest) {
     
     const upcomingDues = await db.installment.findMany({
       where: {
-        loan: { userId: user.id },
+        loan: { 
+          userId: user.id,
+          status: 'ACTIVE' // Apenas empréstimos ativos
+        },
         dueDate: {
           gte: endOfToday,
           lt: nextWeek
