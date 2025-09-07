@@ -68,6 +68,7 @@ export default function InstallmentsPage() {
     nextPaymentDate: ''
   })
   const [payAllData, setPayAllData] = useState<any>(null)
+  const [isProcessingPayAll, setIsProcessingPayAll] = useState(false)
 
   useEffect(() => {
     fetchLoanAndInstallments()
@@ -260,6 +261,7 @@ export default function InstallmentsPage() {
   // Função para quitação total
   const handlePayAll = async () => {
     try {
+      setIsProcessingPayAll(true)
       const response = await fetch(`/api/loans/${params.id}/pay-all`, {
         method: 'POST'
       })
@@ -290,6 +292,8 @@ export default function InstallmentsPage() {
         description: 'Erro ao quitar empréstimo',
         variant: 'destructive'
       })
+    } finally {
+      setIsProcessingPayAll(false)
     }
   }
 
@@ -666,14 +670,23 @@ export default function InstallmentsPage() {
             <Button
               variant="outline"
               onClick={() => setShowPayAllDialog(false)}
+              disabled={isProcessingPayAll}
             >
               Cancelar
             </Button>
             <Button
               onClick={handlePayAll}
               className="bg-green-600 hover:bg-green-700"
+              disabled={isProcessingPayAll}
             >
-              Confirmar Quitação
+              {isProcessingPayAll ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Processando...
+                </>
+              ) : (
+                'Confirmar Quitação'
+              )}
             </Button>
           </div>
         </DialogContent>
