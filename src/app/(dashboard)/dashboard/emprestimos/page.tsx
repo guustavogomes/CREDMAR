@@ -9,11 +9,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency } from '@/lib/date-utils'
 import { ConfirmationModal } from '@/components/ui/confirmation-modal'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 interface Loan {
   id: string
@@ -54,6 +62,11 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
     isOpen: false,
     loanId: '',
     customerName: ''
+  })
+  const [showRenewDialog, setShowRenewDialog] = useState(false)
+  const [renewData, setRenewData] = useState({
+    loan: null as Loan | null,
+    nextPaymentDate: ''
   })
 
   useEffect(() => {
@@ -126,6 +139,53 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
       loanId,
       customerName
     })
+  }
+
+  const handleRenew = (loan: Loan) => {
+    setRenewData({ loan, nextPaymentDate: '' })
+    setShowRenewDialog(true)
+  }
+
+  const confirmRenew = () => {
+    if (!renewData.nextPaymentDate) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione a data do próximo pagamento',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!renewData.loan) {
+      toast({
+        title: 'Erro',
+        description: 'Dados do empréstimo não encontrados',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Preparar os dados para a tela de criação
+    const loanData = {
+      customerId: renewData.loan.customer.id,
+      totalAmount: renewData.loan.totalAmount,
+      advanceAmount: renewData.loan.advanceAmount,
+      periodicityId: renewData.loan.periodicity.id,
+      installments: renewData.loan.installments,
+      installmentValue: renewData.loan.installmentValue,
+      nextPaymentDate: renewData.nextPaymentDate,
+      isRenewal: true,
+      originalLoanId: renewData.loan.id
+    }
+
+    // Codificar os dados para passar via URL
+    const encodedData = encodeURIComponent(JSON.stringify(loanData))
+    
+    setShowRenewDialog(false)
+    setRenewData({ loan: null, nextPaymentDate: '' })
+    
+    // Redirecionar para a tela de criação com dados preenchidos
+    router.push(`/dashboard/emprestimos/novo?data=${encodedData}`)
   }
 
   const confirmDelete = async () => {
@@ -344,6 +404,17 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                             >
                               <Calendar className="w-4 h-4" />
                             </Button>
+                            {loan.status === 'COMPLETED' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRenew(loan)}
+                                className="bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600"
+                                title="Renovar Empréstimo"
+                              >
+                                <RotateCcw className="w-4 h-4" />
+                              </Button>
+                            )}
                             {loan.status === 'ACTIVE' && (
                               <Button
                                 variant="outline"
@@ -415,6 +486,17 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                             Parcelas
                           </Button>
                         </div>
+                        {loan.status === 'COMPLETED' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRenew(loan)}
+                            className="w-full bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            Renovar Empréstimo
+                          </Button>
+                        )}
                         {loan.status === 'ACTIVE' && (
                           <Button
                             variant="outline"
@@ -447,6 +529,64 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
         cancelText="Cancelar"
         variant="destructive"
       />
+
+      {/* Modal de Renovação */}
+      <Dialog open={showRenewDialog} onOpenChange={setShowRenewDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <RotateCcw className="w-5 h-5 text-blue-600" />
+              Renovar Empréstimo
+            </DialogTitle>
+            <DialogDescription>
+              Deseja renovar o empréstimo de {renewData.loan?.customer.nomeCompleto}?
+              <br />
+              <span className="text-sm text-gray-600 mt-2 block">
+                Você será redirecionado para a tela de criação com os dados preenchidos:
+              </span>
+              <ul className="text-sm text-gray-600 mt-1 ml-4 list-disc">
+                <li>Cliente: {renewData.loan?.customer.nomeCompleto}</li>
+                <li>Valor: {renewData.loan && formatCurrency(renewData.loan.totalAmount)}</li>
+                <li>Parcelas: {renewData.loan?.installments}x</li>
+                <li>Valor por parcela: {renewData.loan && formatCurrency(renewData.loan.installmentValue)}</li>
+              </ul>
+              <span className="text-sm text-blue-600 mt-2 block">
+                Você poderá alterar qualquer informação antes de salvar.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="nextPaymentDate">Data do Próximo Pagamento *</Label>
+              <Input
+                id="nextPaymentDate"
+                type="date"
+                value={renewData.nextPaymentDate}
+                onChange={(e) => setRenewData(prev => ({ ...prev, nextPaymentDate: e.target.value }))}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRenewDialog(false)
+                setRenewData({ loan: null, nextPaymentDate: '' })
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmRenew}
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={!renewData.nextPaymentDate}
+            >
+              Ir para Criação
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
