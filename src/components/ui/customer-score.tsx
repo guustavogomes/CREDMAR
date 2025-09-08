@@ -109,26 +109,62 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">Score do Cliente</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b sticky top-0 bg-white">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Score do Cliente</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
           {/* Informações do Cliente */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+                <User className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Informações do Cliente</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-start space-x-4">
+            <CardContent className="pt-0">
+              {/* Layout Mobile */}
+              <div className="block sm:hidden">
+                <div className="text-center mb-4">
+                  {customer?.foto ? (
+                    <img 
+                      src={customer.foto} 
+                      alt={customer.nomeCompleto}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 mx-auto"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto">
+                      <User className="h-6 w-6 text-gray-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-center">{customer?.nomeCompleto}</h3>
+                  <div className="space-y-2">
+                    <div className="text-sm text-gray-600 text-center">
+                      <span className="font-medium">CPF:</span> {customer?.cpf}
+                    </div>
+                    <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                      <Phone className="h-4 w-4" />
+                      <a href={`tel:${customer?.celular}`} className="text-blue-600 hover:underline">
+                        {customer?.celular}
+                      </a>
+                    </div>
+                    <div className="flex items-start justify-center space-x-2 text-sm text-gray-600">
+                      <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <span className="text-center">{customer?.endereco}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Layout Desktop */}
+              <div className="hidden sm:flex items-start space-x-4">
                 <div className="flex-shrink-0">
                   {customer?.foto ? (
                     <img 
@@ -161,20 +197,20 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
           </Card>
 
           {/* Score e Classificação */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <TrendingUp className="h-5 w-5" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>Score de Crédito</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="text-center">
-                  <div className={`text-4xl font-bold mb-2 ${getScoreColor(score?.value || 0)}`}>
+                  <div className={`text-3xl sm:text-4xl font-bold mb-2 ${getScoreColor(score?.value || 0)}`}>
                     {score?.value}
                   </div>
-                  <Badge variant="outline" className={getScoreColor(score?.value || 0)}>
+                  <Badge variant="outline" className={`${getScoreColor(score?.value || 0)} text-xs sm:text-sm`}>
                     {score?.class}
                   </Badge>
                 </div>
@@ -182,29 +218,29 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
                   {getRiskIcon(riskAnalysis?.recommendation || '')}
                   <span>Análise de Risco</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Classificação:</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Classificação:</span>
+                    <span className="font-semibold text-sm text-right">
                       {getRiskText(riskAnalysis?.recommendation || '')}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Atraso Médio:</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Atraso Médio:</span>
+                    <span className="font-semibold text-sm">
                       {riskAnalysis?.averageDelayDays || 0} dias
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Taxa de Pagamento:</span>
-                    <span className="font-semibold">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Taxa de Pagamento:</span>
+                    <span className="font-semibold text-sm">
                       {statistics?.paymentRate || 0}%
                     </span>
                   </div>
@@ -215,26 +251,26 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
 
           {/* Estatísticas */}
           <Card>
-            <CardHeader>
-              <CardTitle>Histórico de Empréstimos</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Histórico de Empréstimos</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{statistics?.totalLoans || 0}</div>
-                  <div className="text-sm text-gray-600">Total</div>
+                  <div className="text-xl sm:text-2xl font-bold text-blue-600">{statistics?.totalLoans || 0}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Total</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{statistics?.activeLoans || 0}</div>
-                  <div className="text-sm text-gray-600">Ativos</div>
+                  <div className="text-xl sm:text-2xl font-bold text-green-600">{statistics?.activeLoans || 0}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Ativos</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-600">{statistics?.completedLoans || 0}</div>
-                  <div className="text-sm text-gray-600">Concluídos</div>
+                  <div className="text-xl sm:text-2xl font-bold text-gray-600">{statistics?.completedLoans || 0}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Concluídos</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{statistics?.overdueInstallments || 0}</div>
-                  <div className="text-sm text-gray-600">Em Atraso</div>
+                  <div className="text-xl sm:text-2xl font-bold text-red-600">{statistics?.overdueInstallments || 0}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Em Atraso</div>
                 </div>
               </div>
             </CardContent>
@@ -243,56 +279,58 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
           {/* HISTÓRICO PERPÉTUO DE ATRASOS */}
           {(statistics?.totalDelayedInstallments || 0) > 0 && (
             <Card className="border-orange-200 bg-orange-50">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-orange-800">
-                  <TrendingDown className="h-5 w-5" />
-                  <span>Histórico de Atrasos (Registro Permanente)</span>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-orange-800 text-base sm:text-lg">
+                  <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span>Histórico de Atrasos</span>
                 </CardTitle>
-                <p className="text-sm text-orange-600 mt-2">
-                  Estas informações ficam registradas permanentemente, mas o score pode se recuperar com bom comportamento.
+                <p className="text-xs sm:text-sm text-orange-600 mt-2">
+                  Informações registradas permanentemente. Score pode se recuperar com bom comportamento.
                 </p>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-700">
+                    <div className="text-xl sm:text-2xl font-bold text-orange-700">
                       {statistics?.totalDelayedInstallments || 0}
                     </div>
-                    <div className="text-sm text-orange-600">Parcelas Atrasadas</div>
-                    <div className="text-xs text-orange-500">(Registro Permanente)</div>
+                    <div className="text-xs sm:text-sm text-orange-600">Parcelas</div>
+                    <div className="text-xs text-orange-500">(Permanente)</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-700">
+                    <div className="text-xl sm:text-2xl font-bold text-orange-700">
                       {statistics?.totalDelayDays || 0}
                     </div>
-                    <div className="text-sm text-orange-600">Dias de Atraso</div>
-                    <div className="text-xs text-orange-500">(Total Histórico)</div>
+                    <div className="text-xs sm:text-sm text-orange-600">Dias Atraso</div>
+                    <div className="text-xs text-orange-500">(Total)</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-700">
+                    <div className="text-xl sm:text-2xl font-bold text-orange-700">
                       {statistics?.maxDelayDays || 0}
                     </div>
-                    <div className="text-sm text-orange-600">Maior Atraso</div>
+                    <div className="text-xs sm:text-sm text-orange-600">Máx. Atraso</div>
                     <div className="text-xs text-orange-500">(Recorde)</div>
                   </div>
                   <div className="text-center">
-                    <div className={`text-2xl font-bold ${statistics?.hasDelayOver5Days ? 'text-red-700' : 'text-green-700'}`}>
+                    <div className={`text-xl sm:text-2xl font-bold ${statistics?.hasDelayOver5Days ? 'text-red-700' : 'text-green-700'}`}>
                       {statistics?.hasDelayOver5Days ? 'SIM' : 'NÃO'}
                     </div>
-                    <div className="text-sm text-orange-600">Atraso &gt; 5 dias</div>
-                    <div className="text-xs text-orange-500">(Penalização Severa)</div>
+                    <div className="text-xs sm:text-sm text-orange-600">&gt; 5 dias</div>
+                    <div className="text-xs text-orange-500">(-500 pts)</div>
                   </div>
                 </div>
                 {statistics?.hasDelayOver5Days && (
-                  <div className="mt-4 p-3 bg-red-100 rounded-lg border border-red-300">
-                    <div className="flex items-center space-x-2 text-red-800">
-                      <AlertTriangle className="h-5 w-5" />
-                      <span className="font-semibold">
-                        Este cliente já teve atraso superior a 5 dias (penalidade de -500 pontos aplicada)
-                      </span>
-                    </div>
-                    <div className="text-sm text-red-600 mt-1">
-                      ℹ️ O score pode ser recuperado com bom comportamento, mas este registro permanece na ficha.
+                  <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-red-100 rounded-lg border border-red-300">
+                    <div className="flex items-start space-x-2 text-red-800">
+                      <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold text-xs sm:text-sm">
+                          Cliente teve atraso &gt; 5 dias (penalidade -500 pts)
+                        </span>
+                        <div className="text-xs sm:text-sm text-red-600 mt-1">
+                          Score pode recuperar, mas registro é permanente.
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -337,36 +375,44 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
           {/* Alertas */}
           {(riskAnalysis?.hasOverduePayments || riskAnalysis?.hasCancelledLoans || statistics?.totalDelayedInstallments) && (
             <Card className="border-orange-200 bg-orange-50">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-orange-800">
-                  <AlertTriangle className="h-5 w-5" />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center space-x-2 text-orange-800 text-base sm:text-lg">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>Alertas</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
+              <CardContent className="pt-0">
+                <div className="space-y-2 sm:space-y-3">
                   {statistics?.hasDelayOver5Days && (
-                    <div className="flex items-center space-x-2 text-red-800 font-semibold">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>ALERTA CRÍTICO: Cliente já teve atraso superior a 5 dias!</span>
+                    <div className="flex items-start space-x-2 text-red-800">
+                      <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <span className="font-semibold text-xs sm:text-sm">
+                        ALERTA CRÍTICO: Atraso &gt; 5 dias registrado!
+                      </span>
                     </div>
                   )}
                   {statistics?.totalDelayedInstallments && statistics.totalDelayedInstallments > 0 && (
-                    <div className="flex items-center space-x-2 text-orange-700">
-                      <TrendingDown className="h-4 w-4" />
-                      <span>Cliente possui {statistics.totalDelayedInstallments} parcelas com histórico de atraso</span>
+                    <div className="flex items-start space-x-2 text-orange-700">
+                      <TrendingDown className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm">
+                        {statistics.totalDelayedInstallments} parcela{statistics.totalDelayedInstallments > 1 ? 's' : ''} com histórico de atraso
+                      </span>
                     </div>
                   )}
                   {riskAnalysis?.hasOverduePayments && (
-                    <div className="flex items-center space-x-2 text-orange-700">
-                      <Clock className="h-4 w-4" />
-                      <span>Cliente possui parcelas em atraso atualmente</span>
+                    <div className="flex items-start space-x-2 text-orange-700">
+                      <Clock className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm">
+                        Parcelas em atraso atualmente
+                      </span>
                     </div>
                   )}
                   {riskAnalysis?.hasCancelledLoans && (
-                    <div className="flex items-center space-x-2 text-orange-700">
-                      <X className="h-4 w-4" />
-                      <span>Cliente possui empréstimos cancelados</span>
+                    <div className="flex items-start space-x-2 text-orange-700">
+                      <X className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm">
+                        Empréstimos cancelados no histórico
+                      </span>
                     </div>
                   )}
                 </div>
