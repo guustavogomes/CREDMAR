@@ -424,13 +424,21 @@ export default function NovoClientePage() {
                   </Button>
                 </div>
                 {scoreData && scoreData.found && (
-                  <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
+                  <div className={`mt-2 p-3 rounded-lg border ${
+                    scoreData.score?.value === 1000
+                      ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'
+                      : 'bg-gradient-to-r from-red-50 to-red-100 border-red-200'
+                  }`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-blue-800">
+                        <div className={`text-sm font-medium ${
+                          scoreData.score?.value === 1000 ? 'text-green-800' : 'text-red-800'
+                        }`}>
                           Cliente encontrado na base!
                         </div>
-                        <div className="text-xs text-blue-600">
+                        <div className={`text-xs font-semibold ${
+                          scoreData.score?.value === 1000 ? 'text-green-700' : 'text-red-700'
+                        }`}>
                           Score: {scoreData.score?.value} ({scoreData.score?.class})
                         </div>
                       </div>
