@@ -27,6 +27,11 @@ type CustomerScore = {
     pendingInstallments: number
     averageDelayDays: number
     paymentRate: number
+    // Histórico perpétuo de atrasos
+    totalDelayedInstallments: number
+    totalDelayDays: number
+    hasDelayOver5Days: boolean
+    maxDelayDays: number
   }
   companies?: Array<{
     name: string

@@ -14,7 +14,8 @@ const loanSchema = z.object({
   periodicityId: z.string().min(1),
   installments: z.number().int().positive(),
   installmentValue: z.number().positive(),
-  nextPaymentDate: z.string()
+  nextPaymentDate: z.string(),
+  startDate: z.string() // Nova data de início do empréstimo
 })
 
 export async function POST(request: NextRequest) {
@@ -57,14 +58,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validar se a data do primeiro pagamento não é anterior à data do empréstimo
+    const startDate = new Date(validatedData.startDate)
+    const paymentDate = new Date(validatedData.nextPaymentDate)
+    
+    if (paymentDate < startDate) {
+      return NextResponse.json(
+        { error: 'A data do primeiro pagamento não pode ser anterior à data do empréstimo' },
+        { status: 400 }
+      )
+    }
+    
     // Criar o empréstimo
-    // Converter a data usando timezone do Brasil
+    // Converter as datas usando timezone do Brasil
+    const transactionDate = parseBrazilDateString(validatedData.startDate) // Usar data de início customizada
     const nextPaymentDate = parseBrazilDateString(validatedData.nextPaymentDate)
     
     const newLoan = await db.loan.create({
       data: {
         customerId: validatedData.customerId,
-        transactionDate: new Date(),
+        transactionDate: transactionDate, // Data customizada do empréstimo
         totalAmount: validatedData.totalAmount,
         advanceAmount: validatedData.advanceAmount,
         periodicityId: validatedData.periodicityId,

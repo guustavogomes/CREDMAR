@@ -267,31 +267,41 @@ export default function NovoClientePage() {
       return
     }
 
+    // Validar se a foto foi selecionada
+    if (!fotoFile) {
+      toast({
+        title: 'Erro',
+        description: 'A foto do cliente é obrigatória',
+        variant: 'destructive'
+      })
+      return
+    }
+
     setLoading(true)
     
     try {
-      // Converter foto para base64 se houver
+      // Converter foto para base64 (obrigatório)
       let fotoBase64 = ''
-      if (fotoFile) {
-        try {
-          // Comprimir imagem antes de converter para base64
-          const compressedFile = await compressImage(fotoFile)
-          fotoBase64 = await convertFileToBase64(compressedFile)
-          
-          // Verificar se ainda está muito grande (limite de ~1MB em base64)
-          if (fotoBase64.length > 1000000) {
-            // Tentar compressão mais agressiva
-            const moreCompressed = await compressImage(fotoFile, 300, 0.5)
-            fotoBase64 = await convertFileToBase64(moreCompressed)
-          }
-        } catch (error) {
-          console.error('Erro ao processar foto:', error)
-          toast({
-            title: 'Aviso',
-            description: 'Erro ao processar a foto, cliente será salvo sem foto',
-            variant: 'destructive'
-          })
+      try {
+        // Comprimir imagem antes de converter para base64
+        const compressedFile = await compressImage(fotoFile)
+        fotoBase64 = await convertFileToBase64(compressedFile)
+        
+        // Verificar se ainda está muito grande (limite de ~1MB em base64)
+        if (fotoBase64.length > 1000000) {
+          // Tentar compressão mais agressiva
+          const moreCompressed = await compressImage(fotoFile, 300, 0.5)
+          fotoBase64 = await convertFileToBase64(moreCompressed)
         }
+      } catch (error) {
+        console.error('Erro ao processar foto:', error)
+        toast({
+          title: 'Erro',
+          description: 'Erro ao processar a foto. Por favor, tente novamente.',
+          variant: 'destructive'
+        })
+        setLoading(false)
+        return
       }
 
       // Preparar dados para envio - remover formatação do CPF
@@ -467,7 +477,7 @@ export default function NovoClientePage() {
             </div>
 
             <div>
-              <Label htmlFor="foto">Foto do Cliente</Label>
+              <Label htmlFor="foto">Foto do Cliente *</Label>
               <Input
                 id="foto"
                 type="file"
@@ -479,12 +489,16 @@ export default function NovoClientePage() {
                   }
                 }}
                 className="cursor-pointer"
+                required
               />
               {fotoFile && (
                 <p className="text-sm text-gray-500 mt-1">
                   Arquivo selecionado: {fotoFile.name}
                 </p>
               )}
+              <p className="text-xs text-gray-500 mt-1">
+                A foto é obrigatória para identificação do cliente
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -42,6 +42,11 @@ type CustomerScore = {
     pendingInstallments: number
     averageDelayDays: number
     paymentRate: number
+    // Histórico perpétuo de atrasos
+    totalDelayedInstallments: number
+    totalDelayDays: number
+    hasDelayOver5Days: boolean
+    maxDelayDays: number
   }
   companies?: Array<{
     name: string
@@ -235,6 +240,66 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
             </CardContent>
           </Card>
 
+          {/* HISTÓRICO PERPÉTUO DE ATRASOS */}
+          {(statistics?.totalDelayedInstallments || 0) > 0 && (
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 text-orange-800">
+                  <TrendingDown className="h-5 w-5" />
+                  <span>Histórico de Atrasos (Registro Permanente)</span>
+                </CardTitle>
+                <p className="text-sm text-orange-600 mt-2">
+                  Estas informações ficam registradas permanentemente, mas o score pode se recuperar com bom comportamento.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-700">
+                      {statistics?.totalDelayedInstallments || 0}
+                    </div>
+                    <div className="text-sm text-orange-600">Parcelas Atrasadas</div>
+                    <div className="text-xs text-orange-500">(Registro Permanente)</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-700">
+                      {statistics?.totalDelayDays || 0}
+                    </div>
+                    <div className="text-sm text-orange-600">Dias de Atraso</div>
+                    <div className="text-xs text-orange-500">(Total Histórico)</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-700">
+                      {statistics?.maxDelayDays || 0}
+                    </div>
+                    <div className="text-sm text-orange-600">Maior Atraso</div>
+                    <div className="text-xs text-orange-500">(Recorde)</div>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-2xl font-bold ${statistics?.hasDelayOver5Days ? 'text-red-700' : 'text-green-700'}`}>
+                      {statistics?.hasDelayOver5Days ? 'SIM' : 'NÃO'}
+                    </div>
+                    <div className="text-sm text-orange-600">Atraso &gt; 5 dias</div>
+                    <div className="text-xs text-orange-500">(Penalização Severa)</div>
+                  </div>
+                </div>
+                {statistics?.hasDelayOver5Days && (
+                  <div className="mt-4 p-3 bg-red-100 rounded-lg border border-red-300">
+                    <div className="flex items-center space-x-2 text-red-800">
+                      <AlertTriangle className="h-5 w-5" />
+                      <span className="font-semibold">
+                        Este cliente já teve atraso superior a 5 dias (penalidade de -500 pontos aplicada)
+                      </span>
+                    </div>
+                    <div className="text-sm text-red-600 mt-1">
+                      ℹ️ O score pode ser recuperado com bom comportamento, mas este registro permanece na ficha.
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Empresas Relacionadas - COMENTADO TEMPORARIAMENTE PARA APROVAÇÃO DAS EMPRESAS */}
           {/* 
           {companies && companies.length > 0 && (
@@ -270,7 +335,7 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
           */}
 
           {/* Alertas */}
-          {(riskAnalysis?.hasOverduePayments || riskAnalysis?.hasCancelledLoans) && (
+          {(riskAnalysis?.hasOverduePayments || riskAnalysis?.hasCancelledLoans || statistics?.totalDelayedInstallments) && (
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2 text-orange-800">
@@ -280,10 +345,22 @@ export function CustomerScore({ scoreData, onClose }: CustomerScoreProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
+                  {statistics?.hasDelayOver5Days && (
+                    <div className="flex items-center space-x-2 text-red-800 font-semibold">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>ALERTA CRÍTICO: Cliente já teve atraso superior a 5 dias!</span>
+                    </div>
+                  )}
+                  {statistics?.totalDelayedInstallments && statistics.totalDelayedInstallments > 0 && (
+                    <div className="flex items-center space-x-2 text-orange-700">
+                      <TrendingDown className="h-4 w-4" />
+                      <span>Cliente possui {statistics.totalDelayedInstallments} parcelas com histórico de atraso</span>
+                    </div>
+                  )}
                   {riskAnalysis?.hasOverduePayments && (
                     <div className="flex items-center space-x-2 text-orange-700">
                       <Clock className="h-4 w-4" />
-                      <span>Cliente possui parcelas em atraso</span>
+                      <span>Cliente possui parcelas em atraso atualmente</span>
                     </div>
                   )}
                   {riskAnalysis?.hasCancelledLoans && (

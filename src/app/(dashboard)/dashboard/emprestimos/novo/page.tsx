@@ -41,7 +41,8 @@ export default function NovoEmprestimoPage() {
     advanceAmount: '0',
     periodicityId: '',
     installments: '',
-    nextPaymentDate: ''
+    nextPaymentDate: '',
+    startDate: new Date().toISOString().split('T')[0] // Data atual como padrão
   })
 
   const [calculatedValues, setCalculatedValues] = useState({
@@ -75,7 +76,8 @@ export default function NovoEmprestimoPage() {
             advanceAmount: decodedData.advanceAmount?.toString() || '0',
             periodicityId: decodedData.periodicityId || '',
             installments: decodedData.installments?.toString() || '',
-            nextPaymentDate: decodedData.nextPaymentDate || ''
+            nextPaymentDate: decodedData.nextPaymentDate || '',
+            startDate: new Date().toISOString().split('T')[0]
           })
         }
       } catch (error) {
@@ -145,10 +147,23 @@ export default function NovoEmprestimoPage() {
     e.preventDefault()
     
     if (!formData.customerId || !formData.totalAmount || 
-        !formData.periodicityId || !formData.installments || !formData.nextPaymentDate) {
+        !formData.periodicityId || !formData.installments || !formData.nextPaymentDate || !formData.startDate) {
       toast({
         title: 'Erro',
         description: 'Preencha todos os campos obrigatórios',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Validar se a data do primeiro pagamento não é anterior à data do empréstimo
+    const startDate = new Date(formData.startDate)
+    const paymentDate = new Date(formData.nextPaymentDate)
+    
+    if (paymentDate < startDate) {
+      toast({
+        title: 'Erro',
+        description: 'A data do primeiro pagamento não pode ser anterior à data do empréstimo',
         variant: 'destructive'
       })
       return
@@ -161,7 +176,8 @@ export default function NovoEmprestimoPage() {
       totalAmount: parseFloat(formData.totalAmount),
       advanceAmount: parseFloat(formData.advanceAmount) || 0,
       installments: parseInt(formData.installments),
-      installmentValue: calculatedValues.installmentValue
+      installmentValue: calculatedValues.installmentValue,
+      startDate: formData.startDate // Incluir data de início
     }
     
     console.log('Enviando dados:', requestData)
@@ -390,18 +406,41 @@ export default function NovoEmprestimoPage() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="nextPaymentDate">Próxima Data de Pagamento *</Label>
-                  <Input
-                    id="nextPaymentDate"
-                    type="date"
-                    value={formData.nextPaymentDate}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      nextPaymentDate: e.target.value 
-                    }))}
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate">Data do Empréstimo *</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={formData.startDate}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        startDate: e.target.value 
+                      }))}
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Data em que o empréstimo foi/será concedido
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="nextPaymentDate">Primeira Data de Pagamento *</Label>
+                    <Input
+                      id="nextPaymentDate"
+                      type="date"
+                      value={formData.nextPaymentDate}
+                      min={formData.startDate} // Não pode ser anterior à data do empréstimo
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        nextPaymentDate: e.target.value 
+                      }))}
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Data do primeiro vencimento (não pode ser anterior à data do empréstimo)
+                    </p>
+                  </div>
                 </div>
 
                 <Button type="submit" disabled={loading} className="w-full">

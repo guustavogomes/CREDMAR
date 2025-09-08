@@ -14,7 +14,8 @@
       "Bash(timeout:*)",
       "Bash(set NODE_OPTIONS=\"--max-old-space-size=4096\")",
       "Bash(npm run build:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
