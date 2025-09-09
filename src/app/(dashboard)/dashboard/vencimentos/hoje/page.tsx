@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { formatDate as formatDateUtil } from "@/lib/date-utils"
 import { getBrazilianNow, formatBrazilianDate } from "@/lib/timezone-config"
+import { getBrazilTodayString } from '@/lib/timezone-utils'
 
 interface InstallmentWithLoan {
   id: string
@@ -80,7 +81,7 @@ export default function VencimentosHojePage() {
         body: JSON.stringify({
           amount: installments.find(i => i.id === installmentId)?.amount || 0,
           fineAmount: installments.find(i => i.id === installmentId)?.fineAmount || 0,
-          paymentDate: new Date().toISOString().split('T')[0]
+          paymentDate: getBrazilTodayString()
         })
       })
 

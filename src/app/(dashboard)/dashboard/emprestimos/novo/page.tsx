@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, Calculator, Search, X, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
+import { getBrazilTodayString } from '@/lib/timezone-utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 
@@ -43,7 +44,7 @@ export default function NovoEmprestimoPage() {
     periodicityId: '',
     installments: '',
     nextPaymentDate: '',
-    startDate: new Date().toISOString().split('T')[0], // Data atual como padrão
+    startDate: getBrazilTodayString(), // Data atual do Brasil como padrão
     observation: '' // Campo de observação
   })
 
@@ -79,7 +80,7 @@ export default function NovoEmprestimoPage() {
             periodicityId: decodedData.periodicityId || '',
             installments: decodedData.installments?.toString() || '',
             nextPaymentDate: decodedData.nextPaymentDate || '',
-            startDate: new Date().toISOString().split('T')[0],
+            startDate: getBrazilTodayString(),
             observation: decodedData.observation || ''
           })
         }

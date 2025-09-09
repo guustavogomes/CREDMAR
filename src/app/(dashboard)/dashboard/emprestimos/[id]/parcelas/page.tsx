@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Plus, X, CreditCard, RotateCcw } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency, isOverdue } from '@/lib/date-utils'
+import { getBrazilTodayString } from '@/lib/timezone-utils'
 
 type Installment = {
   id: string
@@ -49,7 +50,7 @@ export default function InstallmentsPage() {
   const [paymentData, setPaymentData] = useState({
     amount: '',
     fineAmount: '',
-    paymentDate: new Date().toISOString().split('T')[0]
+    paymentDate: getBrazilTodayString()
   })
   const [showFineDialog, setShowFineDialog] = useState(false)
   const [selectedInstallmentForFine, setSelectedInstallmentForFine] = useState<any>(null)
@@ -126,7 +127,7 @@ export default function InstallmentsPage() {
         setPaymentData({
           amount: '',
           fineAmount: '',
-          paymentDate: new Date().toISOString().split('T')[0]
+          paymentDate: getBrazilTodayString()
         })
         fetchLoanAndInstallments()
       }
@@ -144,7 +145,7 @@ export default function InstallmentsPage() {
     setPaymentData({
       amount: installment.amount.toString(),
       fineAmount: installment.fineAmount.toString(),
-      paymentDate: new Date().toISOString().split('T')[0]
+      paymentDate: getBrazilTodayString()
     })
     setShowPaymentDialog(true)
   }
@@ -725,7 +726,7 @@ export default function InstallmentsPage() {
                 type="date"
                 value={renewData.nextPaymentDate}
                 onChange={(e) => setRenewData(prev => ({ ...prev, nextPaymentDate: e.target.value }))}
-                min={new Date().toISOString().split('T')[0]}
+                min={getBrazilTodayString()}
               />
             </div>
           </div>

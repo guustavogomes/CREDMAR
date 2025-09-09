@@ -13,6 +13,7 @@ import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw, Info
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency } from '@/lib/date-utils'
+import { getBrazilTodayString } from '@/lib/timezone-utils'
 import { ConfirmationModal } from '@/components/ui/confirmation-modal'
 import {
   Dialog,
@@ -600,7 +601,7 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                 type="date"
                 value={renewData.nextPaymentDate}
                 onChange={(e) => setRenewData(prev => ({ ...prev, nextPaymentDate: e.target.value }))}
-                min={new Date().toISOString().split('T')[0]}
+                min={getBrazilTodayString()}
               />
             </div>
           </div>
