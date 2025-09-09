@@ -58,7 +58,11 @@ export async function GET(request: NextRequest) {
     // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
       where: {
-        loan: { userId: user.id },
+        loan: { 
+          userId: user.id,
+          status: 'ACTIVE', // Apenas empréstimos ativos
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
+        },
         dueDate: {
           gte: startOfToday,
           lt: endOfToday
@@ -76,7 +80,8 @@ export async function GET(request: NextRequest) {
       where: {
         loan: { 
           userId: user.id,
-          status: 'ACTIVE' // Apenas empréstimos ativos
+          status: 'ACTIVE', // Apenas empréstimos ativos
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
         },
         dueDate: {
           gte: startOfWeek,
@@ -96,7 +101,8 @@ export async function GET(request: NextRequest) {
       where: {
         loan: { 
           userId: user.id,
-          status: 'ACTIVE' // Apenas empréstimos ativos
+          status: 'ACTIVE', // Apenas empréstimos ativos
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
         },
         dueDate: {
           gte: startOfMonth,
@@ -116,7 +122,8 @@ export async function GET(request: NextRequest) {
       where: {
         loan: { 
           userId: user.id,
-          status: 'ACTIVE' // Apenas empréstimos ativos
+          status: 'ACTIVE', // Apenas empréstimos ativos
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
         },
         dueDate: { lt: startOfToday }, // Usar startOfToday que já está em UTC
         status: { in: ['PENDING', 'OVERDUE'] }
@@ -131,7 +138,10 @@ export async function GET(request: NextRequest) {
     // Total recebido no mês
     const totalReceivedThisMonth = await db.installment.aggregate({
       where: {
-        loan: { userId: user.id },
+        loan: { 
+          userId: user.id,
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
+        },
         status: 'PAID',
         paidAt: {
           gte: startOfMonth,
@@ -147,7 +157,8 @@ export async function GET(request: NextRequest) {
     const activeLoans = await db.loan.count({
       where: {
         userId: user.id,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        deletedAt: null // Excluir empréstimos deletados (soft delete)
       }
     })
 
@@ -155,7 +166,8 @@ export async function GET(request: NextRequest) {
     const uniqueCustomers = await db.loan.findMany({
       where: {
         userId: user.id,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        deletedAt: null // Excluir empréstimos deletados (soft delete)
       },
       select: {
         customerId: true
@@ -166,7 +178,10 @@ export async function GET(request: NextRequest) {
     // Taxa de inadimplência
     const totalInstallments = await db.installment.count({
       where: {
-        loan: { userId: user.id }
+        loan: { 
+          userId: user.id,
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
+        }
       }
     })
 
@@ -180,7 +195,8 @@ export async function GET(request: NextRequest) {
       where: {
         loan: { 
           userId: user.id,
-          status: 'ACTIVE' // Apenas empréstimos ativos
+          status: 'ACTIVE', // Apenas empréstimos ativos
+          deletedAt: null // Excluir empréstimos deletados (soft delete)
         },
         dueDate: {
           gte: endOfToday,
