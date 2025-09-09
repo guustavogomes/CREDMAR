@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, Calculator, Search, X, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
@@ -42,7 +43,8 @@ export default function NovoEmprestimoPage() {
     periodicityId: '',
     installments: '',
     nextPaymentDate: '',
-    startDate: new Date().toISOString().split('T')[0] // Data atual como padrão
+    startDate: new Date().toISOString().split('T')[0], // Data atual como padrão
+    observation: '' // Campo de observação
   })
 
   const [calculatedValues, setCalculatedValues] = useState({
@@ -77,7 +79,8 @@ export default function NovoEmprestimoPage() {
             periodicityId: decodedData.periodicityId || '',
             installments: decodedData.installments?.toString() || '',
             nextPaymentDate: decodedData.nextPaymentDate || '',
-            startDate: new Date().toISOString().split('T')[0]
+            startDate: new Date().toISOString().split('T')[0],
+            observation: decodedData.observation || ''
           })
         }
       } catch (error) {
@@ -177,7 +180,8 @@ export default function NovoEmprestimoPage() {
       advanceAmount: parseFloat(formData.advanceAmount) || 0,
       installments: parseInt(formData.installments),
       installmentValue: calculatedValues.installmentValue,
-      startDate: formData.startDate // Incluir data de início
+      startDate: formData.startDate, // Incluir data de início
+      observation: formData.observation // Incluir observação
     }
     
     console.log('Enviando dados:', requestData)
@@ -441,6 +445,24 @@ export default function NovoEmprestimoPage() {
                       Data do primeiro vencimento (não pode ser anterior à data do empréstimo)
                     </p>
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="observation">Observação</Label>
+                  <Textarea
+                    id="observation"
+                    placeholder="Adicione observações sobre este empréstimo (opcional)"
+                    value={formData.observation}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      observation: e.target.value 
+                    }))}
+                    rows={3}
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Campo opcional para anotações adicionais
+                  </p>
                 </div>
 
                 <Button type="submit" disabled={loading} className="w-full">

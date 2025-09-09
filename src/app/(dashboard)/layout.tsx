@@ -22,6 +22,7 @@ import { useState } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { CurrentDateTime, CurrentDateTimeCompact } from "@/components/current-datetime"
 import { NotificationsDropdown } from "@/components/notifications"
+import { WhatsAppSupport } from "@/components/whatsapp-support"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -239,6 +240,7 @@ export default function DashboardLayout({
         </main>
       </div>
       <Toaster />
+      <WhatsAppSupport />
     </div>
   )
 }

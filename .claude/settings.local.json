@@ -15,7 +15,12 @@
       "Bash(set NODE_OPTIONS=\"--max-old-space-size=4096\")",
       "Bash(npm run build:*)",
       "Bash(npx next:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma migrate reset:*)",
+      "Bash(net start:*)",
+      "Bash(copy .env.local .env)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

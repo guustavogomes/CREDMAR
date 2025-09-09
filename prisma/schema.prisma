@@ -176,6 +176,7 @@ model Loan {
   installmentValue Float
   nextPaymentDate DateTime
   status          LoanStatus    @default(ACTIVE)
+  observation     String?       // Campo de observação
   userId          String
   deletedAt       DateTime?     // Soft delete field
   createdAt       DateTime      @default(now())

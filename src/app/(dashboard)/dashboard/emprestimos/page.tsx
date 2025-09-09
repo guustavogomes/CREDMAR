@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw, Info } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency } from '@/lib/date-utils'
@@ -22,6 +22,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface Loan {
   id: string
@@ -32,6 +38,7 @@ interface Loan {
   nextPaymentDate: string
   status: string
   transactionDate: string
+  observation?: string | null
   customer: {
     [x: string]: string
     id: string
@@ -376,9 +383,23 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                     {filteredLoans.map((loan) => (
                       <TableRow key={loan.id} className="hover:bg-muted/30 border-border">
                         <TableCell className="font-medium">
-                          <div>
-                            <div className="text-foreground">{loan.customer.nomeCompleto}</div>
-                            <div className="text-sm text-muted-foreground">{loan.customer.cpf}</div>
+                          <div className="flex items-center gap-2">
+                            <div>
+                              <div className="text-foreground">{loan.customer.nomeCompleto}</div>
+                              <div className="text-sm text-muted-foreground">{loan.customer.cpf}</div>
+                            </div>
+                            {loan.observation && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-4 h-4 text-blue-500 cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs">{loan.observation}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground">{formatCurrency(loan.totalAmount)}</TableCell>
