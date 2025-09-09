@@ -46,7 +46,9 @@ export function brazilDateTimeToDate(luxonDate: DateTime): Date {
  * Converte Date nativo para DateTime do Brasil
  */
 export function dateToBrazilDateTime(date: Date): DateTime {
-  return DateTime.fromJSDate(date).setZone(BRAZIL_TIMEZONE)
+  // Importante: usar fromJSDate preserva o timestamp correto
+  // e setZone apenas muda a visualização para o timezone do Brasil
+  return DateTime.fromJSDate(date, { zone: BRAZIL_TIMEZONE })
 }
 
 /**
@@ -75,23 +77,34 @@ export function isBrazilToday(date: DateTime | Date): boolean {
 }
 
 /**
- * Obtém o início do dia no Brasil
+ * Obtém o início do dia no Brasil (00:00:00.000 no horário de Brasília)
  */
 export function getBrazilStartOfDay(date?: DateTime | Date): DateTime {
   if (date) {
     const luxonDate = date instanceof Date ? dateToBrazilDateTime(date) : date
+    // startOf('day') já considera o timezone configurado
     return luxonDate.startOf('day')
   }
   return getBrazilDateTime().startOf('day')
 }
 
 /**
- * Obtém o fim do dia no Brasil
+ * Obtém o fim do dia no Brasil (23:59:59.999 no horário de Brasília)
  */
 export function getBrazilEndOfDay(date?: DateTime | Date): DateTime {
   if (date) {
     const luxonDate = date instanceof Date ? dateToBrazilDateTime(date) : date
+    // endOf('day') já considera o timezone configurado
     return luxonDate.endOf('day')
   }
   return getBrazilDateTime().endOf('day')
+}
+
+/**
+ * Verifica se uma data está no mesmo dia que hoje no Brasil
+ */
+export function isTodayInBrazil(date: Date): boolean {
+  const dateInBrazil = dateToBrazilDateTime(date)
+  const todayInBrazil = getBrazilDateTime()
+  return dateInBrazil.hasSame(todayInBrazil, 'day')
 }

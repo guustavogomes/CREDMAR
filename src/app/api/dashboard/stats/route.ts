@@ -18,6 +18,9 @@ import {
   brazilDateTimeToDate,
   formatBrazilDate
 } from '@/lib/brazil-date'
+import { DateTime } from 'luxon'
+
+const BRAZIL_TIMEZONE = 'America/Sao_Paulo'
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -48,12 +51,18 @@ export async function GET(request: NextRequest) {
 
     // Usar Luxon para maior precisão de timezone (Brasil)
     const now = getBrazilDateTime()
-    const startOfToday = brazilDateTimeToDate(luxonGetBrazilStartOfDay(now))
-    const endOfToday = brazilDateTimeToDate(luxonGetBrazilEndOfDay(now))
-    const startOfWeek = brazilDateTimeToDate(now.startOf('week'))
-    const endOfWeek = brazilDateTimeToDate(now.endOf('week'))
-    const startOfMonth = brazilDateTimeToDate(now.startOf('month'))
-    const endOfMonth = brazilDateTimeToDate(now.endOf('month'))
+    
+    // Para comparar datas corretamente, precisamos considerar que o banco armazena em UTC
+    // mas as datas são para o Brasil. Vamos criar o range correto:
+    // Se hoje é 09/09 no Brasil, queremos parcelas cujo dueDate seja 09/09 às 00:00 UTC-3
+    const todayString = now.toFormat('yyyy-MM-dd') // 2025-09-09
+    const startOfToday = DateTime.fromISO(`${todayString}T00:00:00`, { zone: BRAZIL_TIMEZONE }).toUTC().toJSDate()
+    const endOfToday = DateTime.fromISO(`${todayString}T23:59:59.999`, { zone: BRAZIL_TIMEZONE }).toUTC().toJSDate()
+    
+    const startOfWeek = now.startOf('week').toUTC().toJSDate()
+    const endOfWeek = now.endOf('week').toUTC().toJSDate()
+    const startOfMonth = now.startOf('month').toUTC().toJSDate()
+    const endOfMonth = now.endOf('month').toUTC().toJSDate()
 
     // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
@@ -65,7 +74,7 @@ export async function GET(request: NextRequest) {
         },
         dueDate: {
           gte: startOfToday,
-          lt: endOfToday
+          lte: endOfToday // Usar lte ao invés de lt para incluir até 23:59:59
         }
       },
       include: {
