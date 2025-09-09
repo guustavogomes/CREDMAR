@@ -132,7 +132,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header Premium */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-8 text-white shadow-2xl">
+      <div className="dashboard-welcome relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-8 text-white shadow-2xl">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full -mr-48 -mt-48"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-indigo-500/20 to-transparent rounded-full -ml-32 -mb-32"></div>
@@ -332,7 +332,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Resumo de Performance */}
-        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+        <Card className="performance-section border-0 shadow-xl bg-white/80 backdrop-blur-sm">
           <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-purple-50">
             <CardTitle className="text-xl font-bold text-slate-800">Resumo de Performance</CardTitle>
             <CardDescription className="text-slate-600 mt-1">

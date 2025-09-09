@@ -23,6 +23,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { CurrentDateTime, CurrentDateTimeCompact } from "@/components/current-datetime"
 import { NotificationsDropdown } from "@/components/notifications"
 import { WhatsAppSupport } from "@/components/whatsapp-support"
+import TutorialProvider from "@/components/tutorial/tutorial-provider"
+import { TutorialButton } from "@/components/tutorial/tutorial-button"
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -84,8 +86,9 @@ export default function DashboardLayout({
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-muted/40 dark:from-background dark:via-muted/10 dark:to-muted/20">
-      {/* Mobile sidebar */}
+    <TutorialProvider>
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-muted/40 dark:from-background dark:via-muted/10 dark:to-muted/20">
+        {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${
         sidebarOpen ? 'block' : 'hidden'
       }`}>
@@ -241,6 +244,8 @@ export default function DashboardLayout({
       </div>
       <Toaster />
       <WhatsAppSupport />
+      <TutorialButton />
     </div>
+    </TutorialProvider>
   )
 }
