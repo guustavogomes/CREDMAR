@@ -11,10 +11,22 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
+      )
+    }
+    
+    // Buscar o usuário pelo email para obter o ID
+    const user = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Usuário não encontrado' },
+        { status: 404 }
       )
     }
     
@@ -24,7 +36,7 @@ export async function DELETE(
     const route = await db.route.findFirst({
       where: {
         id,
-        userId: session.user.id
+        userId: user.id
       }
     })
     
@@ -75,17 +87,29 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
       )
     }
     
+    // Buscar o usuário pelo email para obter o ID
+    const user = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Usuário não encontrado' },
+        { status: 404 }
+      )
+    }
+    
     const route = await db.route.findFirst({
       where: {
         id: params.id,
-        userId: session.user.id
+        userId: user.id
       },
       include: {
         _count: {

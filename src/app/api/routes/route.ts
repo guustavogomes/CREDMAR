@@ -14,10 +14,22 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
+      )
+    }
+    
+    // Buscar o usuário pelo email para obter o ID
+    const user = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Usuário não encontrado' },
+        { status: 404 }
       )
     }
     
@@ -25,7 +37,7 @@ export async function GET() {
     const isAdmin = session.user.role === 'ADMIN'
     
     const routes = await db.route.findMany({
-      where: isAdmin ? {} : { userId: session.user.id },
+      where: isAdmin ? {} : { userId: user.id },
       orderBy: { description: 'asc' },
       include: {
         user: {
@@ -58,10 +70,22 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
+      )
+    }
+    
+    // Buscar o usuário pelo email para obter o ID
+    const user = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Usuário não encontrado' },
+        { status: 404 }
       )
     }
     
@@ -75,7 +99,7 @@ export async function POST(request: NextRequest) {
           equals: validatedData.description,
           mode: 'insensitive'
         },
-        userId: session.user.id
+        userId: user.id
       }
     })
     
@@ -89,7 +113,7 @@ export async function POST(request: NextRequest) {
     const route = await db.route.create({
       data: {
         description: validatedData.description,
-        userId: session.user.id
+        userId: user.id
       },
       include: {
         user: {
