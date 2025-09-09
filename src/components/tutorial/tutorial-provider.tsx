@@ -145,23 +145,56 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
     if (tourKey) {
       markTourAsSeen(tourKey)
     }
+    
+    toast({
+      title: "🚪 Tutorial Encerrado",
+      description: "Tutorial fechado manualmente."
+    })
   }
 
   const handleJoyrideCallback = (data: any) => {
-    const { status, type } = data
-    const finishedStatuses = ['finished', 'skipped']
+    const { status, type, action, index, lifecycle } = data
+    console.log('JoyRide callback:', { status, type, action, index, lifecycle })
     
-    if (finishedStatuses.includes(status)) {
+    // Qualquer situação que indique finalização
+    const shouldClose = (
+      status === 'finished' ||
+      status === 'skipped' ||
+      action === 'close' ||
+      action === 'skip' ||
+      type === 'tour:end' ||
+      (type === 'step:after' && action === 'next' && index >= steps.length - 1)
+    )
+    
+    if (shouldClose) {
+      console.log('Fechando tutorial por:', { status, action, type })
+      
       const tourKey = getTourKeyFromPath(pathname)
       if (tourKey) {
         markTourAsSeen(tourKey)
       }
       setRun(false)
       
-      if (status === 'finished') {
+      // Toast baseado no motivo do fechamento
+      if (status === 'finished' || (type === 'step:after' && action === 'next')) {
         toast({
           title: "✅ Tutorial Concluído",
           description: "Parabéns! Você concluiu o tutorial desta página."
+        })
+      } else if (action === 'skip') {
+        toast({
+          title: "⏭️ Tutorial Pulado",
+          description: "Tutorial pulado. Você pode acessá-lo novamente pelo botão de ajuda."
+        })
+      } else if (action === 'close') {
+        toast({
+          title: "❌ Tutorial Fechado",
+          description: "Tutorial fechado. Você pode acessá-lo novamente pelo botão de ajuda."
+        })
+      } else {
+        toast({
+          title: "📋 Tutorial Encerrado",
+          description: "Tutorial finalizado."
         })
       }
     }
@@ -175,14 +208,18 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
           steps={steps}
           run={run}
           stepIndex={stepIndex}
-          continuous
-          showProgress
-          showSkipButton
+          continuous={false}
+          showProgress={false}
+          showSkipButton={true}
+          hideCloseButton={false}
+          disableOverlayClose={false}
+          disableCloseOnEsc={false}
+          spotlightPadding={5}
           callback={handleJoyrideCallback}
           locale={{
             back: 'Voltar',
             close: 'Fechar',
-            last: 'Finalizar',
+            last: 'Entendi!',
             next: 'Próximo',
             skip: 'Pular'
           }}
@@ -190,17 +227,38 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
             options: {
               primaryColor: '#3b82f6',
               zIndex: 10000,
+              overlayColor: 'rgba(0, 0, 0, 0.5)',
+              width: 400
             },
             tooltip: {
               borderRadius: 8,
-              fontSize: 16
+              fontSize: 16,
+              padding: 20
+            },
+            tooltipContainer: {
+              textAlign: 'left'
+            },
+            tooltipContent: {
+              padding: '10px 0'
             },
             buttonNext: {
               backgroundColor: '#3b82f6',
               borderRadius: 4,
+              fontSize: 14,
+              padding: '8px 16px'
             },
             buttonBack: {
               marginRight: 10,
+            },
+            buttonClose: {
+              display: 'block',
+              position: 'absolute',
+              right: 8,
+              top: 8
+            },
+            buttonSkip: {
+              color: '#6b7280',
+              fontSize: 12
             }
           }}
         />

@@ -15,7 +15,7 @@ import { useTutorial } from './tutorial-provider'
 import { useToast } from '@/hooks/use-toast'
 
 export function TutorialButton() {
-  const { startTutorial, resetTutorials } = useTutorial()
+  const { startTutorial, resetTutorials, skipTutorial } = useTutorial()
   const { toast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -78,6 +78,16 @@ export function TutorialButton() {
             <div className="font-medium">Reiniciar Tutoriais</div>
             <div className="text-xs text-muted-foreground">
               Ver todos os tutoriais novamente
+            </div>
+          </div>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={() => { skipTutorial(); setIsOpen(false) }} className="cursor-pointer">
+          <HelpCircle className="mr-2 h-4 w-4 text-red-600" />
+          <div>
+            <div className="font-medium">Fechar Tutorial</div>
+            <div className="text-xs text-muted-foreground">
+              Forçar fechamento do tutorial ativo
             </div>
           </div>
         </DropdownMenuItem>
