@@ -20,7 +20,8 @@
       "Bash(net start:*)",
       "Bash(copy .env.local .env)",
       "Bash(npx prisma db seed:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": [],
     "ask": []

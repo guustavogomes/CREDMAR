@@ -170,7 +170,7 @@ model Loan {
   customerId      String
   transactionDate DateTime      @default(now())
   totalAmount     Float
-  advanceAmount   Float
+  amountWithoutInterest Float   // Valor sem juros (obrigatório)
   periodicityId   String
   installments    Int
   installmentValue Float

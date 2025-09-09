@@ -10,7 +10,7 @@ import { parseBrazilDateString, formatBrazilDateToString } from '@/lib/timezone-
 const loanSchema = z.object({
   customerId: z.string().min(1),
   totalAmount: z.number().positive(),
-  advanceAmount: z.number().min(0),
+  amountWithoutInterest: z.number().positive(),
   periodicityId: z.string().min(1),
   installments: z.number().int().positive(),
   installmentValue: z.number().positive(),
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         customerId: validatedData.customerId,
         transactionDate: transactionDate, // Data customizada do empréstimo
         totalAmount: validatedData.totalAmount,
-        advanceAmount: validatedData.advanceAmount,
+        amountWithoutInterest: validatedData.amountWithoutInterest,
         periodicityId: validatedData.periodicityId,
         installments: validatedData.installments,
         installmentValue: validatedData.installmentValue,

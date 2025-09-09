@@ -64,7 +64,7 @@ export async function POST(
         customerId: originalLoan.customerId,
         transactionDate: new Date(),
         totalAmount: originalLoan.totalAmount,
-        advanceAmount: originalLoan.advanceAmount,
+        amountWithoutInterest: originalLoan.amountWithoutInterest,
         periodicityId: originalLoan.periodicityId,
         installments: originalLoan.installments,
         installmentValue: originalLoan.installmentValue,
@@ -144,7 +144,7 @@ export async function POST(
         customer: newLoan.customer,
         periodicity: newLoan.periodicity,
         totalAmount: newLoan.totalAmount,
-        advanceAmount: newLoan.advanceAmount,
+        amountWithoutInterest: newLoan.amountWithoutInterest,
         installments: newLoan.installments,
         installmentValue: newLoan.installmentValue,
         nextPaymentDate: newLoan.nextPaymentDate

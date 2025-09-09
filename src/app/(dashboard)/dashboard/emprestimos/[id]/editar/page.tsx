@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, Calculator } from 'lucide-react'
 import Link from 'next/link'
@@ -26,11 +27,12 @@ interface Loan {
   id: string
   customerId: string
   totalAmount: number
-  advanceAmount: number
+  amountWithoutInterest: number
   periodicityId: string
   installments: number
   installmentValue: number
   nextPaymentDate: string
+  observation?: string | null
   customer: Customer
   periodicity: Periodicity
 }
@@ -46,10 +48,11 @@ export default function EditarEmprestimoPage() {
 
   const [formData, setFormData] = useState({
     totalAmount: '',
-    advanceAmount: '',
+    amountWithoutInterest: '',
     periodicityId: '',
     installments: '',
-    nextPaymentDate: ''
+    nextPaymentDate: '',
+    observation: ''
   })
 
   const [calculatedValues, setCalculatedValues] = useState({
@@ -74,10 +77,11 @@ export default function EditarEmprestimoPage() {
         setLoan(data)
         setFormData({
           totalAmount: data.totalAmount.toString(),
-          advanceAmount: data.advanceAmount.toString(),
+          amountWithoutInterest: data.amountWithoutInterest.toString(),
           periodicityId: data.periodicityId,
           installments: data.installments.toString(),
-          nextPaymentDate: data.nextPaymentDate.split('T')[0]
+          nextPaymentDate: data.nextPaymentDate.split('T')[0],
+          observation: data.observation || ''
         })
       } else {
         toast({
@@ -141,9 +145,10 @@ export default function EditarEmprestimoPage() {
         body: JSON.stringify({
           ...formData,
           totalAmount: parseFloat(formData.totalAmount),
-          advanceAmount: parseFloat(formData.advanceAmount) || 0,
+          amountWithoutInterest: parseFloat(formData.amountWithoutInterest),
           installments: parseInt(formData.installments),
-          installmentValue: calculatedValues.installmentValue
+          installmentValue: calculatedValues.installmentValue,
+          observation: formData.observation
         })
       })
 
@@ -234,17 +239,18 @@ export default function EditarEmprestimoPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="advanceAmount">Valor Adiantado</Label>
+                    <Label htmlFor="amountWithoutInterest">Valor Sem Juros *</Label>
                     <Input
-                      id="advanceAmount"
+                      id="amountWithoutInterest"
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      value={formData.advanceAmount}
+                      value={formData.amountWithoutInterest}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
-                        advanceAmount: e.target.value 
+                        amountWithoutInterest: e.target.value 
                       }))}
+                      required
                     />
                   </div>
                 </div>
@@ -301,6 +307,24 @@ export default function EditarEmprestimoPage() {
                     }))}
                     required
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="observation">Observação</Label>
+                  <Textarea
+                    id="observation"
+                    placeholder="Adicione observações sobre este empréstimo (opcional)"
+                    value={formData.observation}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      observation: e.target.value 
+                    }))}
+                    rows={3}
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Campo opcional para anotações adicionais
+                  </p>
                 </div>
 
                 <Button type="submit" disabled={loading} className="w-full">

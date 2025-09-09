@@ -321,7 +321,7 @@ export default function InstallmentsPage() {
     const loanData = {
       customerId: payAllData.loan.customer.id,
       totalAmount: payAllData.loan.totalAmount,
-      advanceAmount: payAllData.loan.advanceAmount,
+      amountWithoutInterest: payAllData.loan.amountWithoutInterest,
       periodicityId: payAllData.loan.periodicity.id,
       installments: payAllData.loan.installments,
       installmentValue: payAllData.loan.installmentValue,

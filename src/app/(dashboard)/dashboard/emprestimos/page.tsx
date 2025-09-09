@@ -32,7 +32,7 @@ import {
 interface Loan {
   id: string
   totalAmount: number
-  advanceAmount: number
+  amountWithoutInterest: number
   installments: number
   installmentValue: number
   nextPaymentDate: string
@@ -176,7 +176,7 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
     const loanData = {
       customerId: renewData.loan.customer.id,
       totalAmount: renewData.loan.totalAmount,
-      advanceAmount: renewData.loan.advanceAmount,
+      amountWithoutInterest: renewData.loan.amountWithoutInterest,
       periodicityId: renewData.loan.periodicity.id,
       installments: renewData.loan.installments,
       installmentValue: renewData.loan.installmentValue,
@@ -371,6 +371,7 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                   <TableHeader>
                     <TableRow>
                       <TableHead>Cliente</TableHead>
+                      <TableHead>Data do Empréstimo</TableHead>
                       <TableHead>Valor Total</TableHead>
                       <TableHead>Parcelas</TableHead>
                       <TableHead>Valor/Parcela</TableHead>
@@ -402,6 +403,7 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                             )}
                           </div>
                         </TableCell>
+                        <TableCell className="text-muted-foreground">{formatDate(loan.transactionDate)}</TableCell>
                         <TableCell className="text-muted-foreground">{formatCurrency(loan.totalAmount)}</TableCell>
                         <TableCell className="text-muted-foreground">{loan.installments}x</TableCell>
                         <TableCell className="text-muted-foreground">{formatCurrency(loan.installmentValue)}</TableCell>
@@ -460,14 +462,32 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                   <Card key={loan.id} className="border-l-4 border-l-green-500 border-border bg-card">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-foreground">{loan.customer.nomeCompleto}</h3>
-                          <p className="text-sm text-muted-foreground">{loan.customer.cpf}</p>
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <h3 className="font-semibold text-foreground">{loan.customer.nomeCompleto}</h3>
+                            <p className="text-sm text-muted-foreground">{loan.customer.cpf}</p>
+                          </div>
+                          {loan.observation && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="w-4 h-4 text-blue-500 cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">{loan.observation}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                         </div>
                         {getStatusBadge(loan.status)}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Data do Empréstimo:</span>
+                          <div className="font-semibold text-foreground">{formatDate(loan.transactionDate)}</div>
+                        </div>
                         <div>
                           <span className="text-muted-foreground">Valor Total:</span>
                           <div className="font-semibold text-foreground">{formatCurrency(loan.totalAmount)}</div>
@@ -479,10 +499,6 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                         <div>
                           <span className="text-muted-foreground">Próximo Pagamento:</span>
                           <div className="font-semibold text-foreground">{formatDate(loan.nextPaymentDate)}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Periodicidade:</span>
-                          <div className="font-semibold text-foreground">{loan.periodicity.name}</div>
                         </div>
                       </div>
                       

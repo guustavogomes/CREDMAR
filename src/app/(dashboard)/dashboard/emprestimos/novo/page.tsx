@@ -39,7 +39,7 @@ export default function NovoEmprestimoPage() {
   const [formData, setFormData] = useState({
     customerId: '',
     totalAmount: '',
-    advanceAmount: '0',
+    amountWithoutInterest: '',
     periodicityId: '',
     installments: '',
     nextPaymentDate: '',
@@ -75,7 +75,7 @@ export default function NovoEmprestimoPage() {
           setFormData({
             customerId: decodedData.customerId || '',
             totalAmount: decodedData.totalAmount?.toString() || '',
-            advanceAmount: decodedData.advanceAmount?.toString() || '0',
+            amountWithoutInterest: decodedData.amountWithoutInterest?.toString() || '',
             periodicityId: decodedData.periodicityId || '',
             installments: decodedData.installments?.toString() || '',
             nextPaymentDate: decodedData.nextPaymentDate || '',
@@ -149,7 +149,7 @@ export default function NovoEmprestimoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.customerId || !formData.totalAmount || 
+    if (!formData.customerId || !formData.totalAmount || !formData.amountWithoutInterest ||
         !formData.periodicityId || !formData.installments || !formData.nextPaymentDate || !formData.startDate) {
       toast({
         title: 'Erro',
@@ -177,7 +177,7 @@ export default function NovoEmprestimoPage() {
     const requestData = {
       ...formData,
       totalAmount: parseFloat(formData.totalAmount),
-      advanceAmount: parseFloat(formData.advanceAmount) || 0,
+      amountWithoutInterest: parseFloat(formData.amountWithoutInterest),
       installments: parseInt(formData.installments),
       installmentValue: calculatedValues.installmentValue,
       startDate: formData.startDate, // Incluir data de início
@@ -359,17 +359,18 @@ export default function NovoEmprestimoPage() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="advanceAmount">Valor Antecipado</Label>
+                    <Label htmlFor="amountWithoutInterest">Valor Sem Juros *</Label>
                     <Input
-                      id="advanceAmount"
+                      id="amountWithoutInterest"
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      value={formData.advanceAmount}
+                      value={formData.amountWithoutInterest}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
-                        advanceAmount: e.target.value || '0'
+                        amountWithoutInterest: e.target.value
                       }))}
+                      required
                     />
                   </div>
                 </div>
