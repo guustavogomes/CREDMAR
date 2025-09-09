@@ -2,19 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
 import { 
-  getBrazilStartOfDay, 
-  getBrazilEndOfDay, 
-  getBrazilStartOfWeek, 
-  getBrazilEndOfWeek,
-  getBrazilStartOfMonth,
-  getBrazilEndOfMonth,
-  formatBrazilDateToString,
-  addBrazilDays
-} from '@/lib/timezone-utils'
-import { 
   getBrazilDateTime,
-  getBrazilStartOfDay as luxonGetBrazilStartOfDay,
-  getBrazilEndOfDay as luxonGetBrazilEndOfDay,
+  getBrazilStartOfDay,
+  getBrazilEndOfDay,
   brazilDateTimeToDate,
   formatBrazilDate
 } from '@/lib/brazil-date'
@@ -49,20 +39,34 @@ export async function GET(request: NextRequest) {
     }
 
 
-    // Usar Luxon para maior precisão de timezone (Brasil)
-    const now = getBrazilDateTime()
+    // Usar apenas funções do Luxon para datas brasileiras
+    const nowBrazil = getBrazilDateTime()
     
-    // Para comparar datas corretamente, precisamos considerar que o banco armazena em UTC
-    // mas as datas são para o Brasil. Vamos criar o range correto:
-    // Se hoje é 09/09 no Brasil, queremos parcelas cujo dueDate seja 09/09 às 00:00 UTC-3
-    const todayString = now.toFormat('yyyy-MM-dd') // 2025-09-09
-    const startOfToday = DateTime.fromISO(`${todayString}T00:00:00`, { zone: BRAZIL_TIMEZONE }).toUTC().toJSDate()
-    const endOfToday = DateTime.fromISO(`${todayString}T23:59:59.999`, { zone: BRAZIL_TIMEZONE }).toUTC().toJSDate()
+    // Usar as funções helper do brazil-date.ts
+    const startOfTodayBrazil = getBrazilStartOfDay()
+    const endOfTodayBrazil = getBrazilEndOfDay()
     
-    const startOfWeek = now.startOf('week').toUTC().toJSDate()
-    const endOfWeek = now.endOf('week').toUTC().toJSDate()
-    const startOfMonth = now.startOf('month').toUTC().toJSDate()
-    const endOfMonth = now.endOf('month').toUTC().toJSDate()
+    // Converter para Date para usar no Prisma (já está em UTC)
+    const startOfToday = brazilDateTimeToDate(startOfTodayBrazil)
+    const endOfToday = brazilDateTimeToDate(endOfTodayBrazil)
+    
+    // Semana e mês usando Luxon
+    const startOfWeekBrazil = nowBrazil.startOf('week')
+    const endOfWeekBrazil = nowBrazil.endOf('week')
+    const startOfMonthBrazil = nowBrazil.startOf('month')
+    const endOfMonthBrazil = nowBrazil.endOf('month')
+    
+    const startOfWeek = brazilDateTimeToDate(startOfWeekBrazil)
+    const endOfWeek = brazilDateTimeToDate(endOfWeekBrazil)
+    const startOfMonth = brazilDateTimeToDate(startOfMonthBrazil)
+    const endOfMonth = brazilDateTimeToDate(endOfMonthBrazil)
+    
+    // Debug logs
+    console.log('Now (Brazil):', nowBrazil.toFormat('yyyy-MM-dd HH:mm:ss'))
+    console.log('Start of today (Brazil):', startOfTodayBrazil.toFormat('yyyy-MM-dd HH:mm:ss'))
+    console.log('End of today (Brazil):', endOfTodayBrazil.toFormat('yyyy-MM-dd HH:mm:ss'))
+    console.log('Start of today (UTC for DB):', startOfToday.toISOString())
+    console.log('End of today (UTC for DB):', endOfToday.toISOString())
 
     // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
@@ -83,6 +87,15 @@ export async function GET(request: NextRequest) {
         }
       }
     })
+    
+    // Debug log
+    console.log('Parcelas que vencem hoje (raw):', duesToday.map(d => ({
+      id: d.id,
+      dueDate: d.dueDate.toISOString(),
+      dueDateBrazil: DateTime.fromJSDate(d.dueDate, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE).toFormat('yyyy-MM-dd'),
+      status: d.status,
+      customerName: d.loan.customer.name
+    })))
 
     // Vencimentos da semana
     const duesThisWeek = await db.installment.findMany({
@@ -193,7 +206,8 @@ export async function GET(request: NextRequest) {
     const defaultRate = totalInstallments > 0 ? (overdueCount / totalInstallments) * 100 : 0
 
     // Próximos vencimentos (próximos 7 dias) usando Luxon
-    const nextWeek = brazilDateTimeToDate(now.plus({ days: 7 }))
+    const nextWeekBrazil = nowBrazil.plus({ days: 7 })
+    const nextWeek = brazilDateTimeToDate(nextWeekBrazil)
     
     const upcomingDues = await db.installment.findMany({
       where: {
@@ -221,12 +235,19 @@ export async function GET(request: NextRequest) {
 
     // Função para corrigir datas das parcelas usando Luxon
     const correctInstallmentDates = (installments: any[]) => {
-      return installments.map(installment => ({
-        ...installment,
-        dueDate: installment.dueDate.toISOString().split('T')[0], // Já está correto com TZ configurado
-        paidAt: installment.paidAt ? installment.paidAt.toISOString().split('T')[0] : null,
-        createdAt: installment.createdAt.toISOString().split('T')[0]
-      }))
+      return installments.map(installment => {
+        // Converter a data UTC do banco para o timezone do Brasil
+        const dueDateInBrazil = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE)
+        const paidAtInBrazil = installment.paidAt ? DateTime.fromJSDate(installment.paidAt, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE) : null
+        const createdAtInBrazil = DateTime.fromJSDate(installment.createdAt, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE)
+        
+        return {
+          ...installment,
+          dueDate: dueDateInBrazil.toFormat('yyyy-MM-dd'), // Formato da data no timezone do Brasil
+          paidAt: paidAtInBrazil ? paidAtInBrazil.toFormat('yyyy-MM-dd') : null,
+          createdAt: createdAtInBrazil.toFormat('yyyy-MM-dd')
+        }
+      })
     }
 
     // Filtrar apenas parcelas pendentes (não pagas) que vencem hoje
