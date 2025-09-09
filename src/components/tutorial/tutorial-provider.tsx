@@ -5,10 +5,13 @@ import dynamic from 'next/dynamic'
 import { usePathname } from 'next/navigation'
 
 // Importar Joyride dinamicamente para evitar problemas de SSR
-const JoyRide = dynamic(() => import('react-joyride'), { 
-  ssr: false,
-  loading: () => null 
-})
+const JoyRide = dynamic(
+  () => import('react-joyride').then(mod => ({ default: mod.default })), 
+  { 
+    ssr: false,
+    loading: () => null 
+  }
+)
 
 interface TutorialContextType {
   startTutorial: (tourName?: string) => void
@@ -148,20 +151,30 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
   const [run, setRun] = useState(false)
   const [steps, setSteps] = useState<any[]>([])
   const [stepIndex, setStepIndex] = useState(0)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
-
-  // Verificar se é a primeira vez do usuário
+  
+  // Controlar se o componente está montado
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Verificar se é a primeira vez do usuário (apenas no cliente)
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return
+    
     const hasSeenTutorial = localStorage.getItem('hasSeenTutorial')
     if (!hasSeenTutorial && pathname === '/dashboard') {
       setTimeout(() => {
         startTutorial('dashboard')
       }, 1000)
     }
-  }, [pathname])
+  }, [pathname, mounted])
 
-  // Detectar mudança de página e sugerir tutorial
+  // Detectar mudança de página e sugerir tutorial (apenas no cliente)
   useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return
+    
     const tourKey = getTourKeyFromPath(pathname)
     if (tourKey && !hasSeenTour(tourKey)) {
       // Pequeno delay para a página carregar
@@ -174,7 +187,7 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
         }
       }, 500)
     }
-  }, [pathname])
+  }, [pathname, mounted])
 
   const getTourKeyFromPath = (path: string): string | null => {
     if (path === '/dashboard') return 'dashboard'
@@ -185,11 +198,13 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
   }
 
   const hasSeenTour = (tourKey: string): boolean => {
+    if (typeof window === 'undefined') return false
     const seenTours = JSON.parse(localStorage.getItem('seenTours') || '[]')
     return seenTours.includes(tourKey)
   }
 
   const markTourAsSeen = (tourKey: string) => {
+    if (typeof window === 'undefined') return
     const seenTours = JSON.parse(localStorage.getItem('seenTours') || '[]')
     if (!seenTours.includes(tourKey)) {
       seenTours.push(tourKey)
@@ -208,6 +223,7 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
   }
 
   const resetTutorials = () => {
+    if (typeof window === 'undefined') return
     localStorage.removeItem('hasSeenTutorial')
     localStorage.removeItem('seenTours')
     window.location.reload()
@@ -237,39 +253,41 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
   return (
     <TutorialContext.Provider value={{ startTutorial, resetTutorials, skipTutorial }}>
       {children}
-      <JoyRide
-        steps={steps}
-        run={run}
-        stepIndex={stepIndex}
-        continuous
-        showProgress
-        showSkipButton
-        callback={handleJoyrideCallback}
-        locale={{
-          back: 'Voltar',
-          close: 'Fechar',
-          last: 'Finalizar',
-          next: 'Próximo',
-          skip: 'Pular'
-        }}
-        styles={{
-          options: {
-            primaryColor: '#3b82f6',
-            zIndex: 10000,
-          },
-          tooltip: {
-            borderRadius: 8,
-            fontSize: 16
-          },
-          buttonNext: {
-            backgroundColor: '#3b82f6',
-            borderRadius: 4,
-          },
-          buttonBack: {
-            marginRight: 10,
-          }
-        }}
-      />
+      {mounted && (
+        <JoyRide
+          steps={steps}
+          run={run}
+          stepIndex={stepIndex}
+          continuous
+          showProgress
+          showSkipButton
+          callback={handleJoyrideCallback}
+          locale={{
+            back: 'Voltar',
+            close: 'Fechar',
+            last: 'Finalizar',
+            next: 'Próximo',
+            skip: 'Pular'
+          }}
+          styles={{
+            options: {
+              primaryColor: '#3b82f6',
+              zIndex: 10000,
+            },
+            tooltip: {
+              borderRadius: 8,
+              fontSize: 16
+            },
+            buttonNext: {
+              backgroundColor: '#3b82f6',
+              borderRadius: 4,
+            },
+            buttonBack: {
+              marginRight: 10,
+            }
+          }}
+        />
+      )}
     </TutorialContext.Provider>
   )
 }
