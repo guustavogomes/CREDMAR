@@ -22,7 +22,6 @@ import { useState } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { CurrentDateTime, CurrentDateTimeCompact } from "@/components/current-datetime"
 import { NotificationsDropdown } from "@/components/notifications"
-import { WhatsAppSupport } from "@/components/whatsapp-support"
 import TutorialProvider from "@/components/tutorial/tutorial-provider"
 import { TutorialButton } from "@/components/tutorial/tutorial-button"
 
@@ -243,7 +242,6 @@ export default function DashboardLayout({
         </main>
       </div>
       <Toaster />
-      <WhatsAppSupport />
       <TutorialButton />
     </div>
     </TutorialProvider>
