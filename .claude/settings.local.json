@@ -21,7 +21,8 @@
       "Bash(copy .env.local .env)",
       "Bash(npx prisma db seed:*)",
       "Bash(npm install:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
