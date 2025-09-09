@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { getBrazilDateTime, brazilDateTimeToDate } from '@/lib/brazil-date'
 
 export async function POST(request: Request) {
   try {
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
       
       if (inst.status === 'OVERDUE' || inst.status === 'PENDING') {
         // Parcelas ainda não pagas - calcular atraso até hoje
-        const today = new Date()
+        const today = brazilDateTimeToDate(getBrazilDateTime())
         const dueDate = new Date(inst.dueDate)
         if (today > dueDate) {
           delayDays = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 3600 * 24))
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
     const overdueDetails = allInstallments
       .filter(inst => inst.status === 'OVERDUE')
       .map(inst => {
-        const daysDiff = Math.floor((new Date().getTime() - new Date(inst.dueDate).getTime()) / (1000 * 3600 * 24))
+        const daysDiff = Math.floor((brazilDateTimeToDate(getBrazilDateTime()).getTime() - new Date(inst.dueDate).getTime()) / (1000 * 3600 * 24))
         return daysDiff
       })
 

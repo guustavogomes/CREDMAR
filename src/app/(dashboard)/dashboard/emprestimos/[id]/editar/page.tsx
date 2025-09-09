@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Calculator } from 'lucide-react'
+import { ArrowLeft, Calculator, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 interface Customer {
   id: string
@@ -32,9 +33,16 @@ interface Loan {
   installments: number
   installmentValue: number
   nextPaymentDate: string
+  transactionDate: string
   observation?: string | null
   customer: Customer
   periodicity: Periodicity
+  installmentRecords?: Array<{
+    id: string
+    status: string
+    paidAt: string | null
+    installmentNumber: number
+  }>
 }
 
 export default function EditarEmprestimoPage() {
@@ -52,6 +60,7 @@ export default function EditarEmprestimoPage() {
     periodicityId: '',
     installments: '',
     nextPaymentDate: '',
+    transactionDate: '',
     observation: ''
   })
 
@@ -59,6 +68,10 @@ export default function EditarEmprestimoPage() {
     installmentValue: 0,
     showCalculation: false
   })
+  
+  // Estado para controlar se há parcelas pagas (restringe edições)
+  const [hasPaidInstallments, setHasPaidInstallments] = useState(false)
+  const [paidInstallmentsCount, setPaidInstallmentsCount] = useState(0)
 
   useEffect(() => {
     fetchLoan()
@@ -75,12 +88,21 @@ export default function EditarEmprestimoPage() {
       if (response.ok) {
         const data: Loan = await response.json()
         setLoan(data)
+        
+        // Verificar se há parcelas pagas
+        const paidInstallments = data.installmentRecords?.filter(
+          inst => inst.status === 'PAID'
+        ) || []
+        setHasPaidInstallments(paidInstallments.length > 0)
+        setPaidInstallmentsCount(paidInstallments.length)
+        
         setFormData({
           totalAmount: data.totalAmount.toString(),
           amountWithoutInterest: data.amountWithoutInterest.toString(),
           periodicityId: data.periodicityId,
           installments: data.installments.toString(),
           nextPaymentDate: data.nextPaymentDate.split('T')[0],
+          transactionDate: data.transactionDate.split('T')[0],
           observation: data.observation || ''
         })
       } else {
@@ -148,6 +170,7 @@ export default function EditarEmprestimoPage() {
           amountWithoutInterest: parseFloat(formData.amountWithoutInterest),
           installments: parseInt(formData.installments),
           installmentValue: calculatedValues.installmentValue,
+          transactionDate: formData.transactionDate,
           observation: formData.observation
         })
       })
@@ -210,6 +233,16 @@ export default function EditarEmprestimoPage() {
           <Card>
             <CardHeader>
               <CardTitle>Dados do Empréstimo</CardTitle>
+              {hasPaidInstallments && (
+                <Alert className="mt-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Atenção - Edição Restrita</AlertTitle>
+                  <AlertDescription>
+                    Este empréstimo possui <strong>{paidInstallmentsCount} parcela(s) já paga(s)</strong>. 
+                    Para manter a integridade dos dados, apenas observações e data do próximo pagamento podem ser alteradas.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -221,9 +254,36 @@ export default function EditarEmprestimoPage() {
                   </div>
                 </div>
 
+                <div>
+                  <Label htmlFor="transactionDate">
+                    Data do Empréstimo *
+                    {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                  </Label>
+                  <Input
+                    id="transactionDate"
+                    type="date"
+                    value={formData.transactionDate}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      transactionDate: e.target.value 
+                    }))}
+                    disabled={hasPaidInstallments}
+                    className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
+                    required
+                  />
+                  {!hasPaidInstallments && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Data em que o empréstimo foi realizado
+                    </p>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="totalAmount">Valor Total *</Label>
+                    <Label htmlFor="totalAmount">
+                      Valor Total *
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
                     <Input
                       id="totalAmount"
                       type="number"
@@ -234,12 +294,17 @@ export default function EditarEmprestimoPage() {
                         ...prev, 
                         totalAmount: e.target.value 
                       }))}
+                      disabled={hasPaidInstallments}
+                      className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="amountWithoutInterest">Valor Sem Juros *</Label>
+                    <Label htmlFor="amountWithoutInterest">
+                      Valor Sem Juros *
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
                     <Input
                       id="amountWithoutInterest"
                       type="number"
@@ -250,6 +315,8 @@ export default function EditarEmprestimoPage() {
                         ...prev, 
                         amountWithoutInterest: e.target.value 
                       }))}
+                      disabled={hasPaidInstallments}
+                      className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
                       required
                     />
                   </div>
@@ -257,15 +324,19 @@ export default function EditarEmprestimoPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="periodicityId">Periodicidade *</Label>
+                    <Label htmlFor="periodicityId">
+                      Periodicidade *
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
                     <Select
                       value={formData.periodicityId}
                       onValueChange={(value) => setFormData(prev => ({ 
                         ...prev, 
                         periodicityId: value 
                       }))}
+                      disabled={hasPaidInstallments}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}>
                         <SelectValue placeholder="Selecione a periodicidade" />
                       </SelectTrigger>
                       <SelectContent>
@@ -279,7 +350,10 @@ export default function EditarEmprestimoPage() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="installments">Quantidade de Parcelas *</Label>
+                    <Label htmlFor="installments">
+                      Quantidade de Parcelas *
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
                     <Input
                       id="installments"
                       type="number"
@@ -290,6 +364,8 @@ export default function EditarEmprestimoPage() {
                         ...prev, 
                         installments: e.target.value 
                       }))}
+                      disabled={hasPaidInstallments}
+                      className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
                       required
                     />
                   </div>

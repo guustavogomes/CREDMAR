@@ -11,6 +11,13 @@ import {
   formatBrazilDateToString,
   addBrazilDays
 } from '@/lib/timezone-utils'
+import { 
+  getBrazilDateTime,
+  getBrazilStartOfDay as luxonGetBrazilStartOfDay,
+  getBrazilEndOfDay as luxonGetBrazilEndOfDay,
+  brazilDateTimeToDate,
+  formatBrazilDate
+} from '@/lib/brazil-date'
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -39,13 +46,14 @@ export async function GET(request: NextRequest) {
     }
 
 
-    // Usar timezone UTC-3 (Brasil) para todas as operações de data
-    const startOfToday = getBrazilStartOfDay()
-    const endOfToday = getBrazilEndOfDay()
-    const startOfWeek = getBrazilStartOfWeek()
-    const endOfWeek = getBrazilEndOfWeek()
-    const startOfMonth = getBrazilStartOfMonth()
-    const endOfMonth = getBrazilEndOfMonth()
+    // Usar Luxon para maior precisão de timezone (Brasil)
+    const now = getBrazilDateTime()
+    const startOfToday = brazilDateTimeToDate(luxonGetBrazilStartOfDay(now))
+    const endOfToday = brazilDateTimeToDate(luxonGetBrazilEndOfDay(now))
+    const startOfWeek = brazilDateTimeToDate(now.startOf('week'))
+    const endOfWeek = brazilDateTimeToDate(now.endOf('week'))
+    const startOfMonth = brazilDateTimeToDate(now.startOf('month'))
+    const endOfMonth = brazilDateTimeToDate(now.endOf('month'))
 
     // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
@@ -165,8 +173,8 @@ export async function GET(request: NextRequest) {
     const overdueCount = overdueInstallments.length
     const defaultRate = totalInstallments > 0 ? (overdueCount / totalInstallments) * 100 : 0
 
-    // Próximos vencimentos (próximos 7 dias)
-    const nextWeek = addBrazilDays(endOfToday, 7)
+    // Próximos vencimentos (próximos 7 dias) usando Luxon
+    const nextWeek = brazilDateTimeToDate(now.plus({ days: 7 }))
     
     const upcomingDues = await db.installment.findMany({
       where: {
@@ -191,13 +199,13 @@ export async function GET(request: NextRequest) {
       take: 10
     })
 
-    // Função para corrigir datas das parcelas usando timezone do Brasil
+    // Função para corrigir datas das parcelas usando Luxon
     const correctInstallmentDates = (installments: any[]) => {
       return installments.map(installment => ({
         ...installment,
-        dueDate: formatBrazilDateToString(installment.dueDate), // Converter para YYYY-MM-DD usando timezone do Brasil
-        paidAt: installment.paidAt ? formatBrazilDateToString(installment.paidAt) : null,
-        createdAt: formatBrazilDateToString(installment.createdAt)
+        dueDate: installment.dueDate.toISOString().split('T')[0], // Já está correto com TZ configurado
+        paidAt: installment.paidAt ? installment.paidAt.toISOString().split('T')[0] : null,
+        createdAt: installment.createdAt.toISOString().split('T')[0]
       }))
     }
 

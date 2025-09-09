@@ -32,12 +32,12 @@ export async function GET(
       }
     })
 
-          // Corrigir as datas usando timezone do Brasil
+          // Corrigir as datas - agora com TZ configurado globalmente
       const correctedInstallments = installments.map(installment => ({
         ...installment,
-        dueDate: formatBrazilDateToString(installment.dueDate), // Converter para YYYY-MM-DD usando timezone do Brasil
-        paidAt: installment.paidAt ? formatBrazilDateToString(installment.paidAt) : null,
-        createdAt: formatBrazilDateToString(installment.createdAt)
+        dueDate: installment.dueDate.toISOString().split('T')[0], // Já está correto com TZ configurado
+        paidAt: installment.paidAt ? installment.paidAt.toISOString().split('T')[0] : null,
+        createdAt: installment.createdAt.toISOString().split('T')[0]
       }))
 
     return NextResponse.json(correctedInstallments)

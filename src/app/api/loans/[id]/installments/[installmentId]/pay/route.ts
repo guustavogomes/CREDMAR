@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
 import { z } from 'zod'
+import { parseBrazilDateString, brazilDateTimeToDate } from '@/lib/brazil-date'
 
 const paymentSchema = z.object({
   amount: z.number().positive(),
@@ -53,7 +54,7 @@ export async function POST(
         paidAmount: validatedData.amount,
         fineAmount: validatedData.fineAmount || 0,
         status: 'PAID',
-        paidAt: new Date(validatedData.paymentDate)
+        paidAt: brazilDateTimeToDate(parseBrazilDateString(validatedData.paymentDate))
       }
     })
 
