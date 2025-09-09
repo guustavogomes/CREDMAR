@@ -3,6 +3,8 @@
  * Centraliza todas as operações de data para evitar problemas de timezone
  */
 
+import { getBrazilDateString } from './brazil-date'
+
 // Offset do Brasil (UTC-3) em minutos
 const BRAZIL_OFFSET_MINUTES = -3 * 60 // -180 minutos
 
@@ -124,22 +126,10 @@ export function formatBrazilDateToString(date: Date): string {
 
 /**
  * Obtém a data atual do Brasil no formato YYYY-MM-DD para inputs
+ * Agora usa Luxon para maior confiabilidade
  */
 export function getBrazilTodayString(): string {
-  const now = new Date()
-  const formatter = new Intl.DateTimeFormat('pt-BR', {
-    timeZone: 'America/Sao_Paulo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  })
-  
-  const parts = formatter.formatToParts(now)
-  const year = parts.find(p => p.type === 'year')?.value || ''
-  const month = parts.find(p => p.type === 'month')?.value || ''
-  const day = parts.find(p => p.type === 'day')?.value || ''
-  
-  return `${year}-${month}-${day}`
+  return getBrazilDateString()
 }
 
 /**

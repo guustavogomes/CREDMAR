@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { InstallmentStatus } from '@prisma/client'
 import { generatePaymentSchedule } from '@/lib/periodicity-utils'
 import { parseBrazilDateString, formatBrazilDateToString } from '@/lib/timezone-utils'
+import { parseBrazilDateString as luxonParseBrazilDateString, brazilDateTimeToDate } from '@/lib/brazil-date'
 
 const loanSchema = z.object({
   customerId: z.string().min(1),
@@ -71,9 +72,9 @@ export async function POST(request: NextRequest) {
     }
     
     // Criar o empréstimo
-    // Converter as datas usando timezone do Brasil
-    const transactionDate = parseBrazilDateString(validatedData.startDate) // Usar data de início customizada
-    const nextPaymentDate = parseBrazilDateString(validatedData.nextPaymentDate)
+    // Converter as datas usando Luxon para maior precisão
+    const transactionDate = brazilDateTimeToDate(luxonParseBrazilDateString(validatedData.startDate))
+    const nextPaymentDate = brazilDateTimeToDate(luxonParseBrazilDateString(validatedData.nextPaymentDate))
     
     const newLoan = await db.loan.create({
       data: {
