@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useTutorial } from './tutorial-provider'
+import { useToast } from '@/hooks/use-toast'
 
 export function TutorialButton() {
   const { startTutorial, resetTutorials } = useTutorial()
+  const { toast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
 
   const handleStartTutorial = () => {
@@ -23,9 +25,22 @@ export function TutorialButton() {
   }
 
   const handleResetTutorials = () => {
-    if (window.confirm('Isso irá reiniciar todos os tutoriais. Deseja continuar?')) {
-      resetTutorials()
-    }
+    // Substituir alert por toast de confirmação
+    toast({
+      title: "🔄 Confirmar Ação",
+      description: "Deseja realmente reiniciar todos os tutoriais? Clique novamente para confirmar.",
+      action: (
+        <Button 
+          size="sm" 
+          onClick={() => {
+            resetTutorials()
+            setIsOpen(false)
+          }}
+        >
+          Confirmar
+        </Button>
+      )
+    })
     setIsOpen(false)
   }
 

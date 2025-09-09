@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import { usePathname } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
 
 // Importar Joyride dinamicamente para evitar problemas de SSR
 const JoyRide = dynamic(
@@ -27,118 +28,38 @@ const TutorialContext = createContext<TutorialContextType>({
 
 export const useTutorial = () => useContext(TutorialContext)
 
-// Definir os tours para cada página
+// Definir os tours para cada página - simplificado
 const tours = {
   dashboard: [
     {
-      target: '.dashboard-welcome',
+      target: 'body',
       content: '👋 Bem-vindo ao TaPago! Este é seu painel principal onde você pode ver um resumo completo do seu negócio.',
       placement: 'center' as const,
       disableBeacon: true
-    },
-    {
-      target: '[href="/dashboard/vencimentos/hoje"]',
-      content: '📅 Aqui você vê os vencimentos de hoje. Clique para ver detalhes e marcar como pago.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '[href="/dashboard/vencimentos/semana"]',
-      content: '📊 Vencimentos da semana mostra todas as parcelas dos próximos 7 dias.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '[href="/dashboard/vencimentos/atraso"]',
-      content: '⚠️ Parcelas em atraso precisam de atenção especial. Clique para gerenciar.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '.performance-section',
-      content: '📈 Aqui você acompanha o desempenho do seu negócio com métricas importantes.',
-      placement: 'top' as const
     }
   ],
   clientes: [
     {
-      target: '.page-header',
-      content: '👥 Aqui você gerencia todos os seus clientes.',
-      placement: 'bottom' as const,
+      target: 'body',
+      content: '👥 Aqui você gerencia todos os seus clientes. Use o botão "Novo Cliente" para adicionar, ou clique em um cliente para ver detalhes.',
+      placement: 'center' as const,
       disableBeacon: true
-    },
-    {
-      target: '[href="/dashboard/clientes/novo"]',
-      content: '➕ Clique aqui para cadastrar um novo cliente.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '.search-bar',
-      content: '🔍 Use a barra de pesquisa para encontrar clientes rapidamente.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '.customer-card:first-child',
-      content: '📋 Cada card mostra as informações do cliente. Clique para ver detalhes ou editar.',
-      placement: 'right' as const
     }
   ],
   emprestimos: [
     {
-      target: '.page-header',
-      content: '💰 Gerencie todos os empréstimos ativos aqui.',
-      placement: 'bottom' as const,
+      target: 'body',
+      content: '💰 Gerencie todos os empréstimos ativos aqui. Use o botão "Novo Empréstimo" para criar um novo.',
+      placement: 'center' as const,
       disableBeacon: true
-    },
-    {
-      target: '[href="/dashboard/emprestimos/novo"]',
-      content: '➕ Clique aqui para criar um novo empréstimo.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '.loan-filters',
-      content: '🎯 Use os filtros para encontrar empréstimos específicos.',
-      placement: 'bottom' as const
-    },
-    {
-      target: '.loan-card:first-child',
-      content: '📊 Cada card mostra os detalhes do empréstimo. Você pode ver parcelas, editar ou excluir.',
-      placement: 'right' as const
     }
   ],
   novo_emprestimo: [
     {
-      target: '.loan-form',
-      content: '📝 Vamos criar um novo empréstimo! Preencha os campos com atenção.',
+      target: 'body',
+      content: '📝 Para criar um novo empréstimo: 1) Selecione o cliente, 2) Digite o valor total e valor sem juros, 3) Escolha a periodicidade e número de parcelas.',
       placement: 'center' as const,
       disableBeacon: true
-    },
-    {
-      target: '#customer',
-      content: '👤 Primeiro, selecione o cliente que receberá o empréstimo.',
-      placement: 'right' as const
-    },
-    {
-      target: '#totalAmount',
-      content: '💵 Digite o valor total do empréstimo (com juros).',
-      placement: 'right' as const
-    },
-    {
-      target: '#amountWithoutInterest',
-      content: '💰 Digite o valor sem juros (valor que o cliente realmente recebeu).',
-      placement: 'right' as const
-    },
-    {
-      target: '#periodicity',
-      content: '📅 Escolha a periodicidade de pagamento (diário, semanal, mensal, etc).',
-      placement: 'right' as const
-    },
-    {
-      target: '#installments',
-      content: '🔢 Digite o número de parcelas.',
-      placement: 'right' as const
-    },
-    {
-      target: '.calculation-card',
-      content: '🧮 Aqui você vê o cálculo automático do valor de cada parcela.',
-      placement: 'left' as const
     }
   ]
 }
@@ -153,41 +74,12 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
   const [stepIndex, setStepIndex] = useState(0)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+  const { toast } = useToast()
   
   // Controlar se o componente está montado
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  // Verificar se é a primeira vez do usuário (apenas no cliente)
-  useEffect(() => {
-    if (!mounted || typeof window === 'undefined') return
-    
-    const hasSeenTutorial = localStorage.getItem('hasSeenTutorial')
-    if (!hasSeenTutorial && pathname === '/dashboard') {
-      setTimeout(() => {
-        startTutorial('dashboard')
-      }, 1000)
-    }
-  }, [pathname, mounted])
-
-  // Detectar mudança de página e sugerir tutorial (apenas no cliente)
-  useEffect(() => {
-    if (!mounted || typeof window === 'undefined') return
-    
-    const tourKey = getTourKeyFromPath(pathname)
-    if (tourKey && !hasSeenTour(tourKey)) {
-      // Pequeno delay para a página carregar
-      setTimeout(() => {
-        const shouldShow = window.confirm('🎓 Deseja ver um tutorial rápido desta página?')
-        if (shouldShow) {
-          startTutorial(tourKey)
-        } else {
-          markTourAsSeen(tourKey)
-        }
-      }, 500)
-    }
-  }, [pathname, mounted])
 
   const getTourKeyFromPath = (path: string): string | null => {
     if (path === '/dashboard') return 'dashboard'
@@ -214,11 +106,25 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
   }
 
   const startTutorial = (tourName?: string) => {
+    if (!mounted) return
+    
     const tourKey = tourName || getTourKeyFromPath(pathname)
     if (tourKey && tours[tourKey as keyof typeof tours]) {
-      setSteps(tours[tourKey as keyof typeof tours])
+      const tourSteps = tours[tourKey as keyof typeof tours]
+      setSteps(tourSteps)
       setStepIndex(0)
       setRun(true)
+      
+      toast({
+        title: "🎓 Tutorial Iniciado",
+        description: "Siga as instruções para aprender a usar esta página!"
+      })
+    } else {
+      toast({
+        title: "📋 Tutorial não disponível",
+        description: "Não há tutorial específico para esta página.",
+        variant: "destructive"
+      })
     }
   }
 
@@ -226,7 +132,11 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
     if (typeof window === 'undefined') return
     localStorage.removeItem('hasSeenTutorial')
     localStorage.removeItem('seenTours')
-    window.location.reload()
+    
+    toast({
+      title: "🔄 Tutoriais Reiniciados",
+      description: "Todos os tutoriais foram redefinidos. Agora você pode vê-los novamente!"
+    })
   }
 
   const skipTutorial = () => {
@@ -247,6 +157,13 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
         markTourAsSeen(tourKey)
       }
       setRun(false)
+      
+      if (status === 'finished') {
+        toast({
+          title: "✅ Tutorial Concluído",
+          description: "Parabéns! Você concluiu o tutorial desta página."
+        })
+      }
     }
   }
 

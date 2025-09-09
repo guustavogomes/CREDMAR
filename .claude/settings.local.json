@@ -22,7 +22,8 @@
       "Bash(npx prisma db seed:*)",
       "Bash(npm install:*)",
       "Bash(npx prisma:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npm ls:*)"
     ],
     "deny": [],
     "ask": []
