@@ -171,17 +171,12 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Clientes únicos
-    const uniqueCustomers = await db.loan.findMany({
+    // Clientes ativos (todos os clientes cadastrados, não deletados)
+    const activeCustomers = await db.customer.count({
       where: {
         userId: user.id,
-        status: 'ACTIVE',
-        deletedAt: null // Excluir empréstimos deletados (soft delete)
-      },
-      select: {
-        customerId: true
-      },
-      distinct: ['customerId']
+        deletedAt: null // Excluir clientes deletados (soft delete)
+      }
     })
 
     // Taxa de inadimplência
@@ -260,7 +255,7 @@ export async function GET(request: NextRequest) {
       },
       totalReceivedThisMonth: totalReceivedThisMonth._sum.paidAmount || 0,
       activeLoans,
-      uniqueCustomers: uniqueCustomers.length,
+      uniqueCustomers: activeCustomers, // Mudado para contar todos os clientes ativos
       defaultRate: Math.round(defaultRate * 100) / 100,
       upcomingDues: correctInstallmentDates(upcomingDues)
     }
