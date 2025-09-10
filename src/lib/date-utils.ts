@@ -12,17 +12,16 @@ export function formatDate(dateString: string | Date): string {
   if (dateString instanceof Date) {
     date = dateString
   } else if (dateString.includes('T')) {
-    // Se a string já tem horário (formato ISO), converter para timezone do Brasil
-    const utcDate = new Date(dateString)
-    date = toBrazilTime(utcDate)
+    // Se a string já tem horário (formato ISO), usar diretamente sem conversão
+    // As datas já estão salvas corretamente no banco
+    date = new Date(dateString)
   } else if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    // Se é apenas data (YYYY-MM-DD), criar data no timezone do Brasil
+    // Se é apenas data (YYYY-MM-DD), criar data normal
     const [year, month, day] = dateString.split('-').map(Number)
     date = new Date(year, month - 1, day) // month é 0-indexed
   } else {
-    // Fallback para outros formatos - converter para timezone do Brasil
-    const utcDate = new Date(dateString)
-    date = toBrazilTime(utcDate)
+    // Fallback para outros formatos
+    date = new Date(dateString)
   }
   
   return date.toLocaleDateString('pt-BR')
@@ -45,23 +44,18 @@ export function formatDateTime(dateString: string | Date): string {
 export function isOverdue(dueDate: string | Date, status?: string): boolean {
   if (status === 'PAID') return false
   
-  const today = getBrazilStartOfDay()
+  // Criar data de hoje sem horário (meia-noite)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
   let due: Date
   
   if (dueDate instanceof Date) {
-    due = getBrazilStartOfDay(dueDate)
-  } else if (dueDate.includes('T')) {
-    // Se a string já tem horário (formato ISO), converter para timezone do Brasil
-    const utcDate = new Date(dueDate)
-    due = getBrazilStartOfDay(toBrazilTime(utcDate))
-  } else if (dueDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    // Se é apenas data (YYYY-MM-DD), criar data no timezone do Brasil
-    const [year, month, day] = dueDate.split('-').map(Number)
-    due = getBrazilStartOfDay(new Date(year, month - 1, day)) // month é 0-indexed
+    due = new Date(dueDate)
+    due.setHours(0, 0, 0, 0)
   } else {
-    // Fallback para outros formatos - converter para timezone do Brasil
-    const utcDate = new Date(dueDate)
-    due = getBrazilStartOfDay(toBrazilTime(utcDate))
+    due = new Date(dueDate)
+    due.setHours(0, 0, 0, 0)
   }
   
   return due < today
