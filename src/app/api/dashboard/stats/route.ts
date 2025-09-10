@@ -30,31 +30,31 @@ export async function GET(request: NextRequest) {
     }
 
 
-    // Criar datas simples sem conversão de timezone
+    // Criar datas em UTC para comparar com as datas do banco
     const now = new Date()
     
-    // Início e fim do dia de hoje (00:00:00 e 23:59:59)
+    // Início e fim do dia de hoje em UTC
     const startOfToday = new Date()
-    startOfToday.setHours(0, 0, 0, 0)
+    startOfToday.setUTCHours(0, 0, 0, 0)
     
     const endOfToday = new Date()
-    endOfToday.setHours(23, 59, 59, 999)
+    endOfToday.setUTCHours(23, 59, 59, 999)
     
-    // Início e fim da semana
+    // Início e fim da semana em UTC
     const startOfWeek = new Date()
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()) // Domingo
-    startOfWeek.setHours(0, 0, 0, 0)
+    startOfWeek.setUTCDate(startOfWeek.getUTCDate() - startOfWeek.getUTCDay()) // Domingo
+    startOfWeek.setUTCHours(0, 0, 0, 0)
     
     const endOfWeek = new Date(startOfWeek)
-    endOfWeek.setDate(endOfWeek.getDate() + 6) // Sábado
-    endOfWeek.setHours(23, 59, 59, 999)
+    endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 6) // Sábado
+    endOfWeek.setUTCHours(23, 59, 59, 999)
     
-    // Início e fim do mês
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    startOfMonth.setHours(0, 0, 0, 0)
+    // Início e fim do mês em UTC
+    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+    startOfMonth.setUTCHours(0, 0, 0, 0)
     
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    endOfMonth.setHours(23, 59, 59, 999)
+    const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0))
+    endOfMonth.setUTCHours(23, 59, 59, 999)
     
     // Debug logs
     console.log('Now:', now.toISOString())
@@ -198,10 +198,10 @@ export async function GET(request: NextRequest) {
     const overdueCount = overdueInstallments.length
     const defaultRate = totalInstallments > 0 ? (overdueCount / totalInstallments) * 100 : 0
 
-    // Próximos vencimentos (próximos 7 dias)
+    // Próximos vencimentos (próximos 7 dias) em UTC
     const nextWeek = new Date()
-    nextWeek.setDate(nextWeek.getDate() + 7)
-    nextWeek.setHours(23, 59, 59, 999)
+    nextWeek.setUTCDate(nextWeek.getUTCDate() + 7)
+    nextWeek.setUTCHours(23, 59, 59, 999)
     
     const upcomingDues = await db.installment.findMany({
       where: {
