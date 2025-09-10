@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       dueDate: d.dueDate.toISOString(),
       dueDateBrazil: DateTime.fromJSDate(d.dueDate, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE).toFormat('yyyy-MM-dd'),
       status: d.status,
-      customerName: d.loan.customer.name
+      customerName: d.loan.customer.nomeCompleto
     })))
 
     // Vencimentos da semana
