@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { db } from '@/lib/db'
-import { 
-  getBrazilDateTime,
-  getBrazilStartOfDay,
-  getBrazilEndOfDay,
-  brazilDateTimeToDate,
-  formatBrazilDate
-} from '@/lib/brazil-date'
 import { DateTime } from 'luxon'
-
-const BRAZIL_TIMEZONE = 'America/Sao_Paulo'
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -39,34 +30,36 @@ export async function GET(request: NextRequest) {
     }
 
 
-    // Usar apenas funções do Luxon para datas brasileiras
-    const nowBrazil = getBrazilDateTime()
+    // Criar datas simples sem conversão de timezone
+    const now = new Date()
     
-    // Usar as funções helper do brazil-date.ts
-    const startOfTodayBrazil = getBrazilStartOfDay()
-    const endOfTodayBrazil = getBrazilEndOfDay()
+    // Início e fim do dia de hoje (00:00:00 e 23:59:59)
+    const startOfToday = new Date()
+    startOfToday.setHours(0, 0, 0, 0)
     
-    // Converter para Date para usar no Prisma (já está em UTC)
-    const startOfToday = brazilDateTimeToDate(startOfTodayBrazil)
-    const endOfToday = brazilDateTimeToDate(endOfTodayBrazil)
+    const endOfToday = new Date()
+    endOfToday.setHours(23, 59, 59, 999)
     
-    // Semana e mês usando Luxon
-    const startOfWeekBrazil = nowBrazil.startOf('week')
-    const endOfWeekBrazil = nowBrazil.endOf('week')
-    const startOfMonthBrazil = nowBrazil.startOf('month')
-    const endOfMonthBrazil = nowBrazil.endOf('month')
+    // Início e fim da semana
+    const startOfWeek = new Date()
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()) // Domingo
+    startOfWeek.setHours(0, 0, 0, 0)
     
-    const startOfWeek = brazilDateTimeToDate(startOfWeekBrazil)
-    const endOfWeek = brazilDateTimeToDate(endOfWeekBrazil)
-    const startOfMonth = brazilDateTimeToDate(startOfMonthBrazil)
-    const endOfMonth = brazilDateTimeToDate(endOfMonthBrazil)
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(endOfWeek.getDate() + 6) // Sábado
+    endOfWeek.setHours(23, 59, 59, 999)
+    
+    // Início e fim do mês
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    startOfMonth.setHours(0, 0, 0, 0)
+    
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    endOfMonth.setHours(23, 59, 59, 999)
     
     // Debug logs
-    console.log('Now (Brazil):', nowBrazil.toFormat('yyyy-MM-dd HH:mm:ss'))
-    console.log('Start of today (Brazil):', startOfTodayBrazil.toFormat('yyyy-MM-dd HH:mm:ss'))
-    console.log('End of today (Brazil):', endOfTodayBrazil.toFormat('yyyy-MM-dd HH:mm:ss'))
-    console.log('Start of today (UTC for DB):', startOfToday.toISOString())
-    console.log('End of today (UTC for DB):', endOfToday.toISOString())
+    console.log('Now:', now.toISOString())
+    console.log('Start of today:', startOfToday.toISOString())
+    console.log('End of today:', endOfToday.toISOString())
 
     // Vencimentos de hoje (todas as parcelas, independente do status)
     const duesToday = await db.installment.findMany({
@@ -92,7 +85,7 @@ export async function GET(request: NextRequest) {
     console.log('Parcelas que vencem hoje (raw):', duesToday.map(d => ({
       id: d.id,
       dueDate: d.dueDate.toISOString(),
-      dueDateBrazil: DateTime.fromJSDate(d.dueDate, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE).toFormat('yyyy-MM-dd'),
+      dueDateFormatted: DateTime.fromJSDate(d.dueDate).toFormat('yyyy-MM-dd'),
       status: d.status,
       customerName: d.loan.customer.nomeCompleto
     })))
@@ -205,9 +198,10 @@ export async function GET(request: NextRequest) {
     const overdueCount = overdueInstallments.length
     const defaultRate = totalInstallments > 0 ? (overdueCount / totalInstallments) * 100 : 0
 
-    // Próximos vencimentos (próximos 7 dias) usando Luxon
-    const nextWeekBrazil = nowBrazil.plus({ days: 7 })
-    const nextWeek = brazilDateTimeToDate(nextWeekBrazil)
+    // Próximos vencimentos (próximos 7 dias)
+    const nextWeek = new Date()
+    nextWeek.setDate(nextWeek.getDate() + 7)
+    nextWeek.setHours(23, 59, 59, 999)
     
     const upcomingDues = await db.installment.findMany({
       where: {
@@ -233,19 +227,19 @@ export async function GET(request: NextRequest) {
       take: 10
     })
 
-    // Função para corrigir datas das parcelas usando Luxon
-    const correctInstallmentDates = (installments: any[]) => {
+    // Função para formatar datas das parcelas SEM conversão de timezone
+    const formatInstallmentDates = (installments: any[]) => {
       return installments.map(installment => {
-        // Converter a data UTC do banco para o timezone do Brasil
-        const dueDateInBrazil = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE)
-        const paidAtInBrazil = installment.paidAt ? DateTime.fromJSDate(installment.paidAt, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE) : null
-        const createdAtInBrazil = DateTime.fromJSDate(installment.createdAt, { zone: 'UTC' }).setZone(BRAZIL_TIMEZONE)
+        // As datas já estão corretas no banco, apenas formatar sem converter
+        const dueDate = DateTime.fromJSDate(installment.dueDate).toFormat('yyyy-MM-dd')
+        const paidAt = installment.paidAt ? DateTime.fromJSDate(installment.paidAt).toFormat('yyyy-MM-dd') : null
+        const createdAt = DateTime.fromJSDate(installment.createdAt).toFormat('yyyy-MM-dd')
         
         return {
           ...installment,
-          dueDate: dueDateInBrazil.toFormat('yyyy-MM-dd'), // Formato da data no timezone do Brasil
-          paidAt: paidAtInBrazil ? paidAtInBrazil.toFormat('yyyy-MM-dd') : null,
-          createdAt: createdAtInBrazil.toFormat('yyyy-MM-dd')
+          dueDate,
+          paidAt,
+          createdAt
         }
       })
     }
@@ -257,28 +251,28 @@ export async function GET(request: NextRequest) {
       duesToday: {
         count: duesTodayPending.length, // Apenas parcelas pendentes
         amount: duesTodayPending.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: correctInstallmentDates(duesTodayPending)
+        items: formatInstallmentDates(duesTodayPending)
       },
       duesThisWeek: {
         count: duesThisWeek.length,
         amount: duesThisWeek.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: correctInstallmentDates(duesThisWeek)
+        items: formatInstallmentDates(duesThisWeek)
       },
       duesThisMonth: {
         count: duesThisMonth.length,
         amount: duesThisMonth.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: correctInstallmentDates(duesThisMonth)
+        items: formatInstallmentDates(duesThisMonth)
       },
       overdue: {
         count: overdueInstallments.length,
         amount: overdueInstallments.reduce((sum: number, inst: any) => sum + inst.amount, 0),
-        items: correctInstallmentDates(overdueInstallments)
+        items: formatInstallmentDates(overdueInstallments)
       },
       totalReceivedThisMonth: totalReceivedThisMonth._sum.paidAmount || 0,
       activeLoans,
       uniqueCustomers: activeCustomers, // Mudado para contar todos os clientes ativos
       defaultRate: Math.round(defaultRate * 100) / 100,
-      upcomingDues: correctInstallmentDates(upcomingDues)
+      upcomingDues: formatInstallmentDates(upcomingDues)
     }
 
     return NextResponse.json(stats, {
