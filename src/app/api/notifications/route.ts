@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { getBrazilStartOfDay, getBrazilEndOfDay, addBrazilDays } from '@/lib/timezone-utils'
+import { DateTime } from 'luxon'
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,22 +27,42 @@ export async function GET(request: NextRequest) {
     }
 
     const notifications = []
-    const today = getBrazilStartOfDay()
-    const tomorrow = addBrazilDays(today, 1)
-    const in3Days = addBrazilDays(today, 3)
-    const in7Days = addBrazilDays(today, 7)
+    
+    // Criar strings de data para comparação simples
+    const now = new Date()
+    const brazilToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+    
+    const todayString = `${brazilToday.getFullYear()}-${String(brazilToday.getMonth() + 1).padStart(2, '0')}-${String(brazilToday.getDate()).padStart(2, '0')}`
+    
+    const tomorrowDate = new Date(brazilToday)
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1)
+    const tomorrowString = `${tomorrowDate.getFullYear()}-${String(tomorrowDate.getMonth() + 1).padStart(2, '0')}-${String(tomorrowDate.getDate()).padStart(2, '0')}`
+    
+    const in3DaysDate = new Date(brazilToday)
+    in3DaysDate.setDate(in3DaysDate.getDate() + 3)
+    const in3DaysString = `${in3DaysDate.getFullYear()}-${String(in3DaysDate.getMonth() + 1).padStart(2, '0')}-${String(in3DaysDate.getDate()).padStart(2, '0')}`
+    
+    const in7DaysDate = new Date(brazilToday)
+    in7DaysDate.setDate(in7DaysDate.getDate() + 7)
+    const in7DaysString = `${in7DaysDate.getFullYear()}-${String(in7DaysDate.getMonth() + 1).padStart(2, '0')}-${String(in7DaysDate.getDate()).padStart(2, '0')}`
 
-    // 1. Vencimentos de hoje
-    const duesToday = await db.installment.count({
+    // Buscar todas as parcelas ativas para filtrar por data
+    const allInstallments = await db.installment.findMany({
       where: {
-        loan: { userId: user.id },
-        dueDate: {
-          gte: today,
-          lt: getBrazilEndOfDay()
+        loan: { 
+          userId: user.id,
+          status: 'ACTIVE',
+          deletedAt: null
         },
         status: { in: ['PENDING', 'OVERDUE'] }
       }
     })
+    
+    // 1. Vencimentos de hoje
+    const duesToday = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate === todayString
+    }).length
 
     if (duesToday > 0) {
       notifications.push({
@@ -57,16 +77,10 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. Vencimentos amanhã
-    const duesTomorrow = await db.installment.count({
-      where: {
-        loan: { userId: user.id },
-        dueDate: {
-          gte: tomorrow,
-          lt: addBrazilDays(tomorrow, 1)
-        },
-        status: { in: ['PENDING', 'OVERDUE'] }
-      }
-    })
+    const duesTomorrow = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate === tomorrowString
+    }).length
 
     if (duesTomorrow > 0) {
       notifications.push({
@@ -80,14 +94,11 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // 3. Parcelas em atraso
-    const overdue = await db.installment.count({
-      where: {
-        loan: { userId: user.id },
-        dueDate: { lt: today },
-        status: { in: ['PENDING', 'OVERDUE'] }
-      }
-    })
+    // 3. Parcelas em atraso (data anterior a hoje)
+    const overdue = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate < todayString
+    }).length
 
     if (overdue > 0) {
       notifications.push({
@@ -101,17 +112,11 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // 4. Vencimentos nos próximos 3 dias
-    const duesIn3Days = await db.installment.count({
-      where: {
-        loan: { userId: user.id },
-        dueDate: {
-          gte: addBrazilDays(today, 2),
-          lt: in3Days
-        },
-        status: { in: ['PENDING', 'OVERDUE'] }
-      }
-    })
+    // 4. Vencimentos nos próximos 3 dias (dia 2 e dia 3)
+    const duesIn3Days = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate > tomorrowString && dueDate <= in3DaysString
+    }).length
 
     if (duesIn3Days > 0) {
       notifications.push({
@@ -158,18 +163,12 @@ export async function GET(request: NextRequest) {
     }
 
     // 6. Resumo semanal (apenas às segundas-feiras)
-    const isMonday = today.getDay() === 1
+    const isMonday = brazilToday.getDay() === 1
     if (isMonday) {
-      const weeklyDues = await db.installment.count({
-        where: {
-          loan: { userId: user.id },
-          dueDate: {
-            gte: today,
-            lt: in7Days
-          },
-          status: { in: ['PENDING', 'OVERDUE'] }
-        }
-      })
+      const weeklyDues = allInstallments.filter(installment => {
+        const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+        return dueDate >= todayString && dueDate <= in7DaysString
+      }).length
 
       if (weeklyDues > 0) {
         notifications.push({
