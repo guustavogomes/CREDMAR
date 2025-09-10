@@ -30,15 +30,26 @@ export async function GET(request: NextRequest) {
     }
 
 
-    // Criar datas em UTC para comparar com as datas do banco
+    // Criar datas baseadas no dia atual no Brasil, mas convertidas para UTC
     const now = new Date()
     
-    // Início e fim do dia de hoje em UTC
-    const startOfToday = new Date()
-    startOfToday.setUTCHours(0, 0, 0, 0)
+    // Obter o dia atual no Brasil
+    const brazilToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
     
-    const endOfToday = new Date()
-    endOfToday.setUTCHours(23, 59, 59, 999)
+    // Criar início e fim do dia brasileiro em UTC
+    const startOfToday = new Date(Date.UTC(
+      brazilToday.getFullYear(),
+      brazilToday.getMonth(),
+      brazilToday.getDate(),
+      0, 0, 0, 0
+    ))
+    
+    const endOfToday = new Date(Date.UTC(
+      brazilToday.getFullYear(),
+      brazilToday.getMonth(),
+      brazilToday.getDate(),
+      23, 59, 59, 999
+    ))
     
     // Início e fim da semana em UTC
     const startOfWeek = new Date()
