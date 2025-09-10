@@ -37,22 +37,6 @@ export async function GET(request: NextRequest) {
     // Criar data de hoje como string para comparação direta
     const todayString = `${brazilToday.getFullYear()}-${String(brazilToday.getMonth() + 1).padStart(2, '0')}-${String(brazilToday.getDate()).padStart(2, '0')}`
     
-    // Início e fim da semana em UTC
-    const startOfWeek = new Date()
-    startOfWeek.setUTCDate(startOfWeek.getUTCDate() - startOfWeek.getUTCDay()) // Domingo
-    startOfWeek.setUTCHours(0, 0, 0, 0)
-    
-    const endOfWeek = new Date(startOfWeek)
-    endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 6) // Sábado
-    endOfWeek.setUTCHours(23, 59, 59, 999)
-    
-    // Início e fim do mês em UTC
-    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-    startOfMonth.setUTCHours(0, 0, 0, 0)
-    
-    const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0))
-    endOfMonth.setUTCHours(23, 59, 59, 999)
-    
     // Debug logs
     console.log('Now:', now.toISOString())
     console.log('Brazil today string:', todayString)
@@ -88,83 +72,47 @@ export async function GET(request: NextRequest) {
       customerName: d.loan.customer.nomeCompleto
     })))
 
+    // Criar strings para semana
+    const startOfWeekDate = new Date(brazilToday)
+    startOfWeekDate.setDate(startOfWeekDate.getDate() - startOfWeekDate.getDay()) // Domingo
+    const startOfWeekString = `${startOfWeekDate.getFullYear()}-${String(startOfWeekDate.getMonth() + 1).padStart(2, '0')}-${String(startOfWeekDate.getDate()).padStart(2, '0')}`
+    
+    const endOfWeekDate = new Date(startOfWeekDate)
+    endOfWeekDate.setDate(endOfWeekDate.getDate() + 6) // Sábado
+    const endOfWeekString = `${endOfWeekDate.getFullYear()}-${String(endOfWeekDate.getMonth() + 1).padStart(2, '0')}-${String(endOfWeekDate.getDate()).padStart(2, '0')}`
+
     // Vencimentos da semana
-    const duesThisWeek = await db.installment.findMany({
-      where: {
-        loan: { 
-          userId: user.id,
-          status: 'ACTIVE', // Apenas empréstimos ativos
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        },
-        dueDate: {
-          gte: startOfWeek,
-          lt: endOfWeek
-        },
-        status: { in: ['PENDING', 'OVERDUE'] }
-      },
-      include: {
-        loan: {
-          include: { customer: true }
-        }
-      }
+    const duesThisWeek = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate >= startOfWeekString && dueDate <= endOfWeekString && ['PENDING', 'OVERDUE'].includes(installment.status)
     })
 
+    // Criar strings para mês
+    const startOfMonthDate = new Date(brazilToday.getFullYear(), brazilToday.getMonth(), 1)
+    const startOfMonthString = `${startOfMonthDate.getFullYear()}-${String(startOfMonthDate.getMonth() + 1).padStart(2, '0')}-${String(startOfMonthDate.getDate()).padStart(2, '0')}`
+    
+    const endOfMonthDate = new Date(brazilToday.getFullYear(), brazilToday.getMonth() + 1, 0)
+    const endOfMonthString = `${endOfMonthDate.getFullYear()}-${String(endOfMonthDate.getMonth() + 1).padStart(2, '0')}-${String(endOfMonthDate.getDate()).padStart(2, '0')}`
+
     // Vencimentos do mês
-    const duesThisMonth = await db.installment.findMany({
-      where: {
-        loan: { 
-          userId: user.id,
-          status: 'ACTIVE', // Apenas empréstimos ativos
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        },
-        dueDate: {
-          gte: startOfMonth,
-          lt: endOfMonth
-        },
-        status: { in: ['PENDING', 'OVERDUE'] }
-      },
-      include: {
-        loan: {
-          include: { customer: true }
-        }
-      }
+    const duesThisMonth = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate >= startOfMonthString && dueDate <= endOfMonthString && ['PENDING', 'OVERDUE'].includes(installment.status)
     })
 
     // Parcelas em atraso
-    const overdueInstallments = await db.installment.findMany({
-      where: {
-        loan: { 
-          userId: user.id,
-          status: 'ACTIVE', // Apenas empréstimos ativos
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        },
-        dueDate: { lt: startOfToday }, // Usar startOfToday que já está em UTC
-        status: { in: ['PENDING', 'OVERDUE'] }
-      },
-      include: {
-        loan: {
-          include: { customer: true }
-        }
-      }
+    const overdueInstallments = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate < todayString && ['PENDING', 'OVERDUE'].includes(installment.status)
     })
 
-    // Total recebido no mês
-    const totalReceivedThisMonth = await db.installment.aggregate({
-      where: {
-        loan: { 
-          userId: user.id,
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        },
-        status: 'PAID',
-        paidAt: {
-          gte: startOfMonth,
-          lt: endOfMonth
-        }
-      },
-      _sum: {
-        paidAmount: true
-      }
+    // Total recebido no mês - filtrar por data de pagamento
+    const paidThisMonth = allInstallments.filter(installment => {
+      if (installment.status !== 'PAID' || !installment.paidAt) return false
+      const paidDate = DateTime.fromJSDate(installment.paidAt, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return paidDate >= startOfMonthString && paidDate <= endOfMonthString
     })
+    const totalReceivedThisMonth = paidThisMonth.reduce((sum, installment) => sum + installment.paidAmount, 0)
 
     // Total de empréstimos ativos
     const activeLoans = await db.loan.count({
@@ -184,46 +132,23 @@ export async function GET(request: NextRequest) {
     })
 
     // Taxa de inadimplência
-    const totalInstallments = await db.installment.count({
-      where: {
-        loan: { 
-          userId: user.id,
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        }
-      }
-    })
+    const totalInstallments = allInstallments.length
 
     const overdueCount = overdueInstallments.length
     const defaultRate = totalInstallments > 0 ? (overdueCount / totalInstallments) * 100 : 0
 
-    // Próximos vencimentos (próximos 7 dias) em UTC
-    const nextWeek = new Date()
-    nextWeek.setUTCDate(nextWeek.getUTCDate() + 7)
-    nextWeek.setUTCHours(23, 59, 59, 999)
+    // Próximos vencimentos (próximos 7 dias)
+    const next7DaysDate = new Date(brazilToday)
+    next7DaysDate.setDate(next7DaysDate.getDate() + 7)
+    const next7DaysString = `${next7DaysDate.getFullYear()}-${String(next7DaysDate.getMonth() + 1).padStart(2, '0')}-${String(next7DaysDate.getDate()).padStart(2, '0')}`
     
-    const upcomingDues = await db.installment.findMany({
-      where: {
-        loan: { 
-          userId: user.id,
-          status: 'ACTIVE', // Apenas empréstimos ativos
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        },
-        dueDate: {
-          gte: endOfToday,
-          lt: nextWeek
-        },
-        status: { in: ['PENDING'] }
-      },
-      include: {
-        loan: {
-          include: { customer: true }
-        }
-      },
-      orderBy: {
-        dueDate: 'asc'
-      },
-      take: 10
-    })
+    const upcomingDues = allInstallments
+      .filter(installment => {
+        const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+        return dueDate > todayString && dueDate <= next7DaysString && installment.status === 'PENDING'
+      })
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
+      .slice(0, 10)
 
     // Função para formatar datas das parcelas SEM conversão de timezone
     const formatInstallmentDates = (installments: any[]) => {
@@ -266,7 +191,7 @@ export async function GET(request: NextRequest) {
         amount: overdueInstallments.reduce((sum: number, inst: any) => sum + inst.amount, 0),
         items: formatInstallmentDates(overdueInstallments)
       },
-      totalReceivedThisMonth: totalReceivedThisMonth._sum.paidAmount || 0,
+      totalReceivedThisMonth: totalReceivedThisMonth,
       activeLoans,
       uniqueCustomers: activeCustomers, // Mudado para contar todos os clientes ativos
       defaultRate: Math.round(defaultRate * 100) / 100,
