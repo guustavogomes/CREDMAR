@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     console.log('Parcelas que vencem hoje (raw):', duesToday.map(d => ({
       id: d.id,
       dueDate: d.dueDate.toISOString(),
-      dueDateFormatted: DateTime.fromJSDate(d.dueDate).toFormat('yyyy-MM-dd'),
+      dueDateFormatted: DateTime.fromJSDate(d.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd'),
       status: d.status,
       customerName: d.loan.customer.nomeCompleto
     })))
@@ -230,10 +230,10 @@ export async function GET(request: NextRequest) {
     // Função para formatar datas das parcelas SEM conversão de timezone
     const formatInstallmentDates = (installments: any[]) => {
       return installments.map(installment => {
-        // As datas já estão corretas no banco, apenas formatar sem converter
-        const dueDate = DateTime.fromJSDate(installment.dueDate).toFormat('yyyy-MM-dd')
-        const paidAt = installment.paidAt ? DateTime.fromJSDate(installment.paidAt).toFormat('yyyy-MM-dd') : null
-        const createdAt = DateTime.fromJSDate(installment.createdAt).toFormat('yyyy-MM-dd')
+        // As datas já estão corretas no banco, formatar em UTC para manter a data correta
+        const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+        const paidAt = installment.paidAt ? DateTime.fromJSDate(installment.paidAt, { zone: 'UTC' }).toFormat('yyyy-MM-dd') : null
+        const createdAt = DateTime.fromJSDate(installment.createdAt, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
         
         return {
           ...installment,
