@@ -30,26 +30,12 @@ export async function GET(request: NextRequest) {
     }
 
 
-    // Criar datas baseadas no dia atual no Brasil, mas convertidas para UTC
+    // Obter data atual no Brasil (sem horário)
     const now = new Date()
-    
-    // Obter o dia atual no Brasil
     const brazilToday = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
     
-    // Criar início e fim do dia brasileiro em UTC
-    const startOfToday = new Date(Date.UTC(
-      brazilToday.getFullYear(),
-      brazilToday.getMonth(),
-      brazilToday.getDate(),
-      0, 0, 0, 0
-    ))
-    
-    const endOfToday = new Date(Date.UTC(
-      brazilToday.getFullYear(),
-      brazilToday.getMonth(),
-      brazilToday.getDate(),
-      23, 59, 59, 999
-    ))
+    // Criar data de hoje como string para comparação direta
+    const todayString = `${brazilToday.getFullYear()}-${String(brazilToday.getMonth() + 1).padStart(2, '0')}-${String(brazilToday.getDate()).padStart(2, '0')}`
     
     // Início e fim da semana em UTC
     const startOfWeek = new Date()
@@ -69,20 +55,15 @@ export async function GET(request: NextRequest) {
     
     // Debug logs
     console.log('Now:', now.toISOString())
-    console.log('Start of today:', startOfToday.toISOString())
-    console.log('End of today:', endOfToday.toISOString())
+    console.log('Brazil today string:', todayString)
 
-    // Vencimentos de hoje (todas as parcelas, independente do status)
-    const duesToday = await db.installment.findMany({
+    // Buscar todas as parcelas e filtrar por data no JavaScript
+    const allInstallments = await db.installment.findMany({
       where: {
         loan: { 
           userId: user.id,
-          status: 'ACTIVE', // Apenas empréstimos ativos
-          deletedAt: null // Excluir empréstimos deletados (soft delete)
-        },
-        dueDate: {
-          gte: startOfToday,
-          lte: endOfToday // Usar lte ao invés de lt para incluir até 23:59:59
+          status: 'ACTIVE',
+          deletedAt: null
         }
       },
       include: {
@@ -90,6 +71,12 @@ export async function GET(request: NextRequest) {
           include: { customer: true }
         }
       }
+    })
+    
+    // Filtrar por data exata
+    const duesToday = allInstallments.filter(installment => {
+      const dueDate = DateTime.fromJSDate(installment.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd')
+      return dueDate === todayString
     })
     
     // Debug log
