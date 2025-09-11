@@ -23,7 +23,39 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '')
-    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    if (numbers.length <= 11) {
+      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    }
+    return value
+  }
+
+  const validateCPF = (cpf: string) => {
+    const numbers = cpf.replace(/\D/g, '')
+    
+    if (numbers.length !== 11) return false
+    
+    // Verifica se todos os dígitos são iguais
+    if (/^(\d)\1{10}$/.test(numbers)) return false
+    
+    // Validação do primeiro dígito verificador
+    let sum = 0
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(numbers.charAt(i)) * (10 - i)
+    }
+    let digit = 11 - (sum % 11)
+    if (digit > 9) digit = 0
+    if (digit !== parseInt(numbers.charAt(9))) return false
+    
+    // Validação do segundo dígito verificador
+    sum = 0
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(numbers.charAt(i)) * (11 - i)
+    }
+    digit = 11 - (sum % 11)
+    if (digit > 9) digit = 0
+    if (digit !== parseInt(numbers.charAt(10))) return false
+    
+    return true
   }
 
 
@@ -33,6 +65,16 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
       toast({
         title: 'CPF Obrigatório',
         description: 'É necessário informar o CPF para gerar o pagamento PIX.',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Validar se o CPF é válido
+    if (!validateCPF(cpf)) {
+      toast({
+        title: 'CPF Inválido',
+        description: 'Por favor, informe um CPF válido.',
         variant: 'destructive'
       })
       return
@@ -195,20 +237,44 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
         {/* Campo CPF */}
         <div className="space-y-2">
           <Label htmlFor="cpf">CPF *</Label>
-          <Input
-            id="cpf"
-            type="text"
-            placeholder="000.000.000-00"
-            value={cpf}
-            onChange={(e) => {
-              const formatted = formatCPF(e.target.value)
-              setCpf(formatted)
-            }}
-            maxLength={14}
-            className="font-mono"
-          />
-          <p className="text-xs text-gray-500">
-            CPF é obrigatório para gerar o pagamento PIX
+          <div className="relative">
+            <Input
+              id="cpf"
+              type="text"
+              placeholder="000.000.000-00"
+              value={cpf}
+              onChange={(e) => {
+                const formatted = formatCPF(e.target.value)
+                setCpf(formatted)
+              }}
+              maxLength={14}
+              className={`font-mono pr-10 ${
+                cpf.length === 14 
+                  ? validateCPF(cpf) 
+                    ? 'border-green-500 focus:border-green-500' 
+                    : 'border-red-500 focus:border-red-500'
+                  : ''
+              }`}
+            />
+            {cpf.length === 14 && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                {validateCPF(cpf) ? (
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                ) : (
+                  <XCircle className="h-5 w-5 text-red-500" />
+                )}
+              </div>
+            )}
+          </div>
+          <p className={`text-xs ${
+            cpf.length === 14 && !validateCPF(cpf) 
+              ? 'text-red-500' 
+              : 'text-gray-500'
+          }`}>
+            {cpf.length === 14 && !validateCPF(cpf) 
+              ? 'CPF inválido. Por favor, verifique os números digitados.'
+              : 'CPF é obrigatório para gerar o pagamento PIX'
+            }
           </p>
         </div>
 

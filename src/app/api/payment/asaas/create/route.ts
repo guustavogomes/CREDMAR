@@ -6,12 +6,42 @@ import { asaasAPI } from '@/lib/asaas-api'
 import { PAYMENT_CONFIG } from '@/lib/payment-config'
 import { z } from 'zod'
 
+// Função para validar CPF
+function validateCPF(cpf: string): boolean {
+  const numbers = cpf.replace(/\D/g, '')
+  
+  if (numbers.length !== 11) return false
+  
+  // Verifica se todos os dígitos são iguais
+  if (/^(\d)\1{10}$/.test(numbers)) return false
+  
+  // Validação do primeiro dígito verificador
+  let sum = 0
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(numbers.charAt(i)) * (10 - i)
+  }
+  let digit = 11 - (sum % 11)
+  if (digit > 9) digit = 0
+  if (digit !== parseInt(numbers.charAt(9))) return false
+  
+  // Validação do segundo dígito verificador
+  sum = 0
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(numbers.charAt(i)) * (11 - i)
+  }
+  digit = 11 - (sum % 11)
+  if (digit > 9) digit = 0
+  if (digit !== parseInt(numbers.charAt(10))) return false
+  
+  return true
+}
+
 const createAsaasPaymentSchema = z.object({
   amount: z.number().min(0.01),
   method: z.literal('PIX'), // Apenas PIX
   description: z.string().optional(),
   month: z.string().optional(), // YYYY-MM format
-  cpf: z.string().min(1, 'CPF é obrigatório') // CPF obrigatório para PIX
+  cpf: z.string().min(1, 'CPF é obrigatório').refine(validateCPF, 'CPF inválido') // CPF obrigatório e válido
 })
 
 export async function POST(request: NextRequest) {
@@ -152,14 +182,34 @@ export async function POST(request: NextRequest) {
     console.error('Erro ao criar pagamento no Asaas:', error)
     
     if (error instanceof z.ZodError) {
+      const firstError = error.errors[0]
+      let message = 'Dados inválidos'
+      
+      // Mensagens específicas para erros comuns
+      if (firstError.path[0] === 'cpf') {
+        message = firstError.message || 'CPF inválido'
+      } else if (firstError.path[0] === 'amount') {
+        message = 'Valor inválido'
+      }
+      
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: message, details: error.errors },
         { status: 400 }
       )
     }
 
+    // Tratar erros específicos da API Asaas
+    if (error instanceof Error) {
+      if (error.message.includes('CPF') || error.message.includes('cpf')) {
+        return NextResponse.json(
+          { error: 'CPF inválido ou não aceito pelo gateway de pagamento' },
+          { status: 400 }
+        )
+      }
+    }
+
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: 'Erro ao processar pagamento. Por favor, tente novamente.' },
       { status: 500 }
     )
   }
