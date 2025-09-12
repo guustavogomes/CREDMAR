@@ -102,9 +102,13 @@ export default function ClientesPage() {
           description: 'Cliente excluído com sucesso'
         })
       } else {
+        // Obter a mensagem de erro específica do backend
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'Erro ao excluir cliente'
+        
         toast({
           title: 'Erro',
-          description: 'Erro ao excluir cliente',
+          description: errorMessage,
           variant: 'destructive'
         })
       }
@@ -113,6 +117,13 @@ export default function ClientesPage() {
         title: 'Erro',
         description: 'Erro ao excluir cliente',
         variant: 'destructive'
+      })
+    } finally {
+      // Fechar o modal após a operação
+      setConfirmModal({
+        isOpen: false,
+        customerId: '',
+        customerName: ''
       })
     }
   }

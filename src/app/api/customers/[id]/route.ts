@@ -207,7 +207,9 @@ export async function DELETE(
 
     if (activeLoans > 0) {
       return NextResponse.json(
-        { error: 'Não é possível excluir cliente com empréstimos ativos' },
+        { 
+          error: `Não é possível excluir este cliente porque ele possui ${activeLoans} empréstimo(s) ativo(s). Para excluir o cliente, primeiro cancele ou finalize todos os empréstimos.` 
+        },
         { status: 400 }
       )
     }

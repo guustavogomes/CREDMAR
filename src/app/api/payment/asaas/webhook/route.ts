@@ -54,10 +54,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!payment) {
-      console.error('Pagamento não encontrado no banco local:', webhookData.payment.id)
+      console.warn('Pagamento não encontrado no banco local (pode ser de testes antigos):', webhookData.payment.id)
+      // Retorna sucesso para evitar reenvios do webhook
       return NextResponse.json(
-        { error: 'Pagamento não encontrado' },
-        { status: 404 }
+        { success: true, message: 'Pagamento não encontrado (ignorado)' },
+        { status: 200 }
       )
     }
 
