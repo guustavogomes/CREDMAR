@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { asaasAPI } from '@/lib/asaas-api'
-import { PAYMENT_CONFIG } from '@/lib/payment-config'
+// import { PAYMENT_CONFIG } from '@/lib/payment-config' // Removido pois não está sendo usado
 import { z } from 'zod'
 
 // Função para validar CPF
