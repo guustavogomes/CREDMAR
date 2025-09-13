@@ -34,10 +34,25 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    if (localPayment && localPayment.status !== asaasPayment.status) {
+    // Mapear status do Asaas para nosso enum
+    const mapAsaasStatusToLocal = (asaasStatus: string) => {
+      switch (asaasStatus) {
+        case 'RECEIVED':
+        case 'CONFIRMED':
+          return 'APPROVED'
+        case 'PENDING':
+          return 'PENDING'
+        default:
+          return 'REJECTED'
+      }
+    }
+
+    const localStatus = mapAsaasStatusToLocal(asaasPayment.status)
+
+    if (localPayment && localPayment.status !== localStatus) {
       await db.payment.update({
         where: { id: localPayment.id },
-        data: { status: asaasPayment.status as any },
+        data: { status: localStatus },
       })
     }
 
