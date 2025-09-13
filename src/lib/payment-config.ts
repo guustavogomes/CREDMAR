@@ -1,5 +1,12 @@
 // Configurações centralizadas do sistema de pagamento
 
+// Debug das variáveis ANTES de criar a config
+console.log('=== PAYMENT CONFIG DEBUG ===')
+console.log('ASAAS_API_KEY exists:', !!process.env.ASAAS_API_KEY)
+console.log('ASAAS_API_KEY value:', process.env.ASAAS_API_KEY ? process.env.ASAAS_API_KEY.substring(0, 30) + '...' : 'VAZIO')
+console.log('ASAAS_ENVIRONMENT:', process.env.ASAAS_ENVIRONMENT)
+console.log('============================')
+
 export const PAYMENT_CONFIG = {
   // Valor da mensalidade (em reais)
   MONTHLY_AMOUNT: parseFloat(process.env.MONTHLY_AMOUNT || '100.00'),
