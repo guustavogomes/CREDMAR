@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/components/auth-provider'
+import { PaymentGatewayGuard } from '@/components/payment-gateway-guard'
 import { Toaster } from '@/components/ui/toaster'
 import '@/lib/timezone-config' // Configura timezone brasileiro globalmente
 
@@ -28,7 +29,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <PaymentGatewayGuard>
+              {children}
+            </PaymentGatewayGuard>
             <Toaster />
           </ThemeProvider>
         </AuthProvider>
