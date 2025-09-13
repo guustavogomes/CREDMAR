@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     console.log('ASAAS_API_KEY (primeiros 20 chars):', process.env.ASAAS_API_KEY ? process.env.ASAAS_API_KEY.substring(0, 20) + '...' : 'NÃO CONFIGURADA')
     console.log('ASAAS_ENVIRONMENT:', process.env.ASAAS_ENVIRONMENT)
     console.log('ASAAS_CUSTOMER_ID:', process.env.ASAAS_CUSTOMER_ID)
+    console.log('Base URL calculada:', process.env.ASAAS_ENVIRONMENT === 'production' ? 'https://api.asaas.com' : 'https://api-sandbox.asaas.com')
     console.log('========================')
     
     const session = await getServerSession(authOptions)

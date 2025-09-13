@@ -7,19 +7,17 @@ export class AsaasAPI {
   constructor() {
     this.apiKey = PAYMENT_CONFIG.ASAAS.apiKey
     this.baseUrl = PAYMENT_CONFIG.ASAAS.baseUrl
-    
-    // Debug das configurações
-    console.log('=== CONFIGURAÇÕES ASAAS ===')
-    console.log('API Key configurada:', !!this.apiKey)
-    console.log('API Key (primeiros 20 chars):', this.apiKey ? this.apiKey.substring(0, 20) + '...' : 'NÃO CONFIGURADA')
-    console.log('Environment:', PAYMENT_CONFIG.ASAAS.environment)
-    console.log('Base URL:', this.baseUrl)
-    console.log('Customer ID:', PAYMENT_CONFIG.ASAAS.customerId)
-    console.log('========================')
   }
 
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
     const url = `${this.baseUrl}${endpoint}`
+    
+    // Log da chave sendo usada
+    console.log('=== DEBUG ASAAS REQUEST ===')
+    console.log('URL:', url)
+    console.log('API Key sendo usada:', this.apiKey ? this.apiKey.substring(0, 30) + '...' : 'NÃO CONFIGURADA')
+    console.log('Base URL:', this.baseUrl)
+    console.log('==========================')
     
     const response = await fetch(url, {
       ...options,
