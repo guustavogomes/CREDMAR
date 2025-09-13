@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const localStatus = mapAsaasStatusToLocal(asaasPayment.status)
+    const localStatus = mapAsaasStatusToLocal(asaasPayment.status || 'PENDING')
 
     if (localPayment && localPayment.status !== localStatus) {
       await db.payment.update({
