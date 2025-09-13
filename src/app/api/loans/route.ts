@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { z } from 'zod'
 import { InstallmentStatus } from '@prisma/client'
 import { generatePaymentSchedule } from '@/lib/periodicity-utils'
-import { parseBrazilDateString, formatBrazilDateToString } from '@/lib/timezone-utils'
+import { parseBrazilDateString, formatBrazilDateToString, formatDateToString } from '@/lib/timezone-utils'
 import { parseBrazilDateString as luxonParseBrazilDateString, brazilDateTimeToDate } from '@/lib/brazil-date'
 
 const loanSchema = z.object({
@@ -204,13 +204,13 @@ export async function GET() {
       }
     })
 
-    // Corrigir as datas usando timezone do Brasil
+    // Formatar as datas sem conversão de timezone para evitar regressão de dias
     const correctedLoans = loans.map(loan => ({
       ...loan,
-      transactionDate: formatBrazilDateToString(loan.transactionDate),
-      nextPaymentDate: formatBrazilDateToString(loan.nextPaymentDate),
-      createdAt: formatBrazilDateToString(loan.createdAt),
-      updatedAt: formatBrazilDateToString(loan.updatedAt)
+      transactionDate: formatDateToString(loan.transactionDate),
+      nextPaymentDate: formatDateToString(loan.nextPaymentDate),
+      createdAt: formatDateToString(loan.createdAt),
+      updatedAt: formatDateToString(loan.updatedAt)
     }))
 
     return NextResponse.json(correctedLoans, {
