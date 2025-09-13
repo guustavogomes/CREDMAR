@@ -23,7 +23,8 @@
       "Bash(npm install:*)",
       "Bash(npx prisma:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(vercel env:*)"
     ],
     "deny": [],
     "ask": []
