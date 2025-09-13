@@ -51,7 +51,10 @@ const createAsaasPaymentSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 API ROUTE START - ANTES DO TRY')
+  
   try {
+    console.log('✅ DENTRO DO TRY - API FUNCIONANDO')
     console.log('=== INÍCIO DA CRIAÇÃO DE PAGAMENTO ===')
     
     // Debug das variáveis de ambiente
@@ -204,6 +207,10 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
+    console.log('❌ ERRO CAPTURADO NO CATCH PRINCIPAL:')
+    console.log('Tipo do erro:', typeof error)
+    console.log('Erro completo:', error)
+    console.log('Stack trace:', error instanceof Error ? error.stack : 'N/A')
     console.error('Erro ao criar pagamento no Asaas:', error)
     
     if (error instanceof z.ZodError) {
