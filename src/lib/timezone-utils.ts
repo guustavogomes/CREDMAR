@@ -125,6 +125,14 @@ export function formatBrazilDateToString(date: Date): string {
 }
 
 /**
+ * Formata uma data para string YYYY-MM-DD sem conversão de timezone
+ * Usado para datas que já estão no formato correto
+ */
+export function formatDateToString(date: Date): string {
+  return date.toISOString().split('T')[0]
+}
+
+/**
  * Obtém a data atual do Brasil no formato YYYY-MM-DD para inputs
  * Agora usa Luxon para maior confiabilidade
  */

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { formatBrazilDateToString, parseBrazilDateString } from '@/lib/timezone-utils'
+import { formatBrazilDateToString, formatDateToString, parseBrazilDateString } from '@/lib/timezone-utils'
 import { z } from 'zod'
 import { generatePaymentSchedule } from '@/lib/periodicity-utils'
 import { InstallmentStatus } from '@prisma/client'
@@ -61,13 +61,13 @@ export async function GET(
       )
     }
 
-    // Corrigir as datas usando timezone do Brasil
+    // Formatar as datas sem conversão de timezone para evitar regressão de dias
     const correctedLoan = {
       ...loan,
-      transactionDate: formatBrazilDateToString(loan.transactionDate),
-      nextPaymentDate: formatBrazilDateToString(loan.nextPaymentDate),
-      createdAt: formatBrazilDateToString(loan.createdAt),
-      updatedAt: formatBrazilDateToString(loan.updatedAt)
+      transactionDate: formatDateToString(loan.transactionDate),
+      nextPaymentDate: formatDateToString(loan.nextPaymentDate),
+      createdAt: formatDateToString(loan.createdAt),
+      updatedAt: formatDateToString(loan.updatedAt)
     }
 
     return NextResponse.json(correctedLoan)
