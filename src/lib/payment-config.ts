@@ -9,7 +9,7 @@ console.log('============================')
 
 export const PAYMENT_CONFIG = {
   // Valor da mensalidade (em reais)
-  MONTHLY_AMOUNT: parseFloat(process.env.MONTHLY_AMOUNT || '1.00'),
+  MONTHLY_AMOUNT: parseFloat(process.env.MONTHLY_AMOUNT || '5.00'),
   
   // Configurações do Asaas
   ASAAS: {
