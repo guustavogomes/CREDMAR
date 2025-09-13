@@ -119,7 +119,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
 
     setIsCheckingPayment(true)
     try {
-      const response = await fetch(`/api/payment/asaas/status`, {
+      const response = await fetch(`/api/payment/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
