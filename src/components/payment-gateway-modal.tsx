@@ -60,7 +60,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
       
       console.log('📤 Dados enviados para API:', requestBody)
       
-      const response = await fetch('/api/payment/generate-pix', {
+      const response = await fetch('/api/payment/asaas/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,17 +75,8 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         const data = await response.json()
         console.log('✅ Sucesso! Dados recebidos:', data)
         
-        // Adaptar os dados da API generate-pix para o formato esperado
-        const adaptedPayment = {
-          id: 'temp_' + Date.now(), // ID temporário
-          amount: data.amount,
-          pixQrCode: data.qrCodeUrl,
-          pixPayload: data.pixCode,
-          dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h
-          status: 'PENDING'
-        }
-        
-        setPaymentData(adaptedPayment)
+        // Usar os dados da API Asaas diretamente
+        setPaymentData(data.payment)
         toast({
           title: 'Sucesso',
           description: 'Pagamento PIX gerado com sucesso!'
@@ -119,7 +110,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
 
     setIsCheckingPayment(true)
     try {
-      const response = await fetch(`/api/payment/status`, {
+      const response = await fetch(`/api/payment/asaas/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
