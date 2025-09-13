@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
         month: validatedData.month || new Date().toISOString().slice(0, 7),
         asaasPaymentId: asaasPayment.id,
         asaasCustomerId: asaasCustomer.id,
-        asaasDueDate: dueDate.toISOString().split('T')[0],
+        asaasDueDate: dueDate,
         pixCode: pixPayload
       }
     })
