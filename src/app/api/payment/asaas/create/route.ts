@@ -15,6 +15,12 @@ function validateCPF(cpf: string): boolean {
   // Verifica se todos os dígitos são iguais
   if (/^(\d)\1{10}$/.test(numbers)) return false
   
+  // Verifica CPFs inválidos conhecidos
+  const invalidCPFs = ['00000000000', '11111111111', '22222222222', '33333333333', 
+                      '44444444444', '55555555555', '66666666666', '77777777777', 
+                      '88888888888', '99999999999', '11144477735']
+  if (invalidCPFs.includes(numbers)) return false
+  
   // Validação do primeiro dígito verificador
   let sum = 0
   for (let i = 0; i < 9; i++) {
@@ -46,9 +52,13 @@ const createAsaasPaymentSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== INÍCIO DA CRIAÇÃO DE PAGAMENTO ===')
+    
     const session = await getServerSession(authOptions)
+    console.log('Sessão:', session ? 'Ativa' : 'Não encontrada')
     
     if (!session?.user?.id) {
+      console.log('❌ Usuário não autorizado')
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
@@ -56,7 +66,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    console.log('Dados recebidos:', body)
+    
     const validatedData = createAsaasPaymentSchema.parse(body)
+    console.log('Dados validados:', validatedData)
 
     // Verificar se o usuário existe
     const user = await db.user.findUnique({
@@ -98,8 +111,11 @@ export async function POST(request: NextRequest) {
 
     // Adicionar CPF (obrigatório para PIX)
     customerData.cpfCnpj = validatedData.cpf.replace(/\D/g, '') // Remove formatação
+    console.log('Dados do cliente para Asaas:', customerData)
 
+    console.log('Criando/atualizando cliente no Asaas...')
     const asaasCustomer = await asaasAPI.createOrUpdateCustomer(customerData)
+    console.log('Cliente Asaas criado:', asaasCustomer.id)
 
     // Calcular data de vencimento (30 dias a partir de hoje)
     const dueDate = new Date()
