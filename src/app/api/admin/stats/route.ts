@@ -28,22 +28,18 @@ export async function GET() {
     const pendingApproval = await db.user.count({
       where: { status: "PENDING_APPROVAL" },
     })
-    console.log("Usuários pendentes de aprovação:", pendingApproval)
 
     const activeUsers = await db.user.count({
       where: { status: "ACTIVE" },
     })
-    console.log("Usuários ativos:", activeUsers)
 
     const pendingPayments = await db.user.count({
       where: { status: "PENDING_PAYMENT" },
     })
-    console.log("Usuários pendentes de pagamento:", pendingPayments)
 
     const suspendedUsers = await db.user.count({
       where: { status: "SUSPENDED" },
     })
-    console.log("Usuários suspensos:", suspendedUsers)
 
     const stats = {
       pendingApproval,

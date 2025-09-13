@@ -195,11 +195,9 @@ export default function NovoEmprestimoPage() {
         body: JSON.stringify(requestData)
       })
 
-      console.log('Response status:', response.status)
 
       if (response.ok) {
         const result = await response.json()
-        console.log('Empréstimo criado:', result)
         
         toast({
           title: 'Sucesso',

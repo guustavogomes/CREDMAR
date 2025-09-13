@@ -163,12 +163,9 @@ export async function POST(
           `
         })
 
-          console.log(`✅ Email de aprovação enviado para ${payment.user.email}:`, emailResult.data?.id)
         } else {
-          console.log('⚠️ RESEND_API_KEY não configurada, email não enviado')
         }
       } catch (emailError) {
-        console.error('❌ Erro ao enviar email de aprovação:', emailError)
         // Não falhar a aprovação por causa do email
       }
     }
@@ -246,12 +243,9 @@ export async function POST(
           `
         })
 
-          console.log(`📧 Email de rejeição enviado para ${payment.user.email}:`, emailResult.data?.id)
         } else {
-          console.log('⚠️ RESEND_API_KEY não configurada, email não enviado')
         }
       } catch (emailError) {
-        console.error('❌ Erro ao enviar email de rejeição:', emailError)
       }
     }
 

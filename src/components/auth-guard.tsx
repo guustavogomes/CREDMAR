@@ -25,11 +25,9 @@ export function AuthGuard({
   useEffect(() => {
     if (status === "loading") return // Ainda carregando
 
-    console.log(`[AUTH GUARD] Status: ${status}, Session:`, session)
 
     // Se requer autenticação mas não está autenticado
     if (requireAuth && status === "unauthenticated") {
-      console.log(`[AUTH GUARD] Redirecionando usuário não autenticado para ${redirectTo}`)
       router.push(redirectTo)
       return
     }
@@ -39,18 +37,15 @@ export function AuthGuard({
       const userRole = session.user.role
       const userStatus = session.user.status
 
-      console.log(`[AUTH GUARD] Verificando permissões - Role: ${userRole}, Status: ${userStatus}`)
 
       // Verificar role
       if (!allowedRoles.includes(userRole)) {
-        console.log(`[AUTH GUARD] Role ${userRole} não permitida, redirecionando`)
         router.push("/dashboard")
         return
       }
 
       // Verificar status
       if (!allowedStatuses.includes(userStatus)) {
-        console.log(`[AUTH GUARD] Status ${userStatus} não permitido, redirecionando`)
         router.push("/pending-payment")
         return
       }

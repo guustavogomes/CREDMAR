@@ -4,14 +4,11 @@ import { db } from '@/lib/db'
 // Webhook do Asaas para receber confirmações de pagamento
 export async function POST(request: NextRequest) {
   try {
-    console.log('=== WEBHOOK ASAAS RECEBIDO ===')
     
     const body = await request.json()
-    console.log('Webhook payload:', JSON.stringify(body, null, 2))
 
     // Verificar se é um evento de pagamento
     if (!body.event || !body.payment) {
-      console.log('Webhook não é de pagamento')
       return NextResponse.json({ message: 'Evento ignorado' })
     }
 
@@ -19,14 +16,12 @@ export async function POST(request: NextRequest) {
 
     // Processar apenas eventos de pagamento confirmado
     if (event !== 'PAYMENT_RECEIVED' && event !== 'PAYMENT_CONFIRMED') {
-      console.log('Evento ignorado:', event)
       return NextResponse.json({ message: 'Evento ignorado' })
     }
 
     const asaasPaymentId = payment.id
     const asaasStatus = payment.status
 
-    console.log('Processando pagamento:', asaasPaymentId, 'Status:', asaasStatus)
 
     // Mapear status do Asaas para nosso enum
     const mapAsaasStatusToLocal = (asaasStatus: string) => {
@@ -54,7 +49,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (!localPayment) {
-      console.log('Pagamento local não encontrado para Asaas ID:', asaasPaymentId)
       return NextResponse.json({ error: 'Pagamento não encontrado' }, { status: 404 })
     }
 
@@ -77,8 +71,6 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log(`✅ Usuário ${localPayment.user.email} ativado automaticamente!`)
-      console.log(`💰 Pagamento de R$ ${payment.value} aprovado`)
     }
 
     return NextResponse.json({ 

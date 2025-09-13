@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[CHECK PIX] Verificando status para usuário:', session.user.email)
 
     // Buscar pagamento pendente do usuário
     const pendingPayment = await db.payment.findFirst({
@@ -31,18 +30,15 @@ export async function POST(request: NextRequest) {
     })
 
     if (!pendingPayment) {
-      console.log('[CHECK PIX] Nenhum pagamento pendente encontrado')
       return NextResponse.json({
         status: 'NO_PENDING_PAYMENT',
         message: 'Nenhum pagamento pendente encontrado'
       })
     }
 
-    console.log('[CHECK PIX] Pagamento pendente encontrado:', pendingPayment.id)
 
     // Verificar se as credenciais do BACEN estão configuradas
     if (isBacenConfigured()) {
-      console.log('[CHECK PIX] 🏦 Consultando BACEN...')
       
       try {
         // Consultar PIX no BACEN
@@ -53,7 +49,6 @@ export async function POST(request: NextRequest) {
         )
 
         if (pixEncontrado) {
-          console.log('[CHECK PIX] ✅ PIX confirmado pelo BACEN!')
           
           // Aprovar pagamento
           await db.payment.update({
@@ -82,7 +77,6 @@ export async function POST(request: NextRequest) {
           })
         }
 
-        console.log('[CHECK PIX] PIX ainda não encontrado no BACEN')
         
       } catch (error) {
         console.error('[CHECK PIX] Erro ao consultar BACEN:', error)
@@ -95,7 +89,6 @@ export async function POST(request: NextRequest) {
     const twoMinutes = 2 * 60 * 1000
     
     if (paymentAge > twoMinutes) {
-      console.log('[CHECK PIX] 🧪 SIMULAÇÃO: Considerando pagamento como pago após 2 minutos')
       
       // Aprovar pagamento
       await db.payment.update({
@@ -116,7 +109,6 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log('[CHECK PIX] ✅ Usuário ativado automaticamente!')
 
       return NextResponse.json({
         status: 'APPROVED',
@@ -126,7 +118,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Ainda pendente
-    console.log('[CHECK PIX] Pagamento ainda pendente')
     return NextResponse.json({
       status: 'PENDING',
       message: 'Pagamento ainda não identificado',

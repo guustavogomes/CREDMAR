@@ -283,8 +283,7 @@ export async function PUT(
     // **REGENERAÇÃO DE PARCELAS INTELIGENTE** 
     // Se não há parcelas pagas, regenerar todas as parcelas para manter consistência
     if (!hasPaidInstallments) {
-      console.log('🔄 Regenerando parcelas - nenhuma parcela paga encontrada')
-      
+     
       // 1. Remover todas as parcelas pendentes existentes
       await db.installment.deleteMany({
         where: {
@@ -331,11 +330,8 @@ export async function PUT(
           data: installmentsData
         })
         
-        console.log(`✅ Parcelas regeneradas: ${installmentsData.length} parcelas criadas`)
       }
-    } else {
-      console.log(`⚠️ Parcelas não regeneradas - ${paidInstallments.length} parcela(s) já paga(s)`)
-    }
+    } 
 
     return NextResponse.json(updatedLoan)
   } catch (error) {

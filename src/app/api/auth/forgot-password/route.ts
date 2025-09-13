@@ -119,7 +119,6 @@ export async function POST(request: NextRequest) {
       `
       })
     } else {
-      console.log('⚠️ RESEND_API_KEY não configurada, email não enviado')
     }
 
     return NextResponse.json(

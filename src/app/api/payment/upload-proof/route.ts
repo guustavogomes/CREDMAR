@@ -6,18 +6,11 @@ import { db } from "@/lib/db"
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[UPLOAD PROOF] Iniciando processo de upload")
     
     const session = await getServerSession(authOptions)
     
-    console.log("[UPLOAD PROOF] Sessão obtida:", {
-      hasSession: !!session,
-      userEmail: session?.user?.email,
-      userId: session?.user?.id
-    })
     
     if (!session?.user?.email) {
-      console.log("[UPLOAD PROOF] ERRO: Usuário não autenticado")
       return NextResponse.json(
         { error: "Não autorizado" },
         { status: 401 }
@@ -29,22 +22,14 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    console.log("[UPLOAD PROOF] Usuário encontrado:", {
-      found: !!user,
-      id: user?.id,
-      email: user?.email,
-      status: user?.status
-    })
 
     if (!user) {
-      console.log("[UPLOAD PROOF] ERRO: Usuário não encontrado no banco")
       return NextResponse.json(
         { error: "Usuário não encontrado" },
         { status: 404 }
       )
     }
 
-    console.log(`[UPLOAD PROOF] Verificando pagamentos existentes para usuário ${user.email} (ID: ${user.id})`)
     
     // Verificar se já existe um comprovante para este usuário
     const existingPayment = await db.payment.findFirst({
@@ -56,10 +41,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log(`[UPLOAD PROOF] Pagamento existente encontrado:`, existingPayment)
 
     if (existingPayment) {
-      console.log(`[UPLOAD PROOF] BLOQUEANDO: Usuário ${user.email} já possui comprovante enviado (ID: ${existingPayment.id}, Status: ${existingPayment.status})`)
       return NextResponse.json({
         error: "ALREADY_SUBMITTED",
         message: "Você já enviou um comprovante de pagamento. Aguarde a análise da nossa equipe.",
@@ -71,26 +54,22 @@ export async function POST(request: NextRequest) {
       }, { status: 409 })
     }
 
-    console.log(`[UPLOAD PROOF] Processando novo comprovante para usuário ${user.email}`)
 
     // Processar o arquivo enviado
     const formData = await request.formData()
     const file = formData.get("file") as File
 
     if (!file) {
-      console.log("[UPLOAD PROOF] ERRO: Nenhum arquivo enviado")
       return NextResponse.json(
         { error: "Nenhum arquivo enviado" },
         { status: 400 }
       )
     }
 
-    console.log(`[UPLOAD PROOF] Arquivo recebido: ${file.name}, tamanho: ${file.size} bytes`)
 
     // Validar tipo de arquivo
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
-      console.log(`[UPLOAD PROOF] ERRO: Tipo de arquivo não permitido: ${file.type}`)
       return NextResponse.json(
         { error: "Tipo de arquivo não permitido. Use apenas JPG, PNG ou WebP." },
         { status: 400 }
@@ -100,7 +79,6 @@ export async function POST(request: NextRequest) {
     // Validar tamanho do arquivo (máximo 5MB)
     const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
-      console.log(`[UPLOAD PROOF] ERRO: Arquivo muito grande: ${file.size} bytes`)
       return NextResponse.json(
         { error: "Arquivo muito grande. Máximo 5MB." },
         { status: 400 }
@@ -111,7 +89,6 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer())
     const base64String = `data:${file.type};base64,${buffer.toString('base64')}`
     
-    console.log(`[UPLOAD PROOF] Arquivo convertido para base64, tamanho: ${base64String.length} caracteres`)
 
     // Criar um novo pagamento com o comprovante
     const payment = await db.payment.create({
@@ -125,7 +102,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log(`[UPLOAD PROOF] Pagamento criado com ID: ${payment.id}`)
 
     // Atualizar o status do usuário para PENDING_APPROVAL
     if (user.status === "PENDING_PAYMENT") {
@@ -133,7 +109,6 @@ export async function POST(request: NextRequest) {
         where: { id: user.id },
         data: { status: "PENDING_APPROVAL" }
       })
-      console.log(`[UPLOAD PROOF] Status do usuário ${user.email} atualizado para PENDING_APPROVAL`)
     }
 
     return NextResponse.json({

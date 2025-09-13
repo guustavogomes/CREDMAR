@@ -232,7 +232,6 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
 
   const handleJoyrideCallback = (data: any) => {
     const { status, type, action, index, lifecycle } = data
-    console.log('JoyRide callback:', { status, type, action, index, lifecycle })
     
     // Qualquer situação que indique finalização
     const shouldClose = (
@@ -245,7 +244,6 @@ export default function TutorialProvider({ children }: TutorialProviderProps) {
     )
     
     if (shouldClose) {
-      console.log('Fechando tutorial por:', { status, action, type })
       
       const tourKey = getTourKeyFromPath(pathname)
       if (tourKey) {

@@ -4,13 +4,8 @@ import { authOptions } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('=== TESTE DE SESSÃO ===')
     
     const session = await getServerSession(authOptions)
-    console.log('Sessão encontrada:', !!session)
-    console.log('User ID:', session?.user?.id)
-    console.log('User email:', session?.user?.email)
-    console.log('User name:', session?.user?.name)
     
     if (!session?.user?.id) {
       return NextResponse.json({

@@ -32,10 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    console.log('Dados recebidos:', body)
-    
+
     const validatedData = loanSchema.parse(body)
-    console.log('Dados validados:', validatedData)
 
     const user = await db.user.findUnique({
       where: { email: session.user.email }
@@ -96,7 +94,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('Empréstimo criado:', newLoan)
 
     // Configurar a periodicidade para usar na geração das parcelas
     const periodicityConfig = {
@@ -107,7 +104,6 @@ export async function POST(request: NextRequest) {
       allowedMonths: periodicity.allowedMonths ? JSON.parse(periodicity.allowedMonths) : null
     }
 
-    console.log('Configuração de periodicidade:', periodicityConfig)
 
     // Gerar as datas das parcelas usando a função utilitária
     const paymentDates = generatePaymentSchedule(
@@ -116,7 +112,6 @@ export async function POST(request: NextRequest) {
       periodicityConfig
     )
 
-    console.log('Datas geradas:', paymentDates)
 
     // Criar as parcelas com as datas corretas
     const installmentsData = paymentDates.map((date, index) => ({
@@ -129,21 +124,18 @@ export async function POST(request: NextRequest) {
       status: 'PENDING' as InstallmentStatus
     }))
 
-    console.log('Parcelas a serem criadas:', installmentsData.length)
 
     // Criar todas as parcelas
     const createResult = await db.installment.createMany({
       data: installmentsData
     })
 
-    console.log('Parcelas criadas com sucesso:', createResult.count)
 
     // VERIFICAÇÃO AUTOMÁTICA: Conferir se o número de parcelas criadas corresponde ao configurado
     const actualInstallments = await db.installment.count({
       where: { loanId: newLoan.id }
     })
 
-    console.log(`Verificação: ${actualInstallments} parcelas criadas de ${validatedData.installments} configuradas`)
 
     if (actualInstallments !== validatedData.installments) {
       console.error(`ERRO CRÍTICO: Falha na geração automática de parcelas! Configurado: ${validatedData.installments}, Criado: ${actualInstallments}`)
@@ -163,9 +155,7 @@ export async function POST(request: NextRequest) {
         },
         { status: 500 }
       )
-    } else {
-      console.log('✅ Verificação OK: Número de parcelas correto')
-    }
+    } 
 
     return NextResponse.json(newLoan, { status: 201 })
   } catch (error) {

@@ -10,12 +10,8 @@ export async function POST(request: NextRequest) {
     // Verificar assinatura do webhook (segurança)
     const signature = request.headers.get('x-webhook-signature')
     if (signature !== PAYMENT_CONFIG.WEBHOOK_SECRET) {
-      console.log('Webhook signature inválida')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    console.log('=== WEBHOOK PAGAMENTO RECEBIDO ===')
-    console.log('Body:', JSON.stringify(body, null, 2))
 
     // Extrair dados do pagamento
     const { 
@@ -27,7 +23,6 @@ export async function POST(request: NextRequest) {
     } = body
 
     if (status !== 'PAID' && status !== 'APPROVED') {
-      console.log('Status não é de pagamento aprovado:', status)
       return NextResponse.json({ message: 'Status não processado' })
     }
 
@@ -43,13 +38,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!payment) {
-      console.log('Pagamento não encontrado para PIX:', pixCode)
       return NextResponse.json({ error: 'Pagamento não encontrado' }, { status: 404 })
     }
 
     // Verificar se o valor confere
     if (Math.abs(payment.amount - amount) > 0.01) {
-      console.log(`Valor não confere. Esperado: ${payment.amount}, Recebido: ${amount}`)
       return NextResponse.json({ error: 'Valor não confere' }, { status: 400 })
     }
 
@@ -71,9 +64,6 @@ export async function POST(request: NextRequest) {
         activatedAt: new Date()
       }
     })
-
-    console.log(`✅ Usuário ${payment.user.email} ativado automaticamente!`)
-    console.log(`💰 Pagamento de R$ ${amount} aprovado`)
 
     return NextResponse.json({ 
       message: 'Pagamento processado com sucesso',
@@ -132,8 +122,6 @@ export async function PUT(request: NextRequest) {
         activatedAt: new Date()
       }
     })
-
-    console.log(`🧪 SIMULAÇÃO: Usuário ${payment.user.email} ativado!`)
 
     return NextResponse.json({ 
       message: 'Pagamento simulado com sucesso',

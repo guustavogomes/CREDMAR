@@ -13,11 +13,7 @@ export class AsaasAPI {
     const url = `${this.baseUrl}${endpoint}`
     
     // Log da chave sendo usada
-    console.log('=== DEBUG ASAAS REQUEST ===')
-    console.log('URL:', url)
-    console.log('API Key sendo usada:', this.apiKey ? this.apiKey.substring(0, 30) + '...' : 'NÃO CONFIGURADA')
-    console.log('Base URL:', this.baseUrl)
-    console.log('==========================')
+
     
     const response = await fetch(url, {
       ...options,
@@ -217,7 +213,7 @@ export class AsaasAPI {
   // Processar webhook
   async processWebhook(webhookData: AsaasWebhookData): Promise<void> {
     try {
-      console.log('Processando webhook do Asaas:', webhookData)
+
       
       // Aqui você pode implementar a lógica específica para cada tipo de evento
       switch (webhookData.event) {
@@ -231,7 +227,7 @@ export class AsaasAPI {
           await this.handlePaymentRefunded(webhookData)
           break
         default:
-          console.log(`Evento não tratado: ${webhookData.event}`)
+
       }
     } catch (error) {
       console.error('Erro ao processar webhook do Asaas:', error)
@@ -241,17 +237,17 @@ export class AsaasAPI {
 
   private async handlePaymentReceived(webhookData: AsaasWebhookData): Promise<void> {
     // Implementar lógica para pagamento recebido
-    console.log('Pagamento recebido:', webhookData.payment.id)
+
   }
 
   private async handlePaymentOverdue(webhookData: AsaasWebhookData): Promise<void> {
     // Implementar lógica para pagamento em atraso
-    console.log('Pagamento em atraso:', webhookData.payment.id)
+
   }
 
   private async handlePaymentRefunded(webhookData: AsaasWebhookData): Promise<void> {
     // Implementar lógica para pagamento estornado
-    console.log('Pagamento estornado:', webhookData.payment.id)
+
   }
 }
 

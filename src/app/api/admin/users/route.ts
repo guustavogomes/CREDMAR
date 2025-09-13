@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
     // Obter parâmetros de filtro
     const searchParams = request.nextUrl.searchParams
     const filter = searchParams.get("filter") || "all"
-    console.log("Filtro aplicado:", filter)
 
     // Construir a consulta com base no filtro
     let whereClause = {}
@@ -41,7 +40,6 @@ export async function GET(request: NextRequest) {
       whereClause = { status: "PENDING_PAYMENT" }
     }
 
-    console.log("Cláusula WHERE:", whereClause)
 
     // Buscar usuários
     const users = await db.user.findMany({
@@ -57,8 +55,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log("Usuários encontrados:", users.length)
-    console.log("Dados dos usuários:", users)
+
 
     return NextResponse.json(users)
   } catch (error) {

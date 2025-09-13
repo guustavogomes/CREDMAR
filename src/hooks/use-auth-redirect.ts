@@ -13,7 +13,6 @@ export function useAuthRedirect() {
 
     // Se não estiver autenticado, redirecionar para login
     if (status === "unauthenticated") {
-      console.log("[AUTH REDIRECT] Usuário não autenticado, redirecionando para /login")
       router.push("/login")
       return
     }
@@ -23,7 +22,6 @@ export function useAuthRedirect() {
       const userStatus = session.user.status
       const userRole = session.user.role
 
-      console.log(`[AUTH REDIRECT] Usuário autenticado: ${session.user.email}, status: ${userStatus}, role: ${userRole}`)
 
       // Se for admin, redirecionar para área admin
       if (userRole === "ADMIN") {
@@ -33,7 +31,6 @@ export function useAuthRedirect() {
 
       // Se tiver status pendente, redirecionar para pending-payment
       if (userStatus === "PENDING_PAYMENT" || userStatus === "PENDING_APPROVAL") {
-        console.log(`[AUTH REDIRECT] Usuário com status ${userStatus}, redirecionando para /pending-payment`)
         router.push("/pending-payment")
         return
       }

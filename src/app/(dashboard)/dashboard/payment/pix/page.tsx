@@ -23,10 +23,8 @@ export default function PixPaymentPage() {
             <AsaasPayment 
               valor={100}
               onPaymentCreated={(payment) => {
-                console.log('Pagamento criado:', payment)
               }}
               onPaymentStatusChange={(status) => {
-                console.log('Status alterado:', status)
               }}
             />
           </div>

@@ -110,14 +110,12 @@ export async function POST(
       data: installmentsData
     })
 
-    console.log('Parcelas criadas na renovação:', createResult.count)
 
     // VERIFICAÇÃO AUTOMÁTICA: Conferir se o número de parcelas criadas corresponde ao configurado
     const actualInstallments = await db.installment.count({
       where: { loanId: newLoan.id }
     })
 
-    console.log(`Verificação renovação: ${actualInstallments} parcelas criadas de ${originalLoan.installments} configuradas`)
 
     if (actualInstallments !== originalLoan.installments) {
       console.error(`ERRO RENOVAÇÃO: Inconsistência detectada! Configurado: ${originalLoan.installments}, Criado: ${actualInstallments}`)
@@ -128,14 +126,7 @@ export async function POST(
         orderBy: { installmentNumber: 'asc' }
       })
       
-      console.log('Parcelas criadas na renovação:', createdInstallments.map(inst => ({
-        number: inst.installmentNumber,
-        dueDate: inst.dueDate,
-        amount: inst.amount
-      })))
-    } else {
-      console.log('✅ Verificação renovação OK: Número de parcelas correto')
-    }
+    } 
 
     return NextResponse.json({
       message: 'Empréstimo renovado com sucesso',

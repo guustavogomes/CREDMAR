@@ -221,7 +221,6 @@ export default function PaymentsPage() {
           <PixPayment 
             valor={100} 
             onPaymentGenerated={(data) => {
-              console.log('PIX gerado:', data)
               // Aqui você pode adicionar lógica para salvar o pagamento no banco
             }}
           />

@@ -121,7 +121,6 @@ export class BacenPixAPI {
       const agora = new Date()
       const inicio = new Date(agora.getTime() - (janelaTempo * 60 * 1000)) // X minutos atrás
 
-      console.log(`[BACEN] Consultando PIX de R$ ${valor} entre ${inicio.toISOString()} e ${agora.toISOString()}`)
 
       const pixList = await this.consultarPixRecebidos(inicio, agora)
       
@@ -135,11 +134,9 @@ export class BacenPixAPI {
       })
 
       if (pixEncontrado) {
-        console.log(`[BACEN] ✅ PIX encontrado:`, pixEncontrado)
         return pixEncontrado
       }
 
-      console.log(`[BACEN] ❌ PIX de R$ ${valor} não encontrado`)
       return null
 
     } catch (error) {

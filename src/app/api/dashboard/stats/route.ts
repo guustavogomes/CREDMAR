@@ -37,9 +37,6 @@ export async function GET(request: NextRequest) {
     // Criar data de hoje como string para comparação direta
     const todayString = `${brazilToday.getFullYear()}-${String(brazilToday.getMonth() + 1).padStart(2, '0')}-${String(brazilToday.getDate()).padStart(2, '0')}`
     
-    // Debug logs
-    console.log('Now:', now.toISOString())
-    console.log('Brazil today string:', todayString)
 
     // Buscar todas as parcelas e filtrar por data no JavaScript
     const allInstallments = await db.installment.findMany({
@@ -63,14 +60,6 @@ export async function GET(request: NextRequest) {
       return dueDate === todayString
     })
     
-    // Debug log
-    console.log('Parcelas que vencem hoje (raw):', duesToday.map(d => ({
-      id: d.id,
-      dueDate: d.dueDate.toISOString(),
-      dueDateFormatted: DateTime.fromJSDate(d.dueDate, { zone: 'UTC' }).toFormat('yyyy-MM-dd'),
-      status: d.status,
-      customerName: d.loan.customer.nomeCompleto
-    })))
 
     // Criar strings para semana
     const startOfWeekDate = new Date(brazilToday)

@@ -6,19 +6,18 @@ import { db } from '@/lib/db'
 // API temporária para aprovar usuário diretamente
 export async function POST(request: NextRequest) {
   try {
-    console.log('[APPROVE USER] === APROVAÇÃO DIRETA INICIADA ===')
-    
+   
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
-      console.log('[APPROVE USER] ❌ Usuário não autorizado')
+     
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
       )
     }
 
-    console.log('[APPROVE USER] Aprovando usuário:', session.user.email)
+   
 
     // Verificar status atual do usuário
     const currentUser = await db.user.findUnique({
@@ -26,17 +25,17 @@ export async function POST(request: NextRequest) {
     })
 
     if (!currentUser) {
-      console.log('[APPROVE USER] ❌ Usuário não encontrado')
+     
       return NextResponse.json(
         { error: 'Usuário não encontrado' },
         { status: 404 }
       )
     }
 
-    console.log('[APPROVE USER] Status atual:', currentUser.status)
+   
 
     if (currentUser.status === 'ACTIVE') {
-      console.log('[APPROVE USER] ✅ Usuário já está ativo')
+     
       return NextResponse.json({
         message: 'Usuário já está ativo',
         status: 'ACTIVE'
@@ -55,7 +54,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!payment) {
-      console.log('[APPROVE USER] Criando pagamento fictício...')
+     
       // Criar pagamento fictício para manter consistência
       payment = await db.payment.create({
         data: {
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log('[APPROVE USER] Aprovando pagamento ID:', payment.id)
+   
 
     // Aprovar pagamento
     await db.payment.update({
@@ -89,7 +88,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('[APPROVE USER] ✅ Usuário ativado com sucesso!')
+   
 
     return NextResponse.json({
       message: 'Usuário aprovado com sucesso',

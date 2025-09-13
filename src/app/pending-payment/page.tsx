@@ -30,7 +30,6 @@ export default function PendingPaymentPage() {
   }, [session, status, router])
 
   const handlePaymentCreated = (paymentData: any) => {
-    console.log('Pagamento criado:', paymentData)
     toast({
       title: 'Pagamento Criado!',
       description: 'Seu pagamento foi gerado com sucesso. Use o QR Code ou código PIX para pagar.'
@@ -38,7 +37,6 @@ export default function PendingPaymentPage() {
   }
 
   const handlePaymentStatusChange = (status: string) => {
-    console.log('Status do pagamento alterado:', status)
     if (status === 'APPROVED') {
           toast({
         title: 'Pagamento Aprovado!',

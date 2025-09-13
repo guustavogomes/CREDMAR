@@ -54,16 +54,12 @@ const createAsaasPaymentSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
-  console.log('🚀 API ASAAS CREATE - INÍCIO')
   
   try {
-    console.log('✅ DENTRO DO TRY - API FUNCIONANDO')
     
     const session = await getServerSession(authOptions)
-    console.log('Sessão:', session ? 'Ativa' : 'Não encontrada')
     
     if (!session?.user?.id) {
-      console.log('❌ Usuário não autorizado')
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
@@ -71,10 +67,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    console.log('Dados recebidos:', body)
     
     const validatedData = createAsaasPaymentSchema.parse(body)
-    console.log('Dados validados:', validatedData)
 
     // Buscar dados do usuário para criar cliente no Asaas
     const user = await db.user.findUnique({
@@ -88,28 +82,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Dados do cliente para Asaas:', {
-      name: user.name,
-      email: user.email,
-      cpfCnpj: validatedData.cpf
-    })
-
     // Criar/atualizar cliente no Asaas
-    console.log('Criando/atualizando cliente no Asaas...')
     const asaasCustomer = await asaasAPI.createOrUpdateCustomer({
       name: user.name || 'Cliente TaPago',
       email: user.email || '',
       cpfCnpj: validatedData.cpf
     })
 
-    console.log('Cliente criado/atualizado no Asaas:', asaasCustomer.id)
 
     // Calcular data de vencimento (próximo dia útil)
     const dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + 1)
 
     // Criar pagamento no Asaas
-    console.log('Criando pagamento no Asaas...')
     const asaasPayment = await asaasAPI.createPayment({
       customer: asaasCustomer.id!,
       billingType: 'PIX',
@@ -119,7 +104,6 @@ export async function POST(request: NextRequest) {
       externalReference: `tapago_${session.user.id}_${Date.now()}`
     })
 
-    console.log('Pagamento criado no Asaas:', asaasPayment.id)
 
     // Buscar dados PIX do pagamento
     let pixQrCode = null
@@ -127,7 +111,6 @@ export async function POST(request: NextRequest) {
     
     if (asaasPayment.id) {
       try {
-        console.log('Buscando dados PIX...')
         const pixData = await asaasAPI.getPixData(asaasPayment.id)
         pixPayload = pixData.payload
         
@@ -135,7 +118,6 @@ export async function POST(request: NextRequest) {
           pixQrCode = `data:image/png;base64,${pixData.encodedImage}`
         }
         
-        console.log('✅ Dados PIX obtidos com sucesso')
       } catch (error) {
         console.error('Erro ao buscar dados PIX:', error)
       }
@@ -157,7 +139,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('✅ Pagamento salvo no banco local:', newPayment.id)
 
     return NextResponse.json({
       payment: {
@@ -172,7 +153,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.log('❌ ERRO CAPTURADO:', error)
     console.error('Erro ao criar pagamento no Asaas:', error)
     
     if (error instanceof z.ZodError) {

@@ -79,10 +79,8 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    console.log('Dados recebidos:', body)
     
     const validatedData = customerSchema.parse(body)
-    console.log('Dados validados:', validatedData)
     
     // Verificar se o usuário existe
     const user = await db.user.findUnique({
@@ -131,7 +129,6 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    console.log('Cliente criado:', newCustomer)
     return NextResponse.json(newCustomer, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
