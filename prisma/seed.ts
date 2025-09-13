@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Iniciando seed do banco de dados...')
 
   // Verificar se já existe um admin
   const existingAdmin = await prisma.user.findFirst({
@@ -12,7 +11,6 @@ async function main() {
   })
 
   if (existingAdmin) {
-    console.log('✅ Usuário admin já existe:', existingAdmin.email)
     return
   }
 
@@ -29,10 +27,6 @@ async function main() {
     }
   })
 
-  console.log('✅ Usuário admin criado com sucesso!')
-  console.log('📧 Email:', adminUser.email)
-  console.log('🔑 Senha: admin123')
-  console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro login!')
 
   // Criar periodicidades conforme a configuração do sistema
   const periodicities = [
@@ -86,16 +80,13 @@ async function main() {
       await prisma.periodicity.create({
         data: periodicity
       })
-      console.log(`✅ Periodicidade criada: ${periodicity.name}`)
     }
   }
 
-  console.log('🎉 Seed concluído com sucesso!')
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Erro durante o seed:', e)
     process.exit(1)
   })
   .finally(async () => {

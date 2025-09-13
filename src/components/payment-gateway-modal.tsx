@@ -34,12 +34,8 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
 
   // Gerar pagamento PIX
   const generatePayment = async () => {
-    console.log('=== FRONTEND GENERATE PAYMENT START ===')
-    console.log('CPF:', cpf)
-    console.log('CPF length:', cpf.length)
     
     if (!cpf || cpf.length < 11) {
-      console.log('❌ CPF inválido')
       toast({
         title: 'Erro',
         description: 'Por favor, informe um CPF válido',
@@ -48,7 +44,6 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
       return
     }
 
-    console.log('✅ CPF válido, iniciando requisição...')
     setIsLoading(true)
     try {
       const requestBody = {
@@ -57,9 +52,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         cpf: cpf.replace(/\D/g, ''),
         description: 'TaPago - Acesso ao Sistema'
       }
-      
-      console.log('📤 Dados enviados para API:', requestBody)
-      
+         
       const response = await fetch('/api/payment/asaas/create', {
         method: 'POST',
         headers: {
@@ -68,13 +61,8 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         body: JSON.stringify(requestBody)
       })
 
-      console.log('📥 Response status:', response.status)
-      console.log('📥 Response ok:', response.ok)
-
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ Sucesso! Dados recebidos:', data)
-        
         // Usar os dados da API Asaas diretamente
         setPaymentData(data.payment)
         toast({
@@ -83,8 +71,6 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         })
       } else {
         const error = await response.json()
-        console.log('❌ Erro na resposta:', error)
-        console.log('❌ Status:', response.status)
         toast({
           title: 'Erro',
           description: error.error || 'Erro ao gerar pagamento',
@@ -92,14 +78,12 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         })
       }
     } catch (error) {
-      console.log('❌ Catch error:', error)
       toast({
         title: 'Erro',
         description: 'Erro ao gerar pagamento. Tente novamente.',
         variant: 'destructive'
       })
     } finally {
-      console.log('🏁 Finalizando requisição...')
       setIsLoading(false)
     }
   }

@@ -311,7 +311,6 @@ export default function NovoClientePage() {
         foto: fotoBase64 || null
       }
       
-      console.log('Dados sendo enviados:', dataToSend)
       
       const response = await fetch('/api/customers', {
         method: 'POST',
@@ -321,11 +320,9 @@ export default function NovoClientePage() {
         body: JSON.stringify(dataToSend)
       })
 
-      console.log('Response status:', response.status)
       
       if (response.ok) {
         const result = await response.json()
-        console.log('Cliente criado:', result)
         
         // Armazenar dados do cliente criado
         setCreatedCustomerId(result.id)
@@ -340,7 +337,6 @@ export default function NovoClientePage() {
         setShowLoanDialog(true)
       } else {
         const error = await response.json()
-        console.error('Erro na resposta:', error)
         
         toast({
           title: 'Erro',
@@ -349,7 +345,6 @@ export default function NovoClientePage() {
         })
       }
     } catch (error) {
-      console.error('Erro no catch:', error)
       
       toast({
         title: 'Erro',

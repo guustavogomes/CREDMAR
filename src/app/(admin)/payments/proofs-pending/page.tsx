@@ -76,7 +76,6 @@ export default function PaymentsProofsPendingPage() {
 
   const handleStatus = async (id: string, status: 'APPROVED' | 'REJECTED') => {
     try {
-      console.log(`Processando ${status} para pagamento ${id}`)
       
       const response = await fetch(`/api/admin/payments/${id}/proof-status`, {
         method: 'POST',
@@ -96,7 +95,6 @@ export default function PaymentsProofsPendingPage() {
         return
       }
 
-      console.log('Sucesso:', result)
       toast({
         title: "Sucesso!",
         description: `Pagamento ${status === 'APPROVED' ? 'aprovado' : 'rejeitado'} com sucesso!${status === 'APPROVED' ? ' Email enviado.' : ''}`,
@@ -172,7 +170,6 @@ export default function PaymentsProofsPendingPage() {
                         alt="Comprovante" 
                         className="w-full max-w-sm h-48 object-contain rounded border"
                         onError={(e) => {
-                          console.error('Erro ao carregar imagem:', payment.proofImage);
                           e.currentTarget.style.display = 'none';
                           const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
                           if (nextElement) {
@@ -180,7 +177,6 @@ export default function PaymentsProofsPendingPage() {
                           }
                         }}
                         onLoad={() => {
-                          console.log('Imagem carregada com sucesso:', payment.proofImage);
                         }}
                       />
                       <div 

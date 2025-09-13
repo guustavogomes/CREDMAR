@@ -63,23 +63,19 @@ export default function RegisterPage() {
         })
         
         // Fazer login automático após registro
-        console.log("[REGISTER] Tentando login automático...")
         const signInResult = await signIn("credentials", {
           email: formData.email,
           password: formData.password,
           redirect: false,
         })
         
-        console.log("[REGISTER] Resultado do login:", signInResult)
         
         if (signInResult?.ok && !signInResult.error) {
-          console.log("[REGISTER] Login automático realizado com sucesso")
           // Aguardar um pouco para a sessão ser estabelecida
           setTimeout(() => {
             router.push("/pending-payment")
           }, 1000)
         } else {
-          console.error("[REGISTER] Erro no login automático:", signInResult?.error)
           toast({
             title: "Conta criada!",
             description: "Faça login para continuar.",

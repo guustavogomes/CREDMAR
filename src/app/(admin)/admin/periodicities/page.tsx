@@ -67,13 +67,10 @@ export default function PeriodicitiesPage() {
 
   const fetchPeriodicities = async () => {
     try {
-      console.log('Buscando periodicidades...')
       const response = await fetch('/api/periodicities')
-      console.log('Response status:', response.status)
       
       if (response.ok) {
         const data = await response.json()
-        console.log('Periodicidades encontradas:', data)
         setPeriodicities(data)
       } else {
         console.error('Erro na resposta:', response.status, response.statusText)

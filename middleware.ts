@@ -5,24 +5,14 @@ import { NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   
-  // Log simples para verificar se o middleware está sendo executado
-  console.log(`[MIDDLEWARE DEBUG] Executando middleware para: ${path}`)
-  
-  console.log(`[MIDDLEWARE] Acessando rota: ${path}`)
-  
+ 
   // Verificar se o usuário está autenticado
   const session = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   })
   
-  console.log(`[MIDDLEWARE] Session encontrada:`, session ? {
-    sub: session.sub,
-    email: session.email,
-    role: session.role,
-    status: session.status
-  } : 'Nenhuma session')
-  
+ 
   // Rotas públicas que não precisam de autenticação
   const publicPaths = ['/', '/login', '/register']
   const isPublicPath = publicPaths.includes(path)
@@ -33,7 +23,6 @@ export async function middleware(request: NextRequest) {
   
   // Se o usuário não estiver autenticado e tentar acessar uma rota protegida
   if (!session && !isPublicPath) {
-    console.log(`[MIDDLEWARE] Usuário não autenticado tentando acessar rota protegida: ${path} - Redirecionando para /login`)
     return NextResponse.redirect(new URL('/login', request.url))
   }
   
@@ -65,7 +54,6 @@ export async function middleware(request: NextRequest) {
       (userStatus === 'PENDING_PAYMENT' || userStatus === 'PENDING_APPROVAL') && 
       !isPendingUserAllowedPath && 
       !path.startsWith('/pending-payment')) {
-    console.log(`[MIDDLEWARE] Redirecionando usuário ${session.sub} com status ${userStatus} para /pending-payment`)
     return NextResponse.redirect(new URL('/pending-payment', request.url))
   }
   

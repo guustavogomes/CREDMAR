@@ -185,7 +185,6 @@ export default function NovoEmprestimoPage() {
       observation: formData.observation // Incluir observação
     }
     
-    console.log('Enviando dados:', requestData)
     
     try {
       const response = await fetch('/api/loans', {

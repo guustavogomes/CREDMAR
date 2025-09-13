@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw, Info } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw, Info, PlusCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency } from '@/lib/date-utils'
@@ -75,6 +75,13 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
   const [renewData, setRenewData] = useState({
     loan: null as Loan | null,
     nextPaymentDate: ''
+  })
+  const [showAddInstallmentsDialog, setShowAddInstallmentsDialog] = useState(false)
+  const [addInstallmentsData, setAddInstallmentsData] = useState({
+    loan: null as Loan | null,
+    installmentValue: '',
+    installmentsCount: '',
+    startDate: ''
   })
 
   useEffect(() => {
@@ -154,6 +161,16 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
     setShowRenewDialog(true)
   }
 
+  const handleAddInstallments = (loan: Loan) => {
+    setAddInstallmentsData({ 
+      loan, 
+      installmentValue: loan.installmentValue.toString(),
+      installmentsCount: '',
+      startDate: ''
+    })
+    setShowAddInstallmentsDialog(true)
+  }
+
   const confirmRenew = () => {
     if (!renewData.nextPaymentDate) {
       toast({
@@ -194,6 +211,63 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
     
     // Redirecionar para a tela de criação com dados preenchidos
     router.push(`/dashboard/emprestimos/novo?data=${encodedData}`)
+  }
+
+  const confirmAddInstallments = async () => {
+    if (!addInstallmentsData.installmentValue || !addInstallmentsData.installmentsCount || !addInstallmentsData.startDate) {
+      toast({
+        title: 'Erro',
+        description: 'Preencha todos os campos obrigatórios',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!addInstallmentsData.loan) {
+      toast({
+        title: 'Erro',
+        description: 'Dados do empréstimo não encontrados',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/loans/${addInstallmentsData.loan.id}/add-installments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          installmentValue: parseFloat(addInstallmentsData.installmentValue),
+          installmentsCount: parseInt(addInstallmentsData.installmentsCount),
+          startDate: addInstallmentsData.startDate
+        })
+      })
+
+      if (response.ok) {
+        toast({
+          title: 'Sucesso',
+          description: `${addInstallmentsData.installmentsCount} parcelas adicionadas com sucesso!`
+        })
+        setShowAddInstallmentsDialog(false)
+        setAddInstallmentsData({ loan: null, installmentValue: '', installmentsCount: '', startDate: '' })
+        fetchLoans() // Recarregar a lista
+      } else {
+        const errorData = await response.json()
+        toast({
+          title: 'Erro',
+          description: errorData.error || 'Erro ao adicionar parcelas',
+          variant: 'destructive'
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao adicionar parcelas',
+        variant: 'destructive'
+      })
+    }
   }
 
   const confirmDelete = async () => {
@@ -428,6 +502,17 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                             >
                               <Calendar className="w-4 h-4" />
                             </Button>
+                            {loan.status === 'ACTIVE' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleAddInstallments(loan)}
+                                className="bg-green-50 hover:bg-green-100 border-green-200 text-green-600"
+                                title="Adicionar Parcelas"
+                              >
+                                <PlusCircle className="w-4 h-4" />
+                              </Button>
+                            )}
                             {loan.status === 'COMPLETED' && (
                               <Button
                                 variant="outline"
@@ -524,6 +609,17 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
                             Parcelas
                           </Button>
                         </div>
+                        {loan.status === 'ACTIVE' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAddInstallments(loan)}
+                            className="w-full bg-green-50 hover:bg-green-100 border-green-200 text-green-600"
+                          >
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Adicionar Parcelas
+                          </Button>
+                        )}
                         {loan.status === 'COMPLETED' && (
                           <Button
                             variant="outline"
@@ -621,6 +717,87 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
               disabled={!renewData.nextPaymentDate}
             >
               Ir para Criação
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Adicionar Parcelas */}
+      <Dialog open={showAddInstallmentsDialog} onOpenChange={setShowAddInstallmentsDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <PlusCircle className="w-5 h-5 text-green-600" />
+              Adicionar Parcelas
+            </DialogTitle>
+            <DialogDescription>
+              Adicionar novas parcelas ao empréstimo de {addInstallmentsData.loan?.customer.nomeCompleto}
+              <br />
+              <span className="text-sm text-gray-600 mt-2 block">
+                As parcelas serão inseridas após a última parcela existente.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="installmentValue">Valor da Parcela *</Label>
+              <Input
+                id="installmentValue"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={addInstallmentsData.installmentValue}
+                onChange={(e) => setAddInstallmentsData(prev => ({ ...prev, installmentValue: e.target.value }))}
+                placeholder="Ex: 150.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="installmentsCount">Quantidade de Parcelas *</Label>
+              <Input
+                id="installmentsCount"
+                type="number"
+                min="1"
+                max="60"
+                value={addInstallmentsData.installmentsCount}
+                onChange={(e) => setAddInstallmentsData(prev => ({ ...prev, installmentsCount: e.target.value }))}
+                placeholder="Ex: 3"
+              />
+            </div>
+            <div>
+              <Label htmlFor="startDate">Data da Primeira Parcela *</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={addInstallmentsData.startDate}
+                onChange={(e) => setAddInstallmentsData(prev => ({ ...prev, startDate: e.target.value }))}
+                min={getBrazilTodayString()}
+              />
+            </div>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Resumo:</strong> {addInstallmentsData.installmentsCount} parcelas de R$ {addInstallmentsData.installmentValue || '0,00'} 
+                {addInstallmentsData.installmentsCount && addInstallmentsData.installmentValue && (
+                  <span> = R$ {(parseFloat(addInstallmentsData.installmentValue || '0') * parseInt(addInstallmentsData.installmentsCount || '0')).toFixed(2)}</span>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddInstallmentsDialog(false)
+                setAddInstallmentsData({ loan: null, installmentValue: '', installmentsCount: '', startDate: '' })
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmAddInstallments}
+              className="bg-green-600 hover:bg-green-700"
+              disabled={!addInstallmentsData.installmentValue || !addInstallmentsData.installmentsCount || !addInstallmentsData.startDate}
+            >
+              Adicionar Parcelas
             </Button>
           </div>
         </DialogContent>
