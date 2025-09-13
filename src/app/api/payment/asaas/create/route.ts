@@ -54,6 +54,14 @@ export async function POST(request: NextRequest) {
   try {
     console.log('=== INÍCIO DA CRIAÇÃO DE PAGAMENTO ===')
     
+    // Debug das variáveis de ambiente
+    console.log('=== VARIÁVEIS DE AMBIENTE ===')
+    console.log('ASAAS_API_KEY configurada:', !!process.env.ASAAS_API_KEY)
+    console.log('ASAAS_API_KEY (primeiros 20 chars):', process.env.ASAAS_API_KEY ? process.env.ASAAS_API_KEY.substring(0, 20) + '...' : 'NÃO CONFIGURADA')
+    console.log('ASAAS_ENVIRONMENT:', process.env.ASAAS_ENVIRONMENT)
+    console.log('ASAAS_CUSTOMER_ID:', process.env.ASAAS_CUSTOMER_ID)
+    console.log('========================')
+    
     const session = await getServerSession(authOptions)
     console.log('Sessão:', session ? 'Ativa' : 'Não encontrada')
     

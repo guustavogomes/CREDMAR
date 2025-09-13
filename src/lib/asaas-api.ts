@@ -7,6 +7,15 @@ export class AsaasAPI {
   constructor() {
     this.apiKey = PAYMENT_CONFIG.ASAAS.apiKey
     this.baseUrl = PAYMENT_CONFIG.ASAAS.baseUrl
+    
+    // Debug das configurações
+    console.log('=== CONFIGURAÇÕES ASAAS ===')
+    console.log('API Key configurada:', !!this.apiKey)
+    console.log('API Key (primeiros 20 chars):', this.apiKey ? this.apiKey.substring(0, 20) + '...' : 'NÃO CONFIGURADA')
+    console.log('Environment:', PAYMENT_CONFIG.ASAAS.environment)
+    console.log('Base URL:', this.baseUrl)
+    console.log('Customer ID:', PAYMENT_CONFIG.ASAAS.customerId)
+    console.log('========================')
   }
 
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
@@ -17,6 +26,7 @@ export class AsaasAPI {
       headers: {
         'Content-Type': 'application/json',
         'access_token': this.apiKey,
+        'User-Agent': 'TaPago/1.0.0',
         ...options.headers,
       },
     })
