@@ -64,6 +64,7 @@ export default function EmprestimosPage() {
   const [loans, setLoans] = useState<Loan[]>([])
 const [routes, setRoutes] = useState<Route[]>([])
 const [selectedRoute, setSelectedRoute] = useState<string>('all')
+const [selectedStatus, setSelectedStatus] = useState<string>('active')
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [confirmModal, setConfirmModal] = useState({
@@ -145,7 +146,18 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
       matchRoute = loan.customer.routeId === selectedRoute // Rota específica
     }
     
-    return matchSearch && matchRoute
+    let matchStatus = true
+    if (selectedStatus === 'active') {
+      matchStatus = loan.status === 'ACTIVE'
+    } else if (selectedStatus === 'completed') {
+      matchStatus = loan.status === 'COMPLETED'
+    } else if (selectedStatus === 'cancelled') {
+      matchStatus = loan.status === 'CANCELLED'
+    } else if (selectedStatus === 'all') {
+      matchStatus = true // Mostra todos
+    }
+    
+    return matchSearch && matchRoute && matchStatus
   })
 
   const handleDelete = (loanId: string, customerName: string) => {
@@ -354,21 +366,38 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
         </CardContent>
       </Card>
 
-      {/* Filtro por Rota */}
+      {/* Filtros */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center">
-        <label className="font-medium text-sm text-muted-foreground">Filtrar por rota:</label>
-        <Select value={selectedRoute} onValueChange={setSelectedRoute}>
-  <SelectTrigger className="w-64">
-    <SelectValue placeholder="Todos os empréstimos" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">Todos os empréstimos</SelectItem>
-    <SelectItem value="no-route">Clientes sem rota</SelectItem>
-    {routes.map((route) => (
-      <SelectItem key={route.id} value={route.id}>{route.description}</SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <label className="font-medium text-sm text-muted-foreground">Status:</label>
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filtrar por status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Ativos</SelectItem>
+              <SelectItem value="completed">Concluídos</SelectItem>
+              <SelectItem value="cancelled">Cancelados</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <label className="font-medium text-sm text-muted-foreground">Rota:</label>
+          <Select value={selectedRoute} onValueChange={setSelectedRoute}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Filtrar por rota" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as rotas</SelectItem>
+              <SelectItem value="no-route">Clientes sem rota</SelectItem>
+              {routes.map((route) => (
+                <SelectItem key={route.id} value={route.id}>{route.description}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -376,7 +405,12 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total de Empréstimos</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedStatus === 'active' ? 'Empréstimos Ativos' : 
+                   selectedStatus === 'completed' ? 'Empréstimos Concluídos' :
+                   selectedStatus === 'cancelled' ? 'Empréstimos Cancelados' : 
+                   'Total de Empréstimos'}
+                </p>
                 <p className="text-2xl font-bold text-foreground">{filteredLoans.length}</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
@@ -388,9 +422,18 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Empréstimos Ativos</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedStatus === 'active' ? 'Total de Parcelas' :
+                   selectedStatus === 'completed' ? 'Valor Total Pago' :
+                   selectedStatus === 'cancelled' ? 'Valor Cancelado' :
+                   'Empréstimos Ativos'}
+                </p>
                 <p className="text-2xl font-bold text-foreground">
-                  {filteredLoans.filter(loan => loan.status === 'ACTIVE').length}
+                  {selectedStatus === 'active' ? 
+                    filteredLoans.reduce((sum, loan) => sum + loan.installments, 0) :
+                   selectedStatus === 'completed' || selectedStatus === 'cancelled' ?
+                    formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0)) :
+                    filteredLoans.filter(loan => loan.status === 'ACTIVE').length}
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
@@ -402,9 +445,20 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Valor Total Ativos</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedStatus === 'active' ? 'Valor Total Ativos' :
+                   selectedStatus === 'completed' ? 'Valor Médio por Empréstimo' :
+                   selectedStatus === 'cancelled' ? 'Valor Médio Cancelado' :
+                   'Valor Total Ativos'}
+                </p>
                 <p className="text-2xl font-bold text-foreground">
-                  {formatCurrency(filteredLoans.filter(loan => loan.status === 'ACTIVE').reduce((sum, loan) => sum + loan.totalAmount, 0))}
+                  {selectedStatus === 'active' ? 
+                    formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0)) :
+                   selectedStatus === 'completed' || selectedStatus === 'cancelled' ?
+                    filteredLoans.length > 0 ? 
+                      formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0) / filteredLoans.length) :
+                      'R$ 0,00' :
+                    formatCurrency(filteredLoans.filter(loan => loan.status === 'ACTIVE').reduce((sum, loan) => sum + loan.totalAmount, 0))}
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
