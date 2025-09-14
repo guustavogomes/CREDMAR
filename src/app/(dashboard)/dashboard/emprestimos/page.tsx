@@ -430,10 +430,10 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                 </p>
                 <p className="text-2xl font-bold text-foreground">
                   {selectedStatus === 'active' ? 
-                    filteredLoans.length :
+                    new Set(filteredLoans.map(loan => loan.customer.cpf)).size :
                    selectedStatus === 'completed' || selectedStatus === 'cancelled' ?
                     formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0)) :
-                    filteredLoans.filter(loan => loan.status === 'ACTIVE').length}
+                    new Set(filteredLoans.filter(loan => loan.status === 'ACTIVE').map(loan => loan.customer.cpf)).size}
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
