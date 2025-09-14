@@ -423,14 +423,14 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {selectedStatus === 'active' ? 'Total de Parcelas' :
+                  {selectedStatus === 'active' ? 'Total de Clientes' :
                    selectedStatus === 'completed' ? 'Valor Total Pago' :
                    selectedStatus === 'cancelled' ? 'Valor Cancelado' :
                    'Empréstimos Ativos'}
                 </p>
                 <p className="text-2xl font-bold text-foreground">
                   {selectedStatus === 'active' ? 
-                    filteredLoans.reduce((sum, loan) => sum + loan.installments, 0) :
+                    filteredLoans.length :
                    selectedStatus === 'completed' || selectedStatus === 'cancelled' ?
                     formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0)) :
                     filteredLoans.filter(loan => loan.status === 'ACTIVE').length}
@@ -446,10 +446,10 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  {selectedStatus === 'active' ? 'Valor Total Ativos' :
+                  {selectedStatus === 'active' ? 'Valor Total na Rua' :
                    selectedStatus === 'completed' ? 'Valor Médio por Empréstimo' :
                    selectedStatus === 'cancelled' ? 'Valor Médio Cancelado' :
-                   'Valor Total Ativos'}
+                   'Valor Total na Rua'}
                 </p>
                 <p className="text-2xl font-bold text-foreground">
                   {selectedStatus === 'active' ? 
