@@ -47,7 +47,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
     setIsLoading(true)
     try {
       const requestBody = {
-        amount: 5,
+        amount: 100,
         method: 'PIX',
         cpf: cpf.replace(/\D/g, ''),
         description: 'TaPago - Acesso ao Sistema'
