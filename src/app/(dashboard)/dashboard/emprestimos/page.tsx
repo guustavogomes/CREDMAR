@@ -402,12 +402,12 @@ const [selectedRoute, setSelectedRoute] = useState<string>('all')
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Valor Total</p>
+                <p className="text-sm text-muted-foreground">Valor Total Ativos</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {formatCurrency(filteredLoans.reduce((sum, loan) => sum + loan.totalAmount, 0))}
+                  {formatCurrency(filteredLoans.filter(loan => loan.status === 'ACTIVE').reduce((sum, loan) => sum + loan.totalAmount, 0))}
                 </p>
               </div>
-              <User className="w-8 h-8 text-purple-600" />
+              <DollarSign className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
