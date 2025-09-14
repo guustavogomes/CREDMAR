@@ -166,7 +166,7 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6">
+        <CardContent className="space-y-3 sm:space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Valor</label>
             <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -177,11 +177,11 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
           {payment.pixQrCode && (
             <div className="space-y-3">
               <label className="text-sm font-medium">QR Code PIX</label>
-              <div className="bg-white p-3 sm:p-4 rounded-lg border-2 border-dashed border-gray-300 text-center">
+              <div className="bg-white p-2 sm:p-4 rounded-lg border-2 border-dashed border-gray-300 text-center">
                 <img
                   src={payment.pixQrCode}
                   alt="QR Code PIX"
-                  className="mx-auto w-48 h-48 sm:max-w-48 sm:max-h-48 object-contain"
+                  className="mx-auto w-40 h-40 sm:w-48 sm:h-48 object-contain"
                 />
               </div>
               <p className="text-xs sm:text-sm text-gray-600 text-center">

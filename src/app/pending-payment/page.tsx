@@ -64,7 +64,7 @@ export default function PendingPaymentPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-8 pb-6">
         {/* Header - Otimizado para mobile */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
@@ -77,7 +77,7 @@ export default function PendingPaymentPage() {
         </div>
 
         {/* Cards de Benefícios - Responsivo */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-8">
           <Card className="text-center">
             <CardHeader className="pb-3">
               <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
@@ -122,7 +122,7 @@ export default function PendingPaymentPage() {
         </div>
 
         {/* Formulário de Pagamento - Prioridade máxima */}
-        <div className="max-w-2xl mx-auto mb-6 sm:mb-8">
+        <div className="max-w-2xl mx-auto mb-4 sm:mb-8">
           <SimplePaymentForm
             valor={100}
             onPaymentCreated={handlePaymentCreated}
@@ -139,10 +139,10 @@ export default function PendingPaymentPage() {
                 Informações Importantes
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4">
-              <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2 text-sm sm:text-base">💡 Como funciona:</h3>
-                <ol className="text-xs sm:text-sm text-blue-800 space-y-1">
+            <CardContent className="space-y-2 sm:space-y-4">
+              <div className="bg-blue-50 p-2 sm:p-4 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-1 sm:mb-2 text-sm sm:text-base">💡 Como funciona:</h3>
+                <ol className="text-xs sm:text-sm text-blue-800 space-y-0.5 sm:space-y-1">
                   <li>1. Informe seu CPF para gerar o pagamento PIX</li>
                   <li>2. Escaneie o QR Code ou copie o código PIX</li>
                   <li>3. Complete o pagamento no seu app do banco</li>
@@ -151,9 +151,9 @@ export default function PendingPaymentPage() {
                 </ol>
               </div>
 
-              <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
-                <h3 className="font-medium text-green-900 mb-2 text-sm sm:text-base">✅ Vantagens:</h3>
-                <ul className="text-xs sm:text-sm text-green-800 space-y-1">
+              <div className="bg-green-50 p-2 sm:p-4 rounded-lg">
+                <h3 className="font-medium text-green-900 mb-1 sm:mb-2 text-sm sm:text-base">✅ Vantagens:</h3>
+                <ul className="text-xs sm:text-sm text-green-800 space-y-0.5 sm:space-y-1">
                   <li>• Pagamento PIX instantâneo</li>
                   <li>• Confirmação automática via webhook</li>
                   <li>• Interface moderna e intuitiva</li>
@@ -170,7 +170,7 @@ export default function PendingPaymentPage() {
         </div>
 
         {/* Footer - Sempre visível */}
-        <div className="text-center mt-6 sm:mt-8 text-xs sm:text-sm text-gray-500 pb-4">
+        <div className="text-center mt-4 sm:mt-8 text-xs sm:text-sm text-gray-500 pb-2">
           <p>Precisa de ajuda? Entre em contato conosco</p>
         </div>
       </div>
