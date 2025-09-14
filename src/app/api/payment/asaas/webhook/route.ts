@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { updateUserSubscription } from '@/lib/subscription-utils'
 
 // Webhook do Asaas para receber confirmações de pagamento
 export async function POST(request: NextRequest) {
@@ -61,16 +62,9 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Se foi aprovado, ativar o usuário
+    // Se foi aprovado, ativar o usuário e estender assinatura
     if (localStatus === 'APPROVED') {
-      await db.user.update({
-        where: { id: localPayment.userId },
-        data: {
-          status: 'ACTIVE',
-          activatedAt: new Date()
-        }
-      })
-
+      await updateUserSubscription(localPayment.userId, new Date())
     }
 
     return NextResponse.json({ 

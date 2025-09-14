@@ -124,18 +124,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar pagamento no banco de dados local
+    const currentDate = new Date()
+    const subscriptionPeriod = currentDate.toISOString().slice(0, 7) // YYYY-MM
+    
     const newPayment = await db.payment.create({
       data: {
         userId: session.user.id,
         amount: validatedData.amount,
         method: 'PIX',
         status: 'PENDING',
-        description: validatedData.description || 'TaPago - Acesso ao Sistema',
-        month: validatedData.month || new Date().toISOString().slice(0, 7),
+        description: validatedData.description || 'TaPago - Assinatura Mensal',
+        month: validatedData.month || subscriptionPeriod,
         asaasPaymentId: asaasPayment.id,
         asaasCustomerId: asaasCustomer.id,
         asaasDueDate: dueDate,
-        pixCode: pixPayload
+        pixCode: pixPayload,
+        isSubscriptionPayment: true,
+        subscriptionPeriod
       }
     })
 

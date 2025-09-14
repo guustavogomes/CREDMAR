@@ -8,16 +8,24 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, CreditCard, CheckCircle, AlertCircle } from 'lucide-react'
+import { Loader2, CreditCard, CheckCircle, AlertCircle, Calendar, Clock } from 'lucide-react'
 import QRCode from 'qrcode.react'
+import { formatDate } from '@/lib/date-utils'
 
 interface PaymentGatewayModalProps {
   isOpen: boolean
   onClose: () => void
   onPaymentSuccess: () => void
+  isRenewal?: boolean
+  subscriptionInfo?: {
+    isExpired: boolean
+    isExpiringSoon: boolean
+    daysUntilExpiry: number
+    expiresAt: string | null
+  }
 }
 
-export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: PaymentGatewayModalProps) {
+export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenewal = false, subscriptionInfo }: PaymentGatewayModalProps) {
   const { data: session } = useSession()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -50,10 +58,13 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         amount: 100,
         method: 'PIX',
         cpf: cpf.replace(/\D/g, ''),
-        description: 'TaPago - Acesso ao Sistema'
+        description: isRenewal ? 'TaPago - Renovação de Assinatura' : 'TaPago - Acesso ao Sistema'
       }
          
-      const response = await fetch('/api/payment/asaas/create', {
+      // Usar API de renovação se for renovação, senão usar API normal
+      const apiEndpoint = isRenewal ? '/api/subscription/renew' : '/api/payment/asaas/create'
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,10 +161,32 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess }: Payme
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Acesso ao Sistema TaPago
+            {isRenewal ? 'Renovação de Assinatura' : 'Acesso ao Sistema TaPago'}
           </DialogTitle>
           <DialogDescription>
-            Para acessar todas as funcionalidades, realize o pagamento da mensalidade.
+            {isRenewal ? (
+              <div className="space-y-2">
+                <p>Renove sua assinatura para continuar usando o sistema.</p>
+                {subscriptionInfo && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4" />
+                    {subscriptionInfo.isExpired ? (
+                      <span className="text-red-600 font-medium">Assinatura expirada</span>
+                    ) : subscriptionInfo.isExpiringSoon ? (
+                      <span className="text-orange-600 font-medium">
+                        Expira em {subscriptionInfo.daysUntilExpiry} dias
+                      </span>
+                    ) : (
+                      <span className="text-green-600 font-medium">
+                        Válida até {subscriptionInfo.expiresAt ? formatDate(subscriptionInfo.expiresAt) : 'N/A'}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              'Para acessar todas as funcionalidades, realize o pagamento da mensalidade.'
+            )}
           </DialogDescription>
         </DialogHeader>
 

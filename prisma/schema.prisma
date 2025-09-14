@@ -15,6 +15,8 @@ model User {
   role                Role                 @default(USER)
   status              UserStatus           @default(PENDING_PAYMENT)
   activatedAt         DateTime?
+  subscriptionExpiresAt DateTime?          // Data de vencimento da assinatura
+  lastPaymentDate     DateTime?            // Data do último pagamento
   resetToken          String?
   resetTokenExpiry    DateTime?
   createdAt           DateTime             @default(now())
@@ -52,6 +54,8 @@ model Payment {
   asaasNetValue          Float?
   asaasOriginalValue     Float?
   asaasInterestValue     Float?
+  isSubscriptionPayment  Boolean       @default(false)  // Se é pagamento de assinatura
+  subscriptionPeriod     String?       // Período da assinatura (ex: "2024-01")
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
   user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
