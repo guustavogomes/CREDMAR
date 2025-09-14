@@ -15,7 +15,8 @@ import {
   Shield,
   Users,
   ShieldCheck,
-  Calendar
+  Calendar,
+  UserPlus
 } from "lucide-react"
 
 export default function AdminPage() {
@@ -163,6 +164,13 @@ export default function AdminPage() {
               >
                 <Users className="mr-2 h-4 w-4" />
                 Gerenciar Usuários
+              </Button>
+              <Button 
+                className="w-full bg-green-500 hover:bg-green-600"
+                onClick={() => router.push("/admin/users/novo")}
+              >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Cadastrar Usuário
               </Button>
             </div>
           </CardContent>
