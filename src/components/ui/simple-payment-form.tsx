@@ -154,69 +154,70 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
   if (payment) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <span className="flex items-center gap-2 text-base sm:text-lg">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
               Pagamento PIX
             </span>
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm sm:text-base">
               {getStatusIcon(payment.status)}
               {getStatusText(payment.status)}
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Valor</label>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
               R$ {payment.amount.toFixed(2).replace('.', ',')}
             </div>
           </div>
 
           {payment.pixQrCode && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-sm font-medium">QR Code PIX</label>
-              <div className="bg-white p-4 rounded-lg border-2 border-dashed border-gray-300 text-center">
+              <div className="bg-white p-3 sm:p-4 rounded-lg border-2 border-dashed border-gray-300 text-center">
                 <img
                   src={payment.pixQrCode}
                   alt="QR Code PIX"
-                  className="mx-auto max-w-48"
+                  className="mx-auto w-48 h-48 sm:max-w-48 sm:max-h-48 object-contain"
                 />
               </div>
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-xs sm:text-sm text-gray-600 text-center">
                 Escaneie o QR Code com seu app do banco
               </p>
             </div>
           )}
 
           {payment.pixPayload && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-sm font-medium">Código PIX</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   type="text"
                   value={payment.pixPayload}
                   readOnly
-                  className="flex-1 font-mono text-sm"
+                  className="flex-1 font-mono text-xs sm:text-sm"
                 />
                 <Button
                   onClick={copyPixCode}
                   variant="outline"
                   size="sm"
-                  className="px-3"
+                  className="px-3 w-full sm:w-auto"
                 >
                   {copied ? <CheckCircle className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                  <span className="ml-2">{copied ? 'Copiado!' : 'Copiar'}</span>
                 </Button>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 Ou copie o código PIX e cole no seu app do banco
               </p>
             </div>
           )}
 
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+            <p className="text-xs sm:text-sm text-blue-800">
               <strong>💡 Instruções:</strong> Escaneie o QR Code ou copie o código PIX para pagar. O pagamento será confirmado automaticamente.
             </p>
           </div>
@@ -227,16 +228,16 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
 
   return (
     <Card>
-              <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Pagamento PIX - R$ {valor.toFixed(2).replace('.', ',')}
-          </CardTitle>
-        </CardHeader>
-      <CardContent className="space-y-6">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+          Pagamento PIX - R$ {valor.toFixed(2).replace('.', ',')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Campo CPF */}
         <div className="space-y-2">
-          <Label htmlFor="cpf">CPF *</Label>
+          <Label htmlFor="cpf" className="text-sm font-medium">CPF *</Label>
           <div className="relative">
             <Input
               id="cpf"
@@ -248,7 +249,7 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
                 setCpf(formatted)
               }}
               maxLength={14}
-              className={`font-mono pr-10 ${
+              className={`font-mono pr-10 text-sm sm:text-base ${
                 cpf.length === 14 
                   ? validateCPF(cpf) 
                     ? 'border-green-500 focus:border-green-500' 
@@ -259,9 +260,9 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
             {cpf.length === 14 && (
               <div className="absolute right-2 top-1/2 -translate-y-1/2">
                 {validateCPF(cpf) ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-red-500" />
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
                 )}
               </div>
             )}
@@ -279,11 +280,11 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
         </div>
 
         {/* Informações */}
-        <div className="bg-green-50 p-4 rounded-lg">
-          <p className="text-sm text-green-800">
+        <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
+          <p className="text-xs sm:text-sm text-green-800">
             <strong>✅ Vantagens:</strong>
           </p>
-          <ul className="text-sm text-green-700 mt-2 space-y-1">
+          <ul className="text-xs sm:text-sm text-green-700 mt-2 space-y-1">
             <li>• Pagamento instantâneo e seguro</li>
             <li>• Confirmação automática</li>
             <li>• Apenas CPF necessário</li>
@@ -295,7 +296,7 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
         <Button
           onClick={createPayment}
           disabled={loading}
-          className="w-full"
+          className="w-full h-12 sm:h-10 text-sm sm:text-base"
         >
           {loading ? (
             <>
@@ -311,8 +312,8 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
         </Button>
 
         {/* Informação sobre dados */}
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <p className="text-sm text-blue-800">
+        <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+          <p className="text-xs sm:text-sm text-blue-800">
             <strong>📄 Nota Fiscal:</strong> O CPF será usado para emissão da nota fiscal. 
             Outros dados podem ser preenchidos posteriormente no painel do Asaas.
           </p>
