@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Camera, User, Upload } from 'lucide-react'
+import { ArrowLeft, Camera, User, Upload, DollarSign, Calendar, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { validateCPF, formatCPF } from '@/lib/cpf'
+import { formatDate, formatCurrency } from '@/lib/date-utils'
+import { Badge } from '@/components/ui/badge'
 
 interface Route {
   id: string
@@ -45,12 +47,31 @@ interface AddressData {
   logradouro: string
 }
 
+interface Loan {
+  id: string
+  totalAmount: number
+  installments: number
+  installmentValue: number
+  nextPaymentDate: string
+  status: string
+  transactionDate: string
+  observation?: string | null
+  customer?: {
+    id: string
+  }
+  periodicity: {
+    id: string
+    name: string
+  }
+}
+
 export default function EditarClientePage() {
   const router = useRouter()
   const params = useParams()
   const { toast } = useToast()
   const [routes, setRoutes] = useState<Route[]>([])
   const [customer, setCustomer] = useState<Customer | null>(null)
+  const [loans, setLoans] = useState<Loan[]>([])
   const [loading, setLoading] = useState(false)
   const [cepLoading, setCepLoading] = useState(false)
   const [showNewRouteInput, setShowNewRouteInput] = useState(false)
@@ -76,6 +97,7 @@ export default function EditarClientePage() {
   useEffect(() => {
     fetchCustomer()
     fetchRoutes()
+    fetchLoans()
   }, [params.id])
 
   const fetchCustomer = async () => {
@@ -125,6 +147,22 @@ export default function EditarClientePage() {
       }
     } catch (error) {
       console.error('Erro ao carregar rotas:', error)
+    }
+  }
+
+  const fetchLoans = async () => {
+    try {
+      const response = await fetch('/api/loans')
+      if (response.ok) {
+        const allLoans = await response.json()
+        // Filtrar empréstimos deste cliente
+        const customerLoans = allLoans.filter((loan: Loan) => 
+          loan.customer?.id === params.id
+        )
+        setLoans(customerLoans)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar empréstimos:', error)
     }
   }
 
@@ -351,6 +389,22 @@ export default function EditarClientePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      ACTIVE: { label: 'Ativo', variant: 'default' as const },
+      COMPLETED: { label: 'Concluído', variant: 'secondary' as const },
+      CANCELLED: { label: 'Cancelado', variant: 'destructive' as const }
+    }
+    
+    const statusInfo = statusMap[status as keyof typeof statusMap] || { label: status, variant: 'default' as const }
+    
+    return (
+      <Badge variant={statusInfo.variant}>
+        {statusInfo.label}
+      </Badge>
+    )
   }
 
   if (initialLoading) {
@@ -636,6 +690,80 @@ export default function EditarClientePage() {
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Histórico de Empréstimos */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-green-600" />
+            Histórico de Empréstimos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loans.length === 0 ? (
+            <div className="text-center py-8">
+              <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Nenhum empréstimo encontrado para este cliente</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {loans.map((loan) => (
+                <div key={loan.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg">Empréstimo #{loan.id.slice(-8)}</h3>
+                        {getStatusBadge(loan.status)}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Valor Total:</span>
+                          <div className="font-semibold text-green-600">{formatCurrency(loan.totalAmount)}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Parcelas:</span>
+                          <div className="font-semibold">{loan.installments}x de {formatCurrency(loan.installmentValue)}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Data do Empréstimo:</span>
+                          <div className="font-semibold">{formatDate(loan.transactionDate)}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Próximo Pagamento:</span>
+                          <div className="font-semibold">{formatDate(loan.nextPaymentDate)}</div>
+                        </div>
+                      </div>
+                      
+                      {loan.observation && (
+                        <div className="mt-2">
+                          <span className="text-gray-500 text-sm">Observação:</span>
+                          <p className="text-sm text-gray-700 mt-1">{loan.observation}</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Link href={`/dashboard/emprestimos/${loan.id}/parcelas`}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="w-4 h-4 mr-1" />
+                          Ver Parcelas
+                        </Button>
+                      </Link>
+                      <Link href={`/dashboard/emprestimos/${loan.id}/editar`}>
+                        <Button variant="outline" size="sm">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          Editar
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
