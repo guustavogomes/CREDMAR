@@ -13,6 +13,83 @@ const createUserSchema = z.object({
   status: z.enum(['ACTIVE', 'PENDING_APPROVAL', 'SUSPENDED']).default('ACTIVE')
 })
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 401 }
+      )
+    }
+
+    // Verificar se o usuário é administrador
+    const adminUser = await db.user.findUnique({
+      where: { email: session.user.email }
+    })
+
+    if (!adminUser || adminUser.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Acesso negado. Apenas administradores podem visualizar usuários.' },
+        { status: 403 }
+      )
+    }
+
+    // Obter filtro da query string
+    const { searchParams } = new URL(request.url)
+    const filter = searchParams.get('filter') || 'all'
+
+    // Construir where clause baseado no filtro
+    let whereClause: any = {}
+    
+    switch (filter) {
+      case 'pending':
+        whereClause.status = 'PENDING_APPROVAL'
+        break
+      case 'active':
+        whereClause.status = 'ACTIVE'
+        break
+      case 'suspended':
+        whereClause.status = 'SUSPENDED'
+        break
+      case 'pending_payment':
+        whereClause.status = 'PENDING_PAYMENT'
+        break
+      case 'all':
+      default:
+        // Sem filtro, retorna todos
+        break
+    }
+
+    // Buscar usuários
+    const users = await db.user.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        activatedAt: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    return NextResponse.json(users)
+
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error)
+    return NextResponse.json(
+      { error: 'Erro interno do servidor' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
