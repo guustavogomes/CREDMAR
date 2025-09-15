@@ -200,6 +200,25 @@ export default function PendingPaymentPage() {
           <p>Precisa de ajuda? Entre em contato conosco</p>
         </div>
       </div>
+
+      {/* Botão Flutuante WhatsApp */}
+      <div className="fixed bottom-6 right-6 z-50 group">
+        <Button
+          onClick={handleWhatsAppSupport}
+          className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+          aria-label="Suporte via WhatsApp"
+        >
+          <MessageCircle className="h-7 w-7 text-white group-hover:scale-110 transition-transform" />
+        </Button>
+        {/* Tooltip sempre visível */}
+        <div className="absolute -top-16 right-0 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-lg">
+          <div className="flex items-center gap-2">
+            <MessageCircle className="h-3 w-3" />
+            <span>Dúvidas? Chame no WhatsApp!</span>
+          </div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+        </div>
+      </div>
     </div>
   )
 }
