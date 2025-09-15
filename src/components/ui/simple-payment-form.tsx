@@ -166,7 +166,7 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-6">
+        <CardContent className="space-y-2 sm:space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Valor</label>
             <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -175,13 +175,13 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
           </div>
 
           {payment.pixQrCode && (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               <label className="text-sm font-medium">QR Code PIX</label>
-              <div className="bg-white p-2 sm:p-4 rounded-lg border-2 border-dashed border-gray-300 text-center">
+              <div className="bg-white p-1 sm:p-4 rounded-lg border-2 border-dashed border-gray-300 text-center">
                 <img
                   src={payment.pixQrCode}
                   alt="QR Code PIX"
-                  className="mx-auto w-40 h-40 sm:w-48 sm:h-48 object-contain"
+                  className="mx-auto w-32 h-32 sm:w-48 sm:h-48 object-contain"
                 />
               </div>
               <p className="text-xs sm:text-sm text-gray-600 text-center">
@@ -234,7 +234,7 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
           Pagamento PIX - R$ {valor.toFixed(2).replace('.', ',')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6">
+      <CardContent className="space-y-3 sm:space-y-6">
         {/* Campo CPF */}
         <div className="space-y-2">
           <Label htmlFor="cpf" className="text-sm font-medium">CPF *</Label>
@@ -280,11 +280,11 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
         </div>
 
         {/* Informações */}
-        <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
+        <div className="bg-green-50 p-2 sm:p-4 rounded-lg">
           <p className="text-xs sm:text-sm text-green-800">
             <strong>✅ Vantagens:</strong>
           </p>
-          <ul className="text-xs sm:text-sm text-green-700 mt-2 space-y-1">
+          <ul className="text-xs sm:text-sm text-green-700 mt-1 sm:mt-2 space-y-0.5 sm:space-y-1">
             <li>• Pagamento instantâneo e seguro</li>
             <li>• Confirmação automática</li>
             <li>• Apenas CPF necessário</li>
@@ -312,7 +312,7 @@ export function SimplePaymentForm({ onPaymentCreated, onPaymentStatusChange, val
         </Button>
 
         {/* Informação sobre dados */}
-        <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+        <div className="bg-blue-50 p-2 sm:p-4 rounded-lg">
           <p className="text-xs sm:text-sm text-blue-800">
             <strong>📄 Nota Fiscal:</strong> O CPF será usado para emissão da nota fiscal. 
             Outros dados podem ser preenchidos posteriormente no painel do Asaas.

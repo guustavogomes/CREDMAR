@@ -71,26 +71,26 @@ export default function PendingPaymentPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-8 pb-6">
-        {/* Header - Otimizado para mobile */}
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-            <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
+      <div className="container mx-auto px-2 sm:px-4 py-1 sm:py-8 pb-4">
+        {/* Header - Ultra compacto para mobile */}
+        <div className="text-center mb-4 sm:mb-8">
+          <div className="mx-auto w-10 h-10 sm:w-16 sm:h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-2 sm:mb-4">
+            <Clock className="w-5 h-5 sm:w-8 sm:h-8 text-yellow-600" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Pagamento Pendente</h1>
-          <p className="text-gray-600 text-base sm:text-lg px-2">
+          <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Pagamento Pendente</h1>
+          <p className="text-gray-600 text-sm sm:text-lg px-1 sm:px-2">
             Complete seu pagamento para acessar o sistema TaPago
           </p>
         </div>
 
-        {/* Cards de Benefícios - Responsivo */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-8">
+        {/* Cards de Benefícios - Ultra compacto para mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 mb-3 sm:mb-8">
           <Card className="text-center">
-            <CardHeader className="pb-3">
-              <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <div className="mx-auto w-8 h-8 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mb-1 sm:mb-2">
+                <Shield className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
               </div>
-              <CardTitle className="text-base sm:text-lg">Seguro</CardTitle>
+              <CardTitle className="text-sm sm:text-lg">Seguro</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-xs sm:text-sm text-gray-600">
@@ -100,11 +100,11 @@ export default function PendingPaymentPage() {
           </Card>
 
           <Card className="text-center">
-            <CardHeader className="pb-3">
-              <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <div className="mx-auto w-8 h-8 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mb-1 sm:mb-2">
+                <Zap className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
               </div>
-              <CardTitle className="text-base sm:text-lg">Rápido</CardTitle>
+              <CardTitle className="text-sm sm:text-lg">Rápido</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-xs sm:text-sm text-gray-600">
@@ -114,11 +114,11 @@ export default function PendingPaymentPage() {
           </Card>
 
           <Card className="text-center sm:col-span-2 lg:col-span-1">
-            <CardHeader className="pb-3">
-              <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <div className="mx-auto w-8 h-8 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center mb-1 sm:mb-2">
+                <Globe className="w-4 h-4 sm:w-6 sm:h-6 text-purple-600" />
               </div>
-              <CardTitle className="text-base sm:text-lg">Global</CardTitle>
+              <CardTitle className="text-sm sm:text-lg">Global</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-xs sm:text-sm text-gray-600">
@@ -129,7 +129,7 @@ export default function PendingPaymentPage() {
         </div>
 
         {/* Formulário de Pagamento - Prioridade máxima */}
-        <div className="max-w-2xl mx-auto mb-4 sm:mb-8">
+        <div className="max-w-2xl mx-auto mb-3 sm:mb-8">
           <SimplePaymentForm
             valor={100}
             onPaymentCreated={handlePaymentCreated}
@@ -146,7 +146,7 @@ export default function PendingPaymentPage() {
                 Informações Importantes
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 sm:space-y-4">
+            <CardContent className="space-y-1 sm:space-y-4">
               <div className="bg-blue-50 p-2 sm:p-4 rounded-lg">
                 <h3 className="font-medium text-blue-900 mb-1 sm:mb-2 text-sm sm:text-base">💡 Como funciona:</h3>
                 <ol className="text-xs sm:text-sm text-blue-800 space-y-0.5 sm:space-y-1">
@@ -173,20 +173,20 @@ export default function PendingPaymentPage() {
                 <p className="mt-1">💳 Aceitamos apenas PIX</p>
               </div>
 
-              {/* Botão de Suporte WhatsApp */}
-              <div className="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
+              {/* Botão de Suporte WhatsApp - Compacto */}
+              <div className="bg-green-50 p-2 sm:p-4 rounded-lg border border-green-200">
                 <div className="text-center">
-                  <p className="text-sm sm:text-base text-green-800 mb-3">
+                  <p className="text-xs sm:text-base text-green-800 mb-2">
                     <strong>🆘 Precisa de ajuda?</strong>
                   </p>
-                  <p className="text-xs sm:text-sm text-green-700 mb-3">
+                  <p className="text-xs sm:text-sm text-green-700 mb-2">
                     Qualquer dúvida ou problema com o pagamento, entre em contato conosco!
                   </p>
                   <Button
                     onClick={handleWhatsAppSupport}
-                    className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto"
+                    className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto text-xs sm:text-sm py-2"
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Chamar WhatsApp (12) 3197-4950
                   </Button>
                 </div>
@@ -196,7 +196,7 @@ export default function PendingPaymentPage() {
         </div>
 
         {/* Footer - Sempre visível */}
-        <div className="text-center mt-4 sm:mt-8 text-xs sm:text-sm text-gray-500 pb-2">
+        <div className="text-center mt-2 sm:mt-8 text-xs sm:text-sm text-gray-500 pb-1">
           <p>Precisa de ajuda? Entre em contato conosco</p>
         </div>
       </div>
