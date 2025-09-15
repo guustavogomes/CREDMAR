@@ -173,24 +173,26 @@ export default function PendingPaymentPage() {
                 <p className="mt-1">💳 Aceitamos apenas PIX</p>
               </div>
 
-              {/* Botão de Suporte WhatsApp - Compacto */}
-              <div className="bg-green-50 p-2 sm:p-4 rounded-lg border border-green-200">
+              {/* Suporte WhatsApp - Destaque */}
+              <div className="bg-green-100 border-2 border-green-300 p-3 rounded-lg">
                 <div className="text-center">
-                  <p className="text-xs sm:text-base text-green-800 mb-2">
-                    <strong>🆘 Precisa de ajuda?</strong>
-                  </p>
-                  <p className="text-xs sm:text-sm text-green-700 mb-2">
-                    Qualquer dúvida ou problema com o pagamento, entre em contato conosco!
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <MessageCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-semibold text-green-800">Dúvidas?</span>
+                  </div>
+                  <p className="text-xs text-green-700 mb-2">
+                    Precisa de ajuda com o pagamento? Chame no WhatsApp!
                   </p>
                   <Button
                     onClick={handleWhatsAppSupport}
-                    className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto text-xs sm:text-sm py-2"
+                    className="bg-green-500 hover:bg-green-600 text-white text-xs py-1 px-3 h-8"
                   >
-                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    Chamar WhatsApp (12) 3197-4950
+                    <MessageCircle className="w-3 h-3 mr-1" />
+                    (12) 3197-4950
                   </Button>
                 </div>
               </div>
+
             </CardContent>
           </Card>
         </div>
@@ -202,21 +204,21 @@ export default function PendingPaymentPage() {
       </div>
 
       {/* Botão Flutuante WhatsApp */}
-      <div className="fixed bottom-6 right-6 z-50 group">
+      <div className="fixed bottom-4 right-4 z-[9999] group">
         <Button
           onClick={handleWhatsAppSupport}
-          className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+          className="h-12 w-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
           aria-label="Suporte via WhatsApp"
         >
-          <MessageCircle className="h-7 w-7 text-white group-hover:scale-110 transition-transform" />
+          <MessageCircle className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
         </Button>
         {/* Tooltip sempre visível */}
-        <div className="absolute -top-16 right-0 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-lg">
-          <div className="flex items-center gap-2">
+        <div className="absolute -top-14 right-0 bg-slate-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap shadow-lg">
+          <div className="flex items-center gap-1">
             <MessageCircle className="h-3 w-3" />
             <span>Dúvidas? Chame no WhatsApp!</span>
           </div>
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+          <div className="absolute top-full right-3 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-slate-900"></div>
         </div>
       </div>
     </div>
