@@ -11,7 +11,7 @@ import {
 
 export function WhatsAppSupport() {
   const handleWhatsAppClick = () => {
-    const phoneNumber = '5537920001455' // Número com código do país (55) + DDD (37) + número
+    const phoneNumber = '551231974950' // Número com código do país (55) + DDD (12) + número
     const message = encodeURIComponent('Olá! Preciso de suporte com o sistema Tapago.')
     const url = `https://wa.me/${phoneNumber}?text=${message}`
     window.open(url, '_blank')

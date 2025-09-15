@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
-import { Clock, FileText, Shield, Zap, Globe } from 'lucide-react'
+import { Clock, FileText, Shield, Zap, Globe, MessageCircle } from 'lucide-react'
 import { SimplePaymentForm } from '@/components/ui/simple-payment-form'
 
 export default function PendingPaymentPage() {
@@ -46,6 +46,13 @@ export default function PendingPaymentPage() {
             router.push('/dashboard')
           }, 2000)
     }
+  }
+
+  const handleWhatsAppSupport = () => {
+    const phoneNumber = '551231974950' // Número com código do país (55) + DDD (12) + número
+    const message = encodeURIComponent('Olá! Estou com problemas no pagamento da licença do Tapago. Preciso de ajuda!')
+    const url = `https://wa.me/${phoneNumber}?text=${message}`
+    window.open(url, '_blank')
   }
 
 
@@ -164,6 +171,25 @@ export default function PendingPaymentPage() {
               <div className="text-center text-xs sm:text-sm text-gray-500">
                 <p>🔒 Transação segura via Asaas</p>
                 <p className="mt-1">💳 Aceitamos apenas PIX</p>
+              </div>
+
+              {/* Botão de Suporte WhatsApp */}
+              <div className="bg-green-50 p-3 sm:p-4 rounded-lg border border-green-200">
+                <div className="text-center">
+                  <p className="text-sm sm:text-base text-green-800 mb-3">
+                    <strong>🆘 Precisa de ajuda?</strong>
+                  </p>
+                  <p className="text-xs sm:text-sm text-green-700 mb-3">
+                    Qualquer dúvida ou problema com o pagamento, entre em contato conosco!
+                  </p>
+                  <Button
+                    onClick={handleWhatsAppSupport}
+                    className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Chamar WhatsApp (12) 3197-4950
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

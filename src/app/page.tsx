@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { QrCode, Upload, AlertTriangle, Copy, Check, ArrowRight, CheckCircle, Brain, Shield, Users, Zap, Star, TrendingDown, Globe, Lock, Smartphone, BarChart3, Quote, Server, Database, Clock, Cloud, HardDrive, Activity } from 'lucide-react'
+import { QrCode, Upload, AlertTriangle, Copy, Check, ArrowRight, CheckCircle, Brain, Shield, Users, Zap, Star, TrendingDown, Globe, Lock, Smartphone, BarChart3, Quote, Server, Database, Clock, Cloud, HardDrive, Activity, MessageCircle } from 'lucide-react'
 
 export default function HomePage() {
   const { data: session, status } = useSession()
@@ -22,6 +22,13 @@ export default function HomePage() {
       }
     }
   }, [status, session, router])
+
+  const handleWhatsAppSupport = () => {
+    const phoneNumber = '551231974950' // Número com código do país (55) + DDD (12) + número
+    const message = encodeURIComponent('Olá! Gostaria de saber mais sobre o TaPago e como posso reduzir a inadimplência da minha empresa!')
+    const url = `https://wa.me/${phoneNumber}?text=${message}`
+    window.open(url, '_blank')
+  }
 
   // Se ainda está carregando, mostrar loading
   if (status === 'loading') {
@@ -666,6 +673,20 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Botão Flutuante WhatsApp */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={handleWhatsAppSupport}
+          className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-200 p-0 group"
+          aria-label="Suporte via WhatsApp"
+        >
+          <MessageCircle className="h-7 w-7 text-white group-hover:scale-110 transition-transform" />
+        </Button>
+        <div className="absolute -top-12 right-0 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+          Fale conosco no WhatsApp
+        </div>
+      </div>
     </div>
   )
 }

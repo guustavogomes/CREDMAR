@@ -94,7 +94,7 @@ export function TutorialButton() {
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem className="cursor-pointer" onClick={() => window.open('https://wa.me/5537920001455', '_blank')}>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => window.open('https://wa.me/551231974950', '_blank')}>
           <HelpCircle className="mr-2 h-4 w-4 text-gray-600" />
           <div>
             <div className="font-medium">Suporte WhatsApp</div>
