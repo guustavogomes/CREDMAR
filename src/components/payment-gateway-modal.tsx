@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, CreditCard, CheckCircle, AlertCircle, Calendar, Clock } from 'lucide-react'
+import { Loader2, CreditCard, CheckCircle, AlertCircle, Calendar, Clock, MessageCircle } from 'lucide-react'
 import QRCode from 'qrcode.react'
 import { formatDate } from '@/lib/date-utils'
 
@@ -153,6 +153,13 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCPF(e.target.value)
     setCpf(formatted)
+  }
+
+  const handleWhatsAppSupport = () => {
+    const phoneNumber = '551231974950' // Número com código do país (55) + DDD (12) + número
+    const message = encodeURIComponent('Olá! Estou com problemas no pagamento da licença do Tapago. Preciso de ajuda!')
+    const url = `https://wa.me/${phoneNumber}?text=${message}`
+    window.open(url, '_blank')
   }
 
   return (
@@ -306,11 +313,31 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
                 </CardContent>
               </Card>
 
-              <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
-                <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-                <div className="text-sm text-blue-800">
-                  <strong>Importante:</strong> Após realizar o pagamento, clique em "Verificar Pagamento" 
-                  ou aguarde a confirmação automática. Seu acesso será liberado imediatamente.
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
+                  <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-800">
+                    <strong>Importante:</strong> Após realizar o pagamento, clique em "Verificar Pagamento" 
+                    ou aguarde a confirmação automática. Seu acesso será liberado imediatamente.
+                  </div>
+                </div>
+
+                {/* Suporte WhatsApp */}
+                <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <MessageCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="text-sm text-green-800 mb-2">
+                      <strong>Dúvidas?</strong> Precisa de ajuda com o pagamento? Chame no WhatsApp!
+                    </div>
+                    <Button
+                      onClick={handleWhatsAppSupport}
+                      size="sm"
+                      className="bg-green-500 hover:bg-green-600 text-white text-xs"
+                    >
+                      <MessageCircle className="w-3 h-3 mr-1" />
+                      (12) 3197-4950
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
