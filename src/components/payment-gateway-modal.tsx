@@ -164,19 +164,19 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
             {isRenewal ? 'Renovação de Assinatura' : 'Acesso ao Sistema TaPago'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             {isRenewal ? (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <p>Renove sua assinatura para continuar usando o sistema.</p>
                 {subscriptionInfo && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-xs">
+                    <Calendar className="h-3 w-3" />
                     {subscriptionInfo.isExpired ? (
                       <span className="text-red-600 font-medium">Assinatura expirada</span>
                     ) : subscriptionInfo.isExpiringSoon ? (
@@ -197,25 +197,26 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {!paymentData ? (
             // Formulário de CPF
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="space-y-2">
-                <Label htmlFor="cpf">CPF</Label>
+                <Label htmlFor="cpf" className="text-sm">CPF</Label>
                 <Input
                   id="cpf"
                   placeholder="000.000.000-00"
                   value={cpf}
                   onChange={handleCpfChange}
                   maxLength={14}
+                  className="text-sm"
                 />
               </div>
               
               <Button 
                 onClick={generatePayment} 
                 disabled={isLoading || cpf.length < 14}
-                className="w-full"
+                className="w-full h-10 text-sm"
               >
                 {isLoading ? (
                   <>
@@ -232,21 +233,21 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
             </div>
           ) : (
             // QR Code e dados do pagamento
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Pagamento PIX</CardTitle>
-                  <CardDescription>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base sm:text-lg">Pagamento PIX</CardTitle>
+                  <CardDescription className="text-sm">
                     Escaneie o QR Code ou copie o código PIX
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
                   <div className="text-center">
-                    <div className="inline-block p-4 bg-white rounded-lg border">
+                    <div className="inline-block p-2 sm:p-4 bg-white rounded-lg border">
                       {paymentData.pixQrCode && (
                         <QRCode 
                           value={paymentData.pixPayload} 
-                          size={200}
+                          size={window.innerWidth < 640 ? 150 : 200}
                           level="M"
                         />
                       )}
@@ -254,7 +255,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
                   </div>
                   
                   <div className="space-y-2">
-                    <Label>Código PIX (Copiar e Colar)</Label>
+                    <Label className="text-sm">Código PIX (Copiar e Colar)</Label>
                     <div className="flex gap-2">
                       <Input 
                         value={paymentData.pixPayload} 
@@ -270,17 +271,18 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
                             description: 'Código PIX copiado para a área de transferência'
                           })
                         }}
+                        className="text-xs px-3"
                       >
                         Copiar
                       </Button>
                     </div>
                   </div>
 
-                  <div className="text-center space-y-2">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="text-center space-y-1">
+                    <div className="text-xl sm:text-2xl font-bold text-green-600">
                       R$ {paymentData.amount.toFixed(2)}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-xs sm:text-sm text-gray-500">
                       Vencimento: {new Date(paymentData.dueDate).toLocaleDateString('pt-BR')}
                     </div>
                   </div>
@@ -289,16 +291,16 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
                     <Button 
                       onClick={checkPaymentStatus} 
                       disabled={isCheckingPayment}
-                      className="flex-1"
+                      className="flex-1 h-9 text-sm"
                     >
                       {isCheckingPayment ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                           Verificando...
                         </>
                       ) : (
                         <>
-                          <CheckCircle className="mr-2 h-4 w-4" />
+                          <CheckCircle className="mr-2 h-3 w-3" />
                           Verificar Pagamento
                         </>
                       )}
@@ -306,6 +308,7 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
                     <Button 
                       variant="outline" 
                       onClick={() => setPaymentData(null)}
+                      className="h-9 text-sm px-4"
                     >
                       Cancelar
                     </Button>
@@ -313,26 +316,26 @@ export function PaymentGatewayModal({ isOpen, onClose, onPaymentSuccess, isRenew
                 </CardContent>
               </Card>
 
-              <div className="space-y-3">
-                <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
-                  <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-                  <div className="text-sm text-blue-800">
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 p-2 sm:p-3 bg-blue-50 rounded-lg">
+                  <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 mt-0.5" />
+                  <div className="text-xs sm:text-sm text-blue-800">
                     <strong>Importante:</strong> Após realizar o pagamento, clique em "Verificar Pagamento" 
                     ou aguarde a confirmação automática. Seu acesso será liberado imediatamente.
                   </div>
                 </div>
 
                 {/* Suporte WhatsApp */}
-                <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                  <MessageCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                <div className="flex items-start gap-2 p-2 sm:p-3 bg-green-50 rounded-lg border border-green-200">
+                  <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-sm text-green-800 mb-2">
+                    <div className="text-xs sm:text-sm text-green-800 mb-1 sm:mb-2">
                       <strong>Dúvidas?</strong> Precisa de ajuda com o pagamento? Chame no WhatsApp!
                     </div>
                     <Button
                       onClick={handleWhatsAppSupport}
                       size="sm"
-                      className="bg-green-500 hover:bg-green-600 text-white text-xs"
+                      className="bg-green-500 hover:bg-green-600 text-white text-xs h-7 px-2"
                     >
                       <MessageCircle className="w-3 h-3 mr-1" />
                       (12) 3197-4950
