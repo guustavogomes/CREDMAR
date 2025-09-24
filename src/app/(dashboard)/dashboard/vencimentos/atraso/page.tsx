@@ -19,7 +19,7 @@ interface InstallmentWithLoan {
   installmentNumber: number
   dueDate: string
   amount: number
-  fineAmount: number
+  fineAmount?: number
   status: string
   loan: {
     id: string
@@ -146,8 +146,8 @@ export default function VencimentosAtrasoPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: selectedInstallment.amount + selectedInstallment.fineAmount,
-          fineAmount: selectedInstallment.fineAmount,
+          amount: selectedInstallment.amount + (selectedInstallment.fineAmount || 0),
+          fineAmount: selectedInstallment.fineAmount || 0,
           paymentDate: paymentData.paymentDate
         })
       })
@@ -186,7 +186,7 @@ export default function VencimentosAtrasoPage() {
     return diffDays
   }
 
-  const totalAmount = installments.reduce((sum, inst) => sum + inst.amount + inst.fineAmount, 0)
+  const totalAmount = installments.reduce((sum, inst) => sum + inst.amount + (inst.fineAmount || 0), 0)
 
   // Sort by days overdue (most overdue first)
   const sortedInstallments = [...installments].sort((a, b) => 
@@ -287,12 +287,12 @@ export default function VencimentosAtrasoPage() {
                         </div>
                         
                         <div className="text-xl font-bold text-red-700 mb-1">
-                          {formatCurrency(installment.amount + installment.fineAmount)}
+                          {formatCurrency(installment.amount + (installment.fineAmount || 0))}
                         </div>
                         <div className="text-sm text-red-600 mb-3">
                           Principal: {formatCurrency(installment.amount)}
-                          {installment.fineAmount > 0 && (
-                            <span className="block">+ Multa: {formatCurrency(installment.fineAmount)}</span>
+                          {(installment.fineAmount || 0) > 0 && (
+                            <span className="block">+ Multa: {formatCurrency(installment.fineAmount || 0)}</span>
                           )}
                         </div>
                       </div>
@@ -361,12 +361,12 @@ export default function VencimentosAtrasoPage() {
                               </Badge>
                               <div className="text-right">
                                 <div className="text-2xl font-bold text-red-700">
-                                  {formatCurrency(installment.amount + installment.fineAmount)}
+                                  {formatCurrency(installment.amount + (installment.fineAmount || 0))}
                                 </div>
                                 <div className="text-sm text-red-600">
                                   Principal: {formatCurrency(installment.amount)}
-                                  {installment.fineAmount > 0 && (
-                                    <span> + Multa: {formatCurrency(installment.fineAmount)}</span>
+                                  {(installment.fineAmount || 0) > 0 && (
+                                    <span> + Multa: {formatCurrency(installment.fineAmount || 0)}</span>
                                   )}
                                 </div>
                               </div>
@@ -434,7 +434,7 @@ export default function VencimentosAtrasoPage() {
           <DialogHeader>
             <DialogTitle>Aplicar Multa</DialogTitle>
             <DialogDescription>
-              {selectedInstallment?.fineAmount > 0 && (
+              {selectedInstallment && selectedInstallment.fineAmount !== undefined && selectedInstallment.fineAmount > 0 && (
                 <span className="text-sm text-gray-600">
                   Multa atual: {formatCurrency(selectedInstallment.fineAmount)}
                 </span>
@@ -481,7 +481,7 @@ export default function VencimentosAtrasoPage() {
               Marcar parcela {selectedInstallment?.installmentNumber} como paga?
               <br />
               <span className="text-lg font-semibold text-green-700 mt-2 block">
-                Valor total: {selectedInstallment && formatCurrency(selectedInstallment.amount + selectedInstallment.fineAmount)}
+                Valor total: {selectedInstallment && formatCurrency(selectedInstallment.amount + (selectedInstallment.fineAmount || 0))}
               </span>
             </DialogDescription>
           </DialogHeader>
