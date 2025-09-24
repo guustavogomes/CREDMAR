@@ -66,6 +66,67 @@ export default function VencimentosAtrasoPage() {
     return formatDateUtil(dateString)
   }
 
+  const handleApplyFine = async (installmentId: string, loanId: string) => {
+    try {
+      const fineAmount = prompt('Digite o valor da multa:')
+      if (!fineAmount || isNaN(Number(fineAmount))) return
+
+      const response = await fetch(`/api/loans/${loanId}/installments/${installmentId}/fine`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fineAmount: parseFloat(fineAmount),
+          reason: 'Atraso no pagamento'
+        })
+      })
+
+      if (response.ok) {
+        alert('Multa aplicada com sucesso!')
+        fetchOverdueDues() // Recarregar dados
+      } else {
+        const error = await response.json()
+        alert(`Erro ao aplicar multa: ${error.error || 'Erro desconhecido'}`)
+      }
+    } catch (error) {
+      console.error('Erro ao aplicar multa:', error)
+      alert('Erro ao aplicar multa')
+    }
+  }
+
+  const handleMarkAsPaid = async (installmentId: string, loanId: string, amount: number, fineAmount: number) => {
+    try {
+      const confirmPayment = confirm(`Confirmar pagamento de ${formatCurrency(amount + fineAmount)}?`)
+      if (!confirmPayment) return
+
+      const today = new Date().toISOString().split('T')[0]
+
+      const response = await fetch(`/api/loans/${loanId}/installments/${installmentId}/pay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount + fineAmount,
+          fineAmount: fineAmount,
+          paymentDate: today
+        })
+      })
+
+      if (response.ok) {
+        alert('Pagamento registrado com sucesso!')
+        fetchOverdueDues() // Recarregar dados
+      } else {
+        const error = await response.json()
+        alert(`Erro ao registrar pagamento: ${error.error || 'Erro desconhecido'}`)
+      }
+    } catch (error) {
+      console.error('Erro ao registrar pagamento:', error)
+      alert('Erro ao registrar pagamento')
+    }
+  }
+
   const getDaysOverdue = (dueDate: string) => {
     const today = getBrazilStartOfDay() // Usar timezone do Brasil
     const due = getBrazilStartOfDay(parseBrazilDateString(dueDate)) // Parse correto da data
@@ -213,10 +274,18 @@ export default function VencimentosAtrasoPage() {
                           Ver Detalhes
                         </Button>
                       </Link>
-                      <Button size="sm" className="w-full bg-orange-600 hover:bg-orange-700 max-w-full">
+                      <Button
+                        size="sm"
+                        className="w-full bg-orange-600 hover:bg-orange-700 max-w-full"
+                        onClick={() => handleApplyFine(installment.id, installment.loan.id)}
+                      >
                         Aplicar Multa
                       </Button>
-                      <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 max-w-full">
+                      <Button
+                        size="sm"
+                        className="w-full bg-green-600 hover:bg-green-700 max-w-full"
+                        onClick={() => handleMarkAsPaid(installment.id, installment.loan.id, installment.amount, installment.fineAmount)}
+                      >
                         Marcar como Pago
                       </Button>
                     </div>
@@ -281,10 +350,18 @@ export default function VencimentosAtrasoPage() {
                                   Ver Detalhes
                                 </Button>
                               </Link>
-                              <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                              <Button
+                                size="sm"
+                                className="bg-orange-600 hover:bg-orange-700"
+                                onClick={() => handleApplyFine(installment.id, installment.loan.id)}
+                              >
                                 Aplicar Multa
                               </Button>
-                              <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={() => handleMarkAsPaid(installment.id, installment.loan.id, installment.amount, installment.fineAmount)}
+                              >
                                 Marcar como Pago
                               </Button>
                             </div>
