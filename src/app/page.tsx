@@ -572,6 +572,15 @@ export default function HomePage() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mb-48"></div>
         
         <div className="container mx-auto px-6 sm:px-8 text-center relative z-10">
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-2 rounded-full text-sm font-semibold mb-4 animate-pulse">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+              </span>
+              OFERTA LIMITADA: Primeiros 100 a contratarem!
+            </div>
+          </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Pronto para reduzir sua
             <span className="block">inadimplência em 65%?</span>
@@ -582,7 +591,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 shadow-xl px-8 py-4 text-lg font-semibold" asChild>
               <Link href="/register">
-                Assinar por R$100,00/mês
+                Assinar por R$29,90/mês
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -590,9 +599,14 @@ export default function HomePage() {
               <Link href="/login">Fazer Login</Link>
             </Button>
           </div>
-          <p className="text-sm text-blue-200 mt-6">
-            Plano completo • Todos os benefícios • 1 usuário • Suporte especializado
-          </p>
+          <div className="mt-6">
+            <p className="text-sm text-blue-200">
+              Plano completo • Todos os benefícios • 1 usuário • Suporte especializado
+            </p>
+            <p className="text-xs text-blue-300 mt-2">
+              ⚡ Apenas R$ 29,90/mês • Primeiros 100 a contratarem • Garanta sua vaga!
+            </p>
+          </div>
         </div>
       </section>
 

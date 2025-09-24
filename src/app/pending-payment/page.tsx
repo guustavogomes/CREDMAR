@@ -30,7 +30,7 @@ export default function PendingPaymentPage() {
 
   const handleWhatsAppSupport = () => {
     const phoneNumber = '551231974950' // Número com código do país (55) + DDD (12) + número
-    const message = encodeURIComponent('Olá! Preciso fazer o pagamento do TaPago para liberar meu acesso ao sistema.')
+    const message = encodeURIComponent('Olá! Preciso fazer o pagamento de R$ 29,90/mês do TaPago para liberar meu acesso ao sistema.')
     const url = `https://wa.me/${phoneNumber}?text=${message}`
     window.open(url, '_blank')
   }
@@ -59,6 +59,9 @@ export default function PendingPaymentPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Pagamento via WhatsApp
           </h1>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-full text-xl font-bold mb-4 shadow-lg">
+            Apenas R$ 29,90/mês
+          </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Para liberar seu acesso ao sistema TaPago, entre em contato conosco pelo WhatsApp.
             Nossa equipe irá te ajudar com o processo de pagamento.
@@ -79,6 +82,10 @@ export default function PendingPaymentPage() {
                 <div className="space-y-6">
                   <div className="text-6xl">📱</div>
                   <div>
+                    <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 mb-4">
+                      <p className="text-3xl font-bold text-green-700 mb-1">R$ 29,90/mês</p>
+                      <p className="text-sm text-green-600">Oferta limitada - Primeiros 100</p>
+                    </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">
                       (12) 3197-4950
                     </h3>

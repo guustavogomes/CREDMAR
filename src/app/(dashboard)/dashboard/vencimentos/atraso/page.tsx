@@ -4,11 +4,15 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { AlertTriangle, ArrowLeft, Phone, Mail, MapPin, TrendingDown, DollarSign } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { formatDate as formatDateUtil } from "@/lib/date-utils"
-import { getBrazilStartOfDay, parseBrazilDateString } from "@/lib/timezone-utils"
+import { getBrazilStartOfDay, parseBrazilDateString, getBrazilTodayString } from "@/lib/timezone-utils"
+import { useToast } from "@/hooks/use-toast"
 
 interface InstallmentWithLoan {
   id: string
@@ -35,6 +39,12 @@ export default function VencimentosAtrasoPage() {
   const [installments, setInstallments] = useState<InstallmentWithLoan[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { toast } = useToast()
+  const [showFineDialog, setShowFineDialog] = useState(false)
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false)
+  const [selectedInstallment, setSelectedInstallment] = useState<InstallmentWithLoan | null>(null)
+  const [fineData, setFineData] = useState({ amount: '' })
+  const [paymentData, setPaymentData] = useState({ paymentDate: getBrazilTodayString() })
 
   useEffect(() => {
     fetchOverdueDues()
@@ -66,64 +76,105 @@ export default function VencimentosAtrasoPage() {
     return formatDateUtil(dateString)
   }
 
-  const handleApplyFine = async (installmentId: string, loanId: string) => {
-    try {
-      const fineAmount = prompt('Digite o valor da multa:')
-      if (!fineAmount || isNaN(Number(fineAmount))) return
+  const openFineDialog = (installment: InstallmentWithLoan) => {
+    setSelectedInstallment(installment)
+    setFineData({ amount: '' })
+    setShowFineDialog(true)
+  }
 
-      const response = await fetch(`/api/loans/${loanId}/installments/${installmentId}/fine`, {
+  const handleApplyFine = async () => {
+    if (!selectedInstallment || !fineData.amount) {
+      toast({
+        title: 'Erro',
+        description: 'Preencha o valor da multa',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/loans/${selectedInstallment.loan.id}/installments/${selectedInstallment.id}/fine`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fineAmount: parseFloat(fineAmount),
+          fineAmount: parseFloat(fineData.amount),
           reason: 'Atraso no pagamento'
         })
       })
 
       if (response.ok) {
-        alert('Multa aplicada com sucesso!')
-        fetchOverdueDues() // Recarregar dados
+        toast({
+          title: 'Sucesso',
+          description: 'Multa aplicada com sucesso'
+        })
+        setShowFineDialog(false)
+        setSelectedInstallment(null)
+        setFineData({ amount: '' })
+        fetchOverdueDues()
       } else {
         const error = await response.json()
-        alert(`Erro ao aplicar multa: ${error.error || 'Erro desconhecido'}`)
+        toast({
+          title: 'Erro',
+          description: error.error || 'Erro ao aplicar multa',
+          variant: 'destructive'
+        })
       }
     } catch (error) {
-      console.error('Erro ao aplicar multa:', error)
-      alert('Erro ao aplicar multa')
+      toast({
+        title: 'Erro',
+        description: 'Erro ao aplicar multa',
+        variant: 'destructive'
+      })
     }
   }
 
-  const handleMarkAsPaid = async (installmentId: string, loanId: string, amount: number, fineAmount: number) => {
+  const openPaymentDialog = (installment: InstallmentWithLoan) => {
+    setSelectedInstallment(installment)
+    setPaymentData({ paymentDate: getBrazilTodayString() })
+    setShowPaymentDialog(true)
+  }
+
+  const handleMarkAsPaid = async () => {
+    if (!selectedInstallment) return
+
     try {
-      const confirmPayment = confirm(`Confirmar pagamento de ${formatCurrency(amount + fineAmount)}?`)
-      if (!confirmPayment) return
-
-      const today = new Date().toISOString().split('T')[0]
-
-      const response = await fetch(`/api/loans/${loanId}/installments/${installmentId}/pay`, {
+      const response = await fetch(`/api/loans/${selectedInstallment.loan.id}/installments/${selectedInstallment.id}/pay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: amount + fineAmount,
-          fineAmount: fineAmount,
-          paymentDate: today
+          amount: selectedInstallment.amount + selectedInstallment.fineAmount,
+          fineAmount: selectedInstallment.fineAmount,
+          paymentDate: paymentData.paymentDate
         })
       })
 
       if (response.ok) {
-        alert('Pagamento registrado com sucesso!')
-        fetchOverdueDues() // Recarregar dados
+        toast({
+          title: 'Sucesso',
+          description: 'Pagamento registrado com sucesso'
+        })
+        setShowPaymentDialog(false)
+        setSelectedInstallment(null)
+        setPaymentData({ paymentDate: getBrazilTodayString() })
+        fetchOverdueDues()
       } else {
         const error = await response.json()
-        alert(`Erro ao registrar pagamento: ${error.error || 'Erro desconhecido'}`)
+        toast({
+          title: 'Erro',
+          description: error.error || 'Erro ao registrar pagamento',
+          variant: 'destructive'
+        })
       }
     } catch (error) {
-      console.error('Erro ao registrar pagamento:', error)
-      alert('Erro ao registrar pagamento')
+      toast({
+        title: 'Erro',
+        description: 'Erro ao registrar pagamento',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -277,14 +328,14 @@ export default function VencimentosAtrasoPage() {
                       <Button
                         size="sm"
                         className="w-full bg-orange-600 hover:bg-orange-700 max-w-full"
-                        onClick={() => handleApplyFine(installment.id, installment.loan.id)}
+                        onClick={() => openFineDialog(installment)}
                       >
                         Aplicar Multa
                       </Button>
                       <Button
                         size="sm"
                         className="w-full bg-green-600 hover:bg-green-700 max-w-full"
-                        onClick={() => handleMarkAsPaid(installment.id, installment.loan.id, installment.amount, installment.fineAmount)}
+                        onClick={() => openPaymentDialog(installment)}
                       >
                         Marcar como Pago
                       </Button>
@@ -353,14 +404,14 @@ export default function VencimentosAtrasoPage() {
                               <Button
                                 size="sm"
                                 className="bg-orange-600 hover:bg-orange-700"
-                                onClick={() => handleApplyFine(installment.id, installment.loan.id)}
+                                onClick={() => openFineDialog(installment)}
                               >
                                 Aplicar Multa
                               </Button>
                               <Button
                                 size="sm"
                                 className="bg-green-600 hover:bg-green-700"
-                                onClick={() => handleMarkAsPaid(installment.id, installment.loan.id, installment.amount, installment.fineAmount)}
+                                onClick={() => openPaymentDialog(installment)}
                               >
                                 Marcar como Pago
                               </Button>
@@ -376,6 +427,92 @@ export default function VencimentosAtrasoPage() {
           })}
         </div>
       )}
+
+      {/* Fine Dialog */}
+      <Dialog open={showFineDialog} onOpenChange={setShowFineDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aplicar Multa</DialogTitle>
+            <DialogDescription>
+              {selectedInstallment?.fineAmount > 0 && (
+                <span className="text-sm text-gray-600">
+                  Multa atual: {formatCurrency(selectedInstallment.fineAmount)}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="fineAmount">Valor da Multa a Adicionar *</Label>
+              <Input
+                id="fineAmount"
+                type="number"
+                step="0.01"
+                value={fineData.amount}
+                onChange={(e) => setFineData({ amount: e.target.value })}
+                placeholder="0,00"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowFineDialog(false)
+                setSelectedInstallment(null)
+                setFineData({ amount: '' })
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleApplyFine} className="bg-orange-600 hover:bg-orange-700">
+              Aplicar Multa
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Pagamento</DialogTitle>
+            <DialogDescription>
+              Marcar parcela {selectedInstallment?.installmentNumber} como paga?
+              <br />
+              <span className="text-lg font-semibold text-green-700 mt-2 block">
+                Valor total: {selectedInstallment && formatCurrency(selectedInstallment.amount + selectedInstallment.fineAmount)}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="paymentDate">Data do Pagamento *</Label>
+              <Input
+                id="paymentDate"
+                type="date"
+                value={paymentData.paymentDate}
+                onChange={(e) => setPaymentData({ paymentDate: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPaymentDialog(false)
+                setSelectedInstallment(null)
+                setPaymentData({ paymentDate: getBrazilTodayString() })
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleMarkAsPaid} className="bg-green-600 hover:bg-green-700">
+              Confirmar Pagamento
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
