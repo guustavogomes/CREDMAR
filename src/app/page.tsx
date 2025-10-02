@@ -67,21 +67,21 @@ export default function HomePage() {
   // Landing page para usuários não autenticados
   return (
     <div className="min-h-screen bg-white">
-      {/* Banner de Escassez - Mobile Optimized */}
-      <div className="bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white py-2 sm:py-3 relative overflow-hidden">
+      {/* Banner de Teste Gratuito - Mobile Optimized */}
+      <div className="bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 text-white py-3 sm:py-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-center">
             <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
+              <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
               </span>
-              <span className="text-sm sm:text-base font-bold">OFERTA LIMITADA</span>
+              <span className="text-sm sm:text-base font-bold">🎉 TESTE GRATUITO</span>
             </div>
-            <span className="text-sm sm:text-base">🔥 Apenas R$ 29,99/mês - Preço promocional por tempo limitado!</span>
+            <span className="text-sm sm:text-base font-bold">✅ 30 DIAS GRÁTIS - Sem compromisso, cancele quando quiser!</span>
             <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-              <span className="text-xs sm:text-sm font-semibold">⏰ Restam apenas 47 vagas!</span>
+              <span className="text-xs sm:text-sm font-semibold">🚀 Comece agora mesmo!</span>
             </div>
           </div>
         </div>
@@ -122,14 +122,14 @@ export default function HomePage() {
         <div className="container mx-auto px-6 sm:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
             
-            {/* Badge de Preço Promocional */}
+            {/* Badge de Teste Gratuito */}
             <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-full text-sm sm:text-base font-bold shadow-lg animate-pulse">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
               </span>
-              <span>🎉 PREÇO PROMOCIONAL: R$ 29,99/mês</span>
-              <span className="bg-white/20 px-2 py-1 rounded-full text-xs">-70% OFF</span>
+              <span>🎉 TESTE GRATUITO: 30 DIAS GRÁTIS</span>
+              <span className="bg-white/20 px-2 py-1 rounded-full text-xs">SEM COMPROMISSO</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight px-2 sm:px-0">
@@ -141,14 +141,14 @@ export default function HomePage() {
             </h1>
             
             <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0">
-              <span className="font-bold text-red-600">⚠️ ATENÇÃO:</span> Controle total dos seus empréstimos pessoais com amigos, familiares e conhecidos. 
-              <span className="font-semibold text-slate-800">Oferta válida apenas para os próximos 47 clientes!</span>
+              <span className="font-bold text-green-600">🎉 TESTE GRATUITO:</span> Controle total dos seus empréstimos pessoais com amigos, familiares e conhecidos. 
+              <span className="font-semibold text-slate-800">30 dias grátis para testar - sem compromisso!</span>
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 px-2 sm:px-0">
               <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-xl px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold animate-pulse" asChild>
                 <Link href="/register">
-                  🚀 GARANTIR VAGA - R$ 29,99/mês
+                  🚀 COMEÇAR TESTE GRATUITO - 30 DIAS GRÁTIS
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Link>
               </Button>
@@ -157,25 +157,25 @@ export default function HomePage() {
               </Button>
             </div>
             
-            {/* Timer de Contagem Regressiva */}
-            <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
+            {/* Destaque do Teste Gratuito */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto">
               <div className="text-center">
-                <h3 className="text-lg sm:text-xl font-bold text-red-700 mb-3">⏰ OFERTA EXPIRA EM:</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-green-700 mb-3">🎉 TESTE GRATUITO DISPONÍVEL:</h3>
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="bg-white rounded-lg p-3 shadow-md">
-                    <div className="text-2xl sm:text-3xl font-bold text-red-600">{String(timeLeft.hours).padStart(2, '0')}</div>
-                    <div className="text-xs sm:text-sm text-slate-600">Horas</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-green-600">30</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Dias</div>
                   </div>
                   <div className="bg-white rounded-lg p-3 shadow-md">
-                    <div className="text-2xl sm:text-3xl font-bold text-red-600">{String(timeLeft.minutes).padStart(2, '0')}</div>
-                    <div className="text-xs sm:text-sm text-slate-600">Minutos</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-green-600">100%</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Grátis</div>
                   </div>
                   <div className="bg-white rounded-lg p-3 shadow-md">
-                    <div className="text-2xl sm:text-3xl font-bold text-red-600">{String(timeLeft.seconds).padStart(2, '0')}</div>
-                    <div className="text-xs sm:text-sm text-slate-600">Segundos</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-green-600">0</div>
+                    <div className="text-xs sm:text-sm text-slate-600">Compromisso</div>
                   </div>
                 </div>
-                <p className="text-sm text-red-600 font-semibold">🔥 Apenas 47 vagas restantes pelo preço promocional!</p>
+                <p className="text-sm text-green-600 font-semibold">✅ Comece agora e cancele quando quiser!</p>
               </div>
             </div>
             
@@ -202,12 +202,12 @@ export default function HomePage() {
         <div className="container mx-auto px-6 sm:px-8">
           {/* Banner de Urgência */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-3 rounded-full text-sm sm:text-base font-bold shadow-lg mb-6">
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-full text-sm sm:text-base font-bold shadow-lg mb-6">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
               </span>
-              <span>🚨 ÚLTIMAS VAGAS: Apenas 47 clientes podem aproveitar R$ 29,99/mês!</span>
+              <span>🎉 TESTE GRATUITO: 30 dias grátis para todos os novos usuários!</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
               Resultados que <span className="text-red-600">comprovam</span> nossa eficácia
@@ -243,14 +243,14 @@ export default function HomePage() {
           {/* Call to Action Urgente */}
           <div className="text-center mt-12">
             <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-4">⚡ Não perca esta oportunidade!</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold mb-4">⚡ Comece seu teste gratuito agora!</h3>
               <p className="text-lg mb-6 text-red-100">
-                Apenas <span className="font-bold text-white">47 vagas restantes</span> pelo preço promocional de R$ 29,99/mês para organizar seus empréstimos. 
-                Após isso, o valor volta para R$ 99,90/mês!
+                <span className="font-bold text-white">30 dias grátis</span> para organizar seus empréstimos sem compromisso. 
+                Teste todas as funcionalidades e cancele quando quiser!
               </p>
               <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 shadow-xl px-8 py-4 text-lg font-bold" asChild>
                 <Link href="/register">
-                  🚀 GARANTIR MINHA VAGA AGORA - R$ 29,99/mês
+                  🚀 COMEÇAR TESTE GRATUITO - 30 DIAS GRÁTIS
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -689,38 +689,38 @@ export default function HomePage() {
         <div className="container mx-auto px-6 sm:px-8 text-center relative z-10">
           {/* Banner de Urgência Máxima */}
           <div className="mb-8">
-            <div className="inline-flex items-center gap-3 bg-white text-red-600 px-8 py-4 rounded-full text-lg font-bold mb-6 animate-bounce shadow-2xl">
+            <div className="inline-flex items-center gap-3 bg-white text-green-600 px-8 py-4 rounded-full text-lg font-bold mb-6 animate-bounce shadow-2xl">
               <span className="relative flex h-4 w-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-red-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-600 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-600"></span>
               </span>
-              🚨 ÚLTIMA CHANCE: Apenas 47 vagas restantes!
+              🎉 TESTE GRATUITO: 30 dias grátis para todos!
             </div>
           </div>
           
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            <span className="block">⚠️ ATENÇÃO:</span>
-            <span className="block text-yellow-300">ÚLTIMA OPORTUNIDADE</span>
+            <span className="block">🎉 TESTE GRATUITO:</span>
+            <span className="block text-yellow-300">30 DIAS GRÁTIS</span>
             <span className="block">para organizar seus empréstimos!</span>
           </h2>
           
           <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto font-semibold">
-            🔥 <span className="text-yellow-300 font-bold">APENAS R$ 29,99/mês</span> - Preço promocional que expira em breve! 
-            <br />Após as 47 vagas, o valor volta para <span className="line-through text-white">R$ 99,90/mês</span>
+            🔥 <span className="text-yellow-300 font-bold">100% GRÁTIS POR 30 DIAS</span> - Sem compromisso, cancele quando quiser! 
+            <br />Depois apenas <span className="text-white">R$ 29,99/mês</span> para continuar organizando
           </p>
           
           {/* Comparação de Preços */}
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 max-w-2xl mx-auto border-2 border-white/20">
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-300 mb-2">R$ 29,99</div>
-                <div className="text-white font-semibold">Preço Promocional</div>
-                <div className="text-orange-200 text-sm">🔥 Apenas 47 vagas!</div>
+                <div className="text-3xl font-bold text-green-300 mb-2">R$ 0,00</div>
+                <div className="text-white font-semibold">Teste Gratuito</div>
+                <div className="text-orange-200 text-sm">🎉 30 dias grátis!</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-300 mb-2 line-through">R$ 99,90</div>
-                <div className="text-white font-semibold">Preço Normal</div>
-                <div className="text-orange-200 text-sm">Após esgotar vagas</div>
+                <div className="text-3xl font-bold text-yellow-300 mb-2">R$ 29,99</div>
+                <div className="text-white font-semibold">Após o Teste</div>
+                <div className="text-orange-200 text-sm">Cancele quando quiser</div>
               </div>
             </div>
           </div>
@@ -728,7 +728,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 shadow-2xl px-12 py-6 text-xl font-bold animate-pulse border-4 border-yellow-300" asChild>
               <Link href="/register">
-                🚀 GARANTIR VAGA AGORA - R$ 29,99/mês
+                🚀 COMEÇAR TESTE GRATUITO - 30 DIAS GRÁTIS
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Link>
             </Button>
@@ -738,9 +738,13 @@ export default function HomePage() {
           </div>
           
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-4xl mx-auto border-2 border-white/20">
-            <h3 className="text-2xl font-bold text-white mb-4">✅ O que você recebe por apenas R$ 29,99/mês:</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">✅ O que você recebe no teste gratuito de 30 dias:</h3>
             <div className="grid md:grid-cols-2 gap-4 text-left">
               <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+                  <span className="text-white">30 dias 100% grátis - sem compromisso</span>
+                </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
                   <span className="text-white">Controle total dos seus empréstimos</span>
@@ -781,10 +785,10 @@ export default function HomePage() {
           
           <div className="mt-8">
             <p className="text-lg text-yellow-200 font-bold mb-2">
-              ⏰ OFERTA EXPIRA EM BREVE - Não perca esta oportunidade única!
+              🎉 TESTE GRATUITO DISPONÍVEL - Comece agora mesmo!
             </p>
             <p className="text-sm text-orange-200">
-              🔥 Apenas R$ 29,99/mês • Últimas 47 vagas • Garantia de 30 dias • Cancele quando quiser
+              ✅ 30 dias grátis • Sem compromisso • Cancele quando quiser • Depois apenas R$ 29,99/mês
             </p>
           </div>
         </div>
