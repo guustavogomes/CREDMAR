@@ -50,7 +50,7 @@ export default function HomePage() {
 
   const handleWhatsAppSupport = () => {
     const phoneNumber = '551231974950' // Número com código do país (55) + DDD (12) + número
-    const message = encodeURIComponent('Olá! Gostaria de saber mais sobre o TaPago e como posso reduzir a inadimplência da minha empresa!')
+    const message = encodeURIComponent('Olá! Gostaria de saber mais sobre o TaPago e como posso organizar meus empréstimos informais!')
     const url = `https://wa.me/${phoneNumber}?text=${message}`
     window.open(url, '_blank')
   }
@@ -133,15 +133,15 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight px-2 sm:px-0">
-              <span className="block sm:inline">Gestão de</span>
+              <span className="block sm:inline">Organize seus</span>
               <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Empréstimos
               </span>
-              <span className="block text-slate-700">Inteligente</span>
+              <span className="block text-slate-700">Informais</span>
             </h1>
             
             <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0">
-              <span className="font-bold text-red-600">⚠️ ATENÇÃO:</span> Reduza sua inadimplência em até 65% com nossa IA anti-fraude. 
+              <span className="font-bold text-red-600">⚠️ ATENÇÃO:</span> Controle total dos seus empréstimos pessoais com amigos, familiares e conhecidos. 
               <span className="font-semibold text-slate-800">Oferta válida apenas para os próximos 47 clientes!</span>
             </p>
             
@@ -213,7 +213,7 @@ export default function HomePage() {
               Resultados que <span className="text-red-600">comprovam</span> nossa eficácia
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Veja os números impressionantes de quem já reduziu drasticamente a inadimplência
+              Veja os números impressionantes de quem já organizou seus empréstimos informais
             </p>
           </div>
           
@@ -224,19 +224,19 @@ export default function HomePage() {
               <div className="text-xs text-green-600 font-semibold mt-2">+300 este mês!</div>
             </div>
             <div className="text-center bg-white rounded-2xl p-6 shadow-lg border-2 border-green-100">
-              <div className="text-4xl font-bold text-green-600 mb-2">-65%</div>
-              <div className="text-slate-600">Redução inadimplência</div>
-              <div className="text-xs text-green-600 font-semibold mt-2">Média dos clientes</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">95%</div>
+              <div className="text-slate-600">Organização completa</div>
+              <div className="text-xs text-green-600 font-semibold mt-2">Controle total</div>
             </div>
             <div className="text-center bg-white rounded-2xl p-6 shadow-lg border-2 border-purple-100">
-              <div className="text-4xl font-bold text-purple-600 mb-2">98.7%</div>
-              <div className="text-slate-600">Precisão da IA</div>
-              <div className="text-xs text-green-600 font-semibold mt-2">Detecção de fraude</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">100%</div>
+              <div className="text-slate-600">Segurança garantida</div>
+              <div className="text-xs text-green-600 font-semibold mt-2">Dados protegidos</div>
             </div>
             <div className="text-center bg-white rounded-2xl p-6 shadow-lg border-2 border-indigo-100">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">R$ 50M+</div>
-              <div className="text-slate-600">Empréstimos analisados</div>
-              <div className="text-xs text-green-600 font-semibold mt-2">Em tempo real</div>
+              <div className="text-4xl font-bold text-indigo-600 mb-2">R$ 2M+</div>
+              <div className="text-slate-600">Empréstimos organizados</div>
+              <div className="text-xs text-green-600 font-semibold mt-2">Por nossos usuários</div>
             </div>
           </div>
           
@@ -245,7 +245,7 @@ export default function HomePage() {
             <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto">
               <h3 className="text-2xl sm:text-3xl font-bold mb-4">⚡ Não perca esta oportunidade!</h3>
               <p className="text-lg mb-6 text-red-100">
-                Apenas <span className="font-bold text-white">47 vagas restantes</span> pelo preço promocional de R$ 29,99/mês. 
+                Apenas <span className="font-bold text-white">47 vagas restantes</span> pelo preço promocional de R$ 29,99/mês para organizar seus empréstimos. 
                 Após isso, o valor volta para R$ 99,90/mês!
               </p>
               <Button size="lg" className="bg-white text-red-600 hover:bg-red-50 shadow-xl px-8 py-4 text-lg font-bold" asChild>
@@ -264,13 +264,13 @@ export default function HomePage() {
         <div className="container mx-auto px-6 sm:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">
-              Tecnologia que
+              Ferramentas que
               <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                revoluciona empréstimos
+                organizam seus empréstimos
               </span>
             </h2>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Nossa IA analisa centenas de variáveis em tempo real para identificar riscos e prevenir fraudes
+              Controle total dos seus empréstimos informais com amigos, familiares e conhecidos
             </p>
           </div>
           
@@ -282,17 +282,17 @@ export default function HomePage() {
                   <Brain className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold text-slate-800 group-hover:text-blue-700 transition-colors">
-                  Termômetro Anti-Fraude
+                  Controle Total
                 </CardTitle>
               </CardHeader>
               <CardContent className="relative z-10 text-center">
                 <CardDescription className="text-slate-600 leading-relaxed">
-                  IA avançada que analisa padrões comportamentais e dados históricos 
-                  para detectar tentativas de fraude em tempo real.
+                  Organize todos os seus empréstimos em um só lugar. Controle prazos, 
+                  valores e status de cada empréstimo com amigos e familiares.
                 </CardDescription>
                 <div className="mt-4 flex items-center justify-center space-x-2">
                   <Shield className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium text-green-600">98.7% Precisão</span>
+                  <span className="text-sm font-medium text-green-600">100% Organizado</span>
                 </div>
               </CardContent>
             </Card>
@@ -304,17 +304,17 @@ export default function HomePage() {
                   <TrendingDown className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">
-                  Redução da Inadimplência
+                  Lembretes Automáticos
                 </CardTitle>
               </CardHeader>
               <CardContent className="relative z-10 text-center">
                 <CardDescription className="text-slate-600 leading-relaxed">
-                  Algoritmos preditivos que identificam clientes com maior probabilidade 
-                  de inadimplência antes mesmo da aprovação.
+                  Nunca mais esqueça de cobrar ou pagar. Receba lembretes automáticos 
+                  sobre vencimentos e prazos dos seus empréstimos.
                 </CardDescription>
                 <div className="mt-4 flex items-center justify-center space-x-2">
                   <BarChart3 className="h-4 w-4 text-emerald-500" />
-                  <span className="text-sm font-medium text-emerald-600">-65% Inadimplência</span>
+                  <span className="text-sm font-medium text-emerald-600">100% Lembretes</span>
                 </div>
               </CardContent>
             </Card>
@@ -326,17 +326,17 @@ export default function HomePage() {
                   <Zap className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold text-slate-800 group-hover:text-purple-700 transition-colors">
-                  Análise Instantânea
+                  Relatórios Detalhados
                 </CardTitle>
               </CardHeader>
               <CardContent className="relative z-10 text-center">
                 <CardDescription className="text-slate-600 leading-relaxed">
-                  Decisões de crédito em segundos com base em centenas de variáveis 
-                  analisadas simultaneamente pela nossa IA.
+                  Acompanhe o histórico completo dos seus empréstimos com relatórios 
+                  detalhados e gráficos de fácil compreensão.
                 </CardDescription>
                 <div className="mt-4 flex items-center justify-center space-x-2">
                   <Zap className="h-4 w-4 text-purple-500" />
-                  <span className="text-sm font-medium text-purple-600">&lt; 3 segundos</span>
+                  <span className="text-sm font-medium text-purple-600">Relatórios Completos</span>
                 </div>
               </CardContent>
             </Card>
@@ -597,7 +597,7 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Veja como nossas financeiras parceiras reduziram drasticamente a inadimplência
+              Veja como nossos usuários organizaram seus empréstimos informais
             </p>
           </div>
           
@@ -609,20 +609,20 @@ export default function HomePage() {
                     <span className="text-white font-bold text-lg">FC</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800">FinanCred</h3>
-                    <p className="text-sm text-slate-600">Financeira Digital</p>
+                    <h3 className="font-bold text-slate-800">Maria Silva</h3>
+                    <p className="text-sm text-slate-600">Pessoa Física</p>
                   </div>
                 </div>
                 <Quote className="h-8 w-8 text-blue-500 mb-4" />
               </CardHeader>
               <CardContent>
                 <p className="text-slate-700 leading-relaxed mb-4">
-                  "Com o TaPago, reduzimos nossa inadimplência de 18% para apenas 6% em 8 meses. 
-                  O termômetro anti-fraude é impressionante!"
+                  "Finalmente consegui organizar todos os empréstimos que fiz para amigos e familiares. 
+                  Agora sei exatamente quem deve quanto e quando!"
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-600">Maria Silva, CEO</span>
-                  <div className="text-2xl font-bold text-green-600">-67%</div>
+                  <span className="text-sm font-medium text-slate-600">Maria Silva, Usuária</span>
+                  <div className="text-2xl font-bold text-green-600">100%</div>
                 </div>
               </CardContent>
             </Card>
@@ -634,20 +634,20 @@ export default function HomePage() {
                     <span className="text-white font-bold text-lg">CC</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800">CréditoClaro</h3>
-                    <p className="text-sm text-slate-600">Microcrédito</p>
+                    <h3 className="font-bold text-slate-800">João Santos</h3>
+                    <p className="text-sm text-slate-600">Pequeno Emprestador</p>
                   </div>
                 </div>
                 <Quote className="h-8 w-8 text-emerald-500 mb-4" />
               </CardHeader>
               <CardContent>
                 <p className="text-slate-700 leading-relaxed mb-4">
-                  "A IA do TaPago identificou padrões que nunca conseguimos detectar. 
-                  Nossa carteira nunca esteve tão saudável!"
+                  "Como faço empréstimos pessoais, precisava de uma ferramenta para organizar tudo. 
+                  O TaPago me deu o controle total que precisava!"
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-600">João Santos, Diretor</span>
-                  <div className="text-2xl font-bold text-green-600">-72%</div>
+                  <span className="text-sm font-medium text-slate-600">João Santos, Emprestador</span>
+                  <div className="text-2xl font-bold text-green-600">100%</div>
                 </div>
               </CardContent>
             </Card>
@@ -659,20 +659,20 @@ export default function HomePage() {
                     <span className="text-white font-bold text-lg">RF</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800">RápidoFin</h3>
-                    <p className="text-sm text-slate-600">Empréstimos Online</p>
+                    <h3 className="font-bold text-slate-800">Ana Costa</h3>
+                    <p className="text-sm text-slate-600">Associação de Crédito</p>
                   </div>
                 </div>
                 <Quote className="h-8 w-8 text-purple-500 mb-4" />
               </CardHeader>
               <CardContent>
                 <p className="text-slate-700 leading-relaxed mb-4">
-                  "Em 6 meses, nossa inadimplência caiu de 22% para 8%. 
-                  O ROI foi incrível, recomendo para todas as financeiras!"
+                  "Nossa associação de crédito solidário precisava de organização. 
+                  O TaPago nos deu a estrutura que precisávamos sem custos altos!"
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-600">Ana Costa, CFO</span>
-                  <div className="text-2xl font-bold text-green-600">-64%</div>
+                  <span className="text-sm font-medium text-slate-600">Ana Costa, Coordenadora</span>
+                  <div className="text-2xl font-bold text-green-600">100%</div>
                 </div>
               </CardContent>
             </Card>
@@ -701,7 +701,7 @@ export default function HomePage() {
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             <span className="block">⚠️ ATENÇÃO:</span>
             <span className="block text-yellow-300">ÚLTIMA OPORTUNIDADE</span>
-            <span className="block">para reduzir inadimplência em 65%!</span>
+            <span className="block">para organizar seus empréstimos!</span>
           </h2>
           
           <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto font-semibold">
@@ -743,15 +743,15 @@ export default function HomePage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white">IA Anti-Fraude com 98.7% de precisão</span>
+                  <span className="text-white">Controle total dos seus empréstimos</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white">Redução de até 65% na inadimplência</span>
+                  <span className="text-white">Lembretes automáticos de vencimento</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white">Dashboard completo de gestão</span>
+                  <span className="text-white">Dashboard completo de organização</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
@@ -761,15 +761,15 @@ export default function HomePage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white">Análise de risco em tempo real</span>
+                  <span className="text-white">Relatórios detalhados e gráficos</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white">Relatórios detalhados</span>
+                  <span className="text-white">Histórico completo de transações</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                  <span className="text-white">Integração com sistemas existentes</span>
+                  <span className="text-white">Interface simples e intuitiva</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
@@ -802,7 +802,7 @@ export default function HomePage() {
               <span className="text-2xl font-bold">TaPago</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed text-center px-4">
-              A plataforma de gestão de empréstimos mais inteligente do Brasil.
+              A plataforma de organização de empréstimos informais mais completa do Brasil.
             </p>
           </div>
 
@@ -817,17 +817,17 @@ export default function HomePage() {
                 <span className="text-xl font-bold">TaPago</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
-                A plataforma de gestão de empréstimos mais inteligente do Brasil.
+                A plataforma de organização de empréstimos informais mais completa do Brasil.
               </p>
             </div>
             
             <div className="text-center md:text-left">
               <h3 className="font-semibold mb-3 text-white">Produto</h3>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="#" className="hover:text-white transition-colors block py-1">IA Anti-Fraude</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors block py-1">Análise de Risco</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors block py-1">Dashboard</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors block py-1">API</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Controle Total</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Lembretes Automáticos</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Relatórios</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors block py-1">Organização</Link></li>
               </ul>
             </div>
             
