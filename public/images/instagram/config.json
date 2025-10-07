@@ -1,0 +1,112 @@
+{
+  "brand": {
+    "name": "TaPago",
+    "tagline": "Gestão de Empréstimos Inteligente",
+    "description": "IA anti-fraude que reduz inadimplência em até 65%"
+  },
+  "colors": {
+    "primary": "#3B82F6",
+    "secondary": "#8B5CF6",
+    "accent": "#10B981",
+    "warning": "#F59E0B",
+    "danger": "#EF4444",
+    "gradient": "linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #8B5CF6 100%)"
+  },
+  "logos": {
+    "instagram_profile": {
+      "file": "tapago-logo-simple.svg",
+      "size": "400x400px",
+      "format": "PNG",
+      "background": "transparent",
+      "recommended": true
+    },
+    "instagram_stories": {
+      "file": "tapago-logo-minimal.svg",
+      "size": "400x400px",
+      "format": "PNG",
+      "background": "transparent"
+    },
+    "social_media": {
+      "file": "tapago-logo-instagram.svg",
+      "size": "400x400px",
+      "format": "PNG",
+      "background": "transparent"
+    },
+    "website": {
+      "file": "tapago-logo.svg",
+      "size": "400x400px",
+      "format": "SVG",
+      "background": "gradient"
+    }
+  },
+  "social_media": {
+    "instagram": {
+      "profile_size": "400x400px",
+      "story_size": "1080x1920px",
+      "post_size": "1080x1080px",
+      "bio_character_limit": 150
+    },
+    "facebook": {
+      "profile_size": "400x400px",
+      "cover_size": "1200x630px"
+    },
+    "linkedin": {
+      "profile_size": "400x400px",
+      "banner_size": "1584x396px"
+    },
+    "twitter": {
+      "profile_size": "400x400px",
+      "header_size": "1500x500px"
+    }
+  },
+  "content_suggestions": {
+    "instagram_bio": [
+      "🚀 TaPago - IA Anti-Fraude",
+      "📊 Reduza inadimplência em 65%",
+      "🤖 Tecnologia que protege seu negócio",
+      "💰 Gestão inteligente de empréstimos"
+    ],
+    "hashtags": [
+      "#TaPago",
+      "#IAAntiFraude",
+      "#GestaoEmprestimos",
+      "#Fintech",
+      "#Inadimplencia",
+      "#TecnologiaFinanceira",
+      "#IA",
+      "#SegurancaFinanceira"
+    ],
+    "story_templates": [
+      "🔥 Reduza inadimplência com IA",
+      "📈 Resultados comprovados",
+      "🛡️ Proteção total dos seus dados",
+      "⚡ Decisões em segundos"
+    ]
+  },
+  "conversion_tools": {
+    "svg_to_png": [
+      "https://convertio.co/svg-png/",
+      "https://cloudconvert.com/svg-to-png",
+      "https://www.freeconvert.com/svg-to-png"
+    ],
+    "image_optimization": [
+      "https://tinypng.com/",
+      "https://compressor.io/",
+      "https://squoosh.app/"
+    ]
+  },
+  "usage_instructions": {
+    "instagram_profile": [
+      "1. Baixe tapago-logo-simple.svg",
+      "2. Converta para PNG 400x400px",
+      "3. Configure fundo transparente",
+      "4. Faça upload no Instagram"
+    ],
+    "instagram_stories": [
+      "1. Baixe tapago-logo-minimal.svg",
+      "2. Converta para PNG com fundo transparente",
+      "3. Use como sticker nos stories",
+      "4. Combine com texto sobre benefícios"
+    ]
+  }
+}

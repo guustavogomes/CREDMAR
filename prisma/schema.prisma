@@ -190,6 +190,8 @@ enum PaymentStatus {
 
 enum PaymentMethod {
   PIX
+  MANUAL
+  ADMIN_MANUAL
 }
 
 enum InstallmentStatus {
