@@ -9,7 +9,8 @@ import { InstallmentStatus } from '@prisma/client'
 
 const updateLoanSchema = z.object({
   totalAmount: z.number().positive(),
-  amountWithoutInterest: z.number().positive(),
+  loanType: z.string().min(1),
+  interestRate: z.number().min(0),
   periodicityId: z.string().min(1),
   installments: z.number().int().positive(),
   installmentValue: z.number().positive(),
@@ -202,7 +203,8 @@ export async function PUT(
       
       const criticalFieldsChanged = (
         validatedData.totalAmount !== existingLoan.totalAmount ||
-        validatedData.amountWithoutInterest !== existingLoan.amountWithoutInterest ||
+        validatedData.loanType !== existingLoan.loanType ||
+        validatedData.interestRate !== existingLoan.interestRate ||
         validatedData.installments !== existingLoan.installments ||
         validatedData.installmentValue !== existingLoan.installmentValue ||
         validatedData.periodicityId !== existingLoan.periodicityId ||
@@ -257,7 +259,8 @@ export async function PUT(
     // Preparar dados para atualização
     const updateData: any = {
       totalAmount: validatedData.totalAmount,
-      amountWithoutInterest: validatedData.amountWithoutInterest,
+      loanType: validatedData.loanType,
+      interestRate: validatedData.interestRate,
       periodicityId: validatedData.periodicityId,
       installments: validatedData.installments,
       installmentValue: validatedData.installmentValue,

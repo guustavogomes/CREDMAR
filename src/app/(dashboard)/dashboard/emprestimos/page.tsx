@@ -33,7 +33,8 @@ import {
 interface Loan {
   id: string
   totalAmount: number
-  amountWithoutInterest: number
+  loanType: string
+  interestRate: number
   installments: number
   installmentValue: number
   nextPaymentDate: string
@@ -205,8 +206,9 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
     // Preparar os dados para a tela de criação
     const loanData = {
       customerId: renewData.loan.customer.id,
-      totalAmount: renewData.loan.totalAmount,
-      amountWithoutInterest: renewData.loan.amountWithoutInterest,
+      requestedAmount: renewData.loan.totalAmount,
+      loanType: renewData.loan.loanType,
+      interestRate: renewData.loan.interestRate,
       periodicityId: renewData.loan.periodicity.id,
       installments: renewData.loan.installments,
       installmentValue: renewData.loan.installmentValue,

@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, Calculator, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { calculateLoanSimulation } from '@/lib/loan-calculations'
+import type { LoanType } from '@/types/loan-simulation'
 
 interface Customer {
   id: string
@@ -28,7 +30,8 @@ interface Loan {
   id: string
   customerId: string
   totalAmount: number
-  amountWithoutInterest: number
+  loanType: string
+  interestRate: number
   periodicityId: string
   installments: number
   installmentValue: number
@@ -56,7 +59,8 @@ export default function EditarEmprestimoPage() {
 
   const [formData, setFormData] = useState({
     totalAmount: '',
-    amountWithoutInterest: '',
+    loanType: 'PRICE',
+    interestRate: '2.5',
     periodicityId: '',
     installments: '',
     nextPaymentDate: '',
@@ -66,6 +70,9 @@ export default function EditarEmprestimoPage() {
 
   const [calculatedValues, setCalculatedValues] = useState({
     installmentValue: 0,
+    totalAmount: 0,
+    totalInterest: 0,
+    effectiveRate: 0,
     showCalculation: false
   })
   
@@ -98,7 +105,8 @@ export default function EditarEmprestimoPage() {
         
         setFormData({
           totalAmount: data.totalAmount.toString(),
-          amountWithoutInterest: data.amountWithoutInterest.toString(),
+          loanType: data.loanType || 'PRICE',
+          interestRate: data.interestRate?.toString() || '2.5',
           periodicityId: data.periodicityId,
           installments: data.installments.toString(),
           nextPaymentDate: data.nextPaymentDate.split('T')[0],
@@ -137,18 +145,42 @@ export default function EditarEmprestimoPage() {
   }
 
   const calculateInstallmentValue = () => {
-    const total = parseFloat(formData.totalAmount) || 0
+    const requestedAmount = parseFloat(formData.totalAmount) || 0
     const installments = parseInt(formData.installments) || 1
+    const interestRate = parseFloat(formData.interestRate) || 0
     
-    if (total > 0 && installments > 0) {
-      const value = total / installments
-      setCalculatedValues({
-        installmentValue: value,
-        showCalculation: true
-      })
+    if (requestedAmount > 0 && installments > 0 && interestRate >= 0 && formData.periodicityId) {
+      try {
+        const simulation = calculateLoanSimulation({
+          loanType: formData.loanType as LoanType,
+          periodicityId: formData.periodicityId,
+          requestedAmount,
+          installments,
+          interestRate
+        })
+        
+        setCalculatedValues({
+          installmentValue: simulation.installmentValue,
+          totalAmount: simulation.totalAmount,
+          totalInterest: simulation.totalInterest,
+          effectiveRate: simulation.effectiveRate,
+          showCalculation: true
+        })
+      } catch (error) {
+        setCalculatedValues({
+          installmentValue: 0,
+          totalAmount: 0,
+          totalInterest: 0,
+          effectiveRate: 0,
+          showCalculation: false
+        })
+      }
     } else {
       setCalculatedValues({
         installmentValue: 0,
+        totalAmount: 0,
+        totalInterest: 0,
+        effectiveRate: 0,
         showCalculation: false
       })
     }
@@ -167,7 +199,8 @@ export default function EditarEmprestimoPage() {
         body: JSON.stringify({
           ...formData,
           totalAmount: parseFloat(formData.totalAmount),
-          amountWithoutInterest: parseFloat(formData.amountWithoutInterest),
+          loanType: formData.loanType,
+          interestRate: parseFloat(formData.interestRate),
           installments: parseInt(formData.installments),
           installmentValue: calculatedValues.installmentValue,
           transactionDate: formData.transactionDate,
@@ -301,28 +334,55 @@ export default function EditarEmprestimoPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="amountWithoutInterest">
-                      Valor Sem Juros *
+                    <Label htmlFor="loanType">
+                      Tipo de Cobrança *
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
+                    <Select 
+                      value={formData.loanType} 
+                      onValueChange={(value) => setFormData(prev => ({ 
+                        ...prev, 
+                        loanType: value
+                      }))}
+                      disabled={hasPaidInstallments}
+                    >
+                      <SelectTrigger className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PRICE">PRICE - Prestações Fixas</SelectItem>
+                        <SelectItem value="SAC">SAC - Sistema de Amortização Constante</SelectItem>
+                        <SelectItem value="SIMPLE_INTEREST">Juros Simples</SelectItem>
+                        <SelectItem value="RECURRING_SIMPLE_INTEREST">Juros Simples Recorrente</SelectItem>
+                        <SelectItem value="INTEREST_ONLY">Apenas Juros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="interestRate">
+                      Taxa de Juros (% ao mês) *
                       {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
                     </Label>
                     <Input
-                      id="amountWithoutInterest"
+                      id="interestRate"
                       type="number"
                       step="0.01"
-                      placeholder="0.00"
-                      value={formData.amountWithoutInterest}
+                      min="0"
+                      placeholder="2.50"
+                      value={formData.interestRate}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
-                        amountWithoutInterest: e.target.value 
+                        interestRate: e.target.value 
                       }))}
                       disabled={hasPaidInstallments}
                       className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
                       required
                     />
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="periodicityId">
                       Periodicidade *

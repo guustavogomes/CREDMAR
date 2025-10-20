@@ -46,7 +46,7 @@ export default function NovoEmprestimoPage() {
   const [formData, setFormData] = useState({
     customerId: '',
     totalAmount: '',
-    loanType: 'PRICE' as const,
+    loanType: 'PRICE' as LoanType,
     interestRate: '2.5',
     periodicityId: '',
     installments: '',

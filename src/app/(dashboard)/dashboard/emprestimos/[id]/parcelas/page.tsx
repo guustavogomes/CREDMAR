@@ -321,8 +321,9 @@ export default function InstallmentsPage() {
     // Preparar os dados para a tela de criação
     const loanData = {
       customerId: payAllData.loan.customer.id,
-      totalAmount: payAllData.loan.totalAmount,
-      amountWithoutInterest: payAllData.loan.amountWithoutInterest,
+      requestedAmount: payAllData.loan.totalAmount,
+      loanType: payAllData.loan.loanType,
+      interestRate: payAllData.loan.interestRate,
       periodicityId: payAllData.loan.periodicity.id,
       installments: payAllData.loan.installments,
       installmentValue: payAllData.loan.installmentValue,

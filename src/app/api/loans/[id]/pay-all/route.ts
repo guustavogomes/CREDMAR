@@ -97,7 +97,8 @@ export async function POST(
         customer: loan.customer,
         periodicity: loan.periodicity,
         totalAmount: loan.totalAmount,
-        amountWithoutInterest: loan.amountWithoutInterest,
+        loanType: loan.loanType,
+        interestRate: loan.interestRate,
         installments: loan.installments,
         installmentValue: loan.installmentValue
       }
