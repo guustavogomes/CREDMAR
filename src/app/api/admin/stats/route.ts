@@ -25,10 +25,6 @@ export async function GET() {
 
 
     // Buscar estatísticas
-    const pendingApproval = await db.user.count({
-      where: { status: "PENDING_APPROVAL" },
-    })
-
     const activeUsers = await db.user.count({
       where: { status: "ACTIVE" },
     })
@@ -37,15 +33,17 @@ export async function GET() {
       where: { status: "SUSPENDED" },
     })
 
-    const suspendedUsers = await db.user.count({
-      where: { status: "SUSPENDED" },
+    const totalUsers = await db.user.count()
+
+    const totalLoans = await db.loan.count({
+      where: { deletedAt: null }
     })
 
     const stats = {
-      pendingApproval,
       activeUsers,
-      pendingPayments,
       suspendedUsers,
+      totalUsers,
+      totalLoans,
     }
 
     return NextResponse.json(stats, {
