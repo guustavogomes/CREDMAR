@@ -10,7 +10,7 @@ const createUserSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
   role: z.enum(['USER', 'ADMIN']).default('USER'),
-  status: z.enum(['ACTIVE', 'PENDING_APPROVAL', 'SUSPENDED']).default('ACTIVE')
+  status: z.enum(['ACTIVE', 'SUSPENDED']).default('ACTIVE')
 })
 
 export async function GET(request: NextRequest) {
@@ -44,9 +44,7 @@ export async function GET(request: NextRequest) {
     let whereClause: any = {}
     
     switch (filter) {
-      case 'pending':
-        whereClause.status = 'PENDING_APPROVAL'
-        break
+
       case 'active':
         whereClause.status = 'ACTIVE'
         break
@@ -72,7 +70,7 @@ export async function GET(request: NextRequest) {
         role: true,
         status: true,
         createdAt: true,
-        activatedAt: true
+        updatedAt: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -139,8 +137,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role: validatedData.role,
         status: validatedData.status,
-        // Se o status for ACTIVE, definir como ativado
-        activatedAt: validatedData.status === 'ACTIVE' ? new Date() : null
+
       },
       select: {
         id: true,
@@ -149,7 +146,7 @@ export async function POST(request: NextRequest) {
         role: true,
         status: true,
         createdAt: true,
-        activatedAt: true
+        updatedAt: true
       }
     })
 

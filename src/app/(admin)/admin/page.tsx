@@ -79,18 +79,18 @@ export default function AdminPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Usuários Pendentes</CardTitle>
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
+            <Users className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.pendingApproval}</div>
-            <p className="text-xs text-slate-500 mt-1">Aguardando aprovação</p>
+            <div className="text-3xl font-bold">{stats.totalUsers}</div>
+            <p className="text-xs text-slate-500 mt-1">Usuários cadastrados</p>
             <Button 
               size="sm" 
-              className="mt-4 w-full bg-amber-500 hover:bg-amber-600"
-              onClick={() => router.push("/admin/users?filter=pending")}
+              className="mt-4 w-full bg-blue-500 hover:bg-blue-600"
+              onClick={() => router.push("/dashboard/clientes")}
             >
-              Gerenciar
+              Ver Clientes
             </Button>
           </CardContent>
         </Card>
@@ -115,18 +115,18 @@ export default function AdminPage() {
 
         <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Pagamentos Pendentes</CardTitle>
-            <CreditCard className="h-5 w-5 text-blue-500" />
+            <CardTitle className="text-sm font-medium">Total de Empréstimos</CardTitle>
+            <CreditCard className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.pendingPayments}</div>
-            <p className="text-xs text-slate-500 mt-1">Aguardando confirmação</p>
+            <div className="text-3xl font-bold">{stats.totalLoans}</div>
+            <p className="text-xs text-slate-500 mt-1">Empréstimos cadastrados</p>
             <Button 
               size="sm" 
-              className="mt-4 w-full bg-blue-500 hover:bg-blue-600"
-              onClick={() => router.push("/admin/payments")}
+              className="mt-4 w-full bg-purple-500 hover:bg-purple-600"
+              onClick={() => router.push("/dashboard/emprestimos")}
             >
-              Verificar
+              Ver Empréstimos
             </Button>
           </CardContent>
         </Card>
@@ -153,24 +153,24 @@ export default function AdminPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200">
           <CardHeader>
-            <CardTitle>Gerenciamento de Usuários</CardTitle>
-            <CardDescription>Aprovar, suspender ou gerenciar usuários do sistema</CardDescription>
+            <CardTitle>Gerenciamento de Clientes</CardTitle>
+            <CardDescription>Cadastrar e gerenciar clientes do sistema</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col space-y-2">
               <Button 
-                className="w-full bg-amber-500 hover:bg-amber-600"
-                onClick={() => router.push("/admin/users")}
+                className="w-full bg-blue-500 hover:bg-blue-600"
+                onClick={() => router.push("/dashboard/clientes")}
               >
                 <Users className="mr-2 h-4 w-4" />
-                Gerenciar Usuários
+                Gerenciar Clientes
               </Button>
               <Button 
                 className="w-full bg-green-500 hover:bg-green-600"
-                onClick={() => router.push("/admin/users/novo")}
+                onClick={() => router.push("/dashboard/clientes/novo")}
               >
                 <UserPlus className="mr-2 h-4 w-4" />
-                Cadastrar Usuário
+                Cadastrar Cliente
               </Button>
             </div>
           </CardContent>
@@ -178,17 +178,17 @@ export default function AdminPage() {
 
         <Card className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200">
           <CardHeader>
-            <CardTitle>Gerenciamento de Pagamentos</CardTitle>
-            <CardDescription>Verificar e aprovar pagamentos pendentes</CardDescription>
+            <CardTitle>Gerenciamento de Empréstimos</CardTitle>
+            <CardDescription>Criar e acompanhar empréstimos</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col space-y-2">
               <Button 
-                className="w-full bg-blue-500 hover:bg-blue-600"
-                onClick={() => router.push("/admin/payments")}
+                className="w-full bg-purple-500 hover:bg-purple-600"
+                onClick={() => router.push("/dashboard/emprestimos")}
               >
                 <CreditCard className="mr-2 h-4 w-4" />
-                Gerenciar Pagamentos
+                Gerenciar Empréstimos
               </Button>
             </div>
           </CardContent>
