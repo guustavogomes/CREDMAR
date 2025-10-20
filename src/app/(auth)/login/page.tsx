@@ -103,18 +103,10 @@ export default function LoginPage() {
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
-          <div className="mt-4 space-y-2 text-center text-sm">
-            <div>
-              <Link href="/forgot-password" className="text-credmar-red hover:text-credmar-red-dark hover:underline">
-                Esqueci minha senha
-              </Link>
-            </div>
-            <div>
-              Não tem uma conta?{" "}
-              <Link href="/register" className="text-credmar-red hover:text-credmar-red-dark hover:underline">
-                Registre-se
-              </Link>
-            </div>
+          <div className="mt-4 text-center text-sm">
+            <Link href="/forgot-password" className="text-credmar-red hover:text-credmar-red-dark hover:underline">
+              Esqueci minha senha
+            </Link>
           </div>
         </CardContent>
       </Card>
