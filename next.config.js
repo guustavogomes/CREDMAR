@@ -3,6 +3,7 @@ process.env.TZ = 'America/Sao_Paulo'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -14,10 +15,16 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-    unoptimized: true, // Para desenvolvimento e casos onde otimização não é necessária
+    unoptimized: true,
   },
   experimental: {
-    // Add any experimental features you need here
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('@prisma/client')
+    }
+    return config
   },
 }
 
