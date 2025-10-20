@@ -5,14 +5,14 @@ echo "🔧 Iniciando build do CREDMAR..."
 
 # Instalar dependências
 echo "📦 Instalando dependências..."
-yarn install
+npm install
 
 # Gerar Prisma Client
 echo "🗄️ Gerando Prisma Client..."
-yarn prisma generate
+npm run db:generate
 
 # Build do Next.js
 echo "🏗️ Executando build do Next.js..."
-yarn build
+npm run build
 
 echo "✅ Build concluído com sucesso!"

@@ -81,6 +81,10 @@
     "tsx": "^4.20.3",
     "typescript": "^5"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   }
