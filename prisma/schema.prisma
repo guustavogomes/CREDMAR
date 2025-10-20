@@ -13,55 +13,21 @@ model User {
   name                String
   password            String
   role                Role                 @default(USER)
-  status              UserStatus           @default(PENDING_PAYMENT)
-  activatedAt         DateTime?
-  subscriptionExpiresAt DateTime?          // Data de vencimento da assinatura
-  lastPaymentDate     DateTime?            // Data do último pagamento
+  status              UserStatus           @default(ACTIVE)
   resetToken          String?
   resetTokenExpiry    DateTime?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   customers           Customer[]
+  creditors           Creditor[]
   loans               Loan[]
   passwordResetTokens PasswordResetToken[]
-  payments            Payment[]
   routes              Route[]
 
   @@map("users")
 }
 
-model Payment {
-  id                     String        @id @default(cuid())
-  userId                 String
-  amount                 Float         @default(100.00)
-  method                 PaymentMethod @default(PIX)
-  status                 PaymentStatus @default(PENDING)
-  description            String?
-  pixCode                String?
-  proofImage             String?
-  transactionId          String?
-  month                  String?
-  approvedBy             String?
-  approvedAt             DateTime?
-  rejectedAt             DateTime?
-  rejectionReason        String?
-  asaasPaymentId         String?
-  asaasCustomerId        String?
-  asaasExternalReference String?
-  asaasPixQrCode         String?
-  asaasPixPayload        String?
-  asaasDueDate           DateTime?
-  asaasNetValue          Float?
-  asaasOriginalValue     Float?
-  asaasInterestValue     Float?
-  isSubscriptionPayment  Boolean       @default(false)  // Se é pagamento de assinatura
-  subscriptionPeriod     String?       // Período da assinatura (ex: "2024-01")
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
-  user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("payments")
-}
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
@@ -91,11 +57,11 @@ model Customer {
   cpf          String
   nomeCompleto String
   celular      String
-  cep          String
-  endereco     String
-  cidade       String
-  estado       String
-  bairro       String
+  cep          String?
+  endereco     String?
+  cidade       String?
+  estado       String?
+  bairro       String?
   referencia   String?
   routeId      String?
   foto         String?
@@ -109,6 +75,27 @@ model Customer {
 
   @@unique([cpf, userId], name: "unique_cpf_per_user")
   @@map("customers")
+}
+
+model Creditor {
+  id           String    @id @default(cuid())
+  cpf          String
+  nome         String
+  telefone     String?
+  email        String?
+  endereco     String?
+  cidade       String?
+  estado       String?
+  observacoes  String?
+  userId       String
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loans        Loan[]    @relation("CreditorLoans")
+
+  @@unique([cpf, userId], name: "unique_creditor_cpf_per_user")
+  @@map("creditors")
 }
 
 model Periodicity {
@@ -129,7 +116,8 @@ model Periodicity {
 
 model Loan {
   id                    String        @id @default(cuid())
-  customerId            String
+  customerId            String?       // Cliente que recebe o empréstimo (opcional)
+  creditorId            String?       // Credor que empresta o dinheiro (opcional)
   transactionDate       DateTime      @default(now())
   totalAmount           Float
   amountWithoutInterest Float
@@ -139,12 +127,14 @@ model Loan {
   nextPaymentDate       DateTime
   status                LoanStatus    @default(ACTIVE)
   observation           String?
+  commission            Float?        // Comissão em % (opcional, apenas para clientes com rota)
   userId                String
   deletedAt             DateTime?
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
   installmentRecords    Installment[]
-  customer              Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer              Customer?     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  creditor              Creditor?     @relation("CreditorLoans", fields: [creditorId], references: [id], onDelete: Cascade)
   periodicity           Periodicity   @relation(fields: [periodicityId], references: [id])
   user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -176,23 +166,11 @@ enum Role {
 }
 
 enum UserStatus {
-  PENDING_PAYMENT
-  PENDING_APPROVAL
   ACTIVE
   SUSPENDED
 }
 
-enum PaymentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
 
-enum PaymentMethod {
-  PIX
-  MANUAL
-  ADMIN_MANUAL
-}
 
 enum InstallmentStatus {
   PENDING

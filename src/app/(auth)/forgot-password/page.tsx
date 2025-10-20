@@ -13,6 +13,7 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [resetCode, setResetCode] = useState("")
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,14 +33,15 @@ export default function ForgotPasswordPage() {
 
       if (response.ok) {
         setEmailSent(true)
+        setResetCode(data.resetCode || "")
         toast({
-          title: "Email enviado!",
-          description: "Verifique sua caixa de entrada para redefinir sua senha.",
+          title: "Código gerado!",
+          description: "Use o código exibido para redefinir sua senha.",
         })
       } else {
         toast({
           title: "Erro",
-          description: data.error || "Erro ao enviar email de recuperação.",
+          description: data.error || "Erro ao gerar código de recuperação.",
           variant: "destructive",
         })
       }
@@ -56,35 +58,54 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center credmar-gradient px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md shadow-2xl border-0">
           <CardHeader className="space-y-1 text-center">
             <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-6 h-6 text-green-600" />
             </div>
-            <CardTitle className="text-2xl font-bold">Email Enviado!</CardTitle>
-            <CardDescription>
-              Enviamos um link de recuperação para <strong>{email}</strong>
+            <CardTitle className="text-2xl font-bold text-credmar-blue">Código Gerado!</CardTitle>
+            <CardDescription className="text-credmar-blue-light">
+              Use este código para redefinir sua senha
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-sm text-gray-600 text-center">
-              <p>Verifique sua caixa de entrada e spam.</p>
-              <p>O link expira em 1 hora.</p>
+            {/* Código de Recuperação */}
+            <div className="bg-credmar-red/10 border-2 border-credmar-red/20 rounded-xl p-6 text-center">
+              <p className="text-sm text-credmar-blue mb-2">Seu código de recuperação:</p>
+              <div className="text-4xl font-bold text-credmar-red mb-2 tracking-wider">
+                {resetCode}
+              </div>
+              <p className="text-xs text-credmar-blue-light">
+                Este código expira em 1 hora
+              </p>
             </div>
+            
+            <div className="text-sm text-credmar-blue-light text-center space-y-2">
+              <p>• Anote este código em local seguro</p>
+              <p>• Use na página de redefinição de senha</p>
+              <p>• Não compartilhe com ninguém</p>
+            </div>
+            
             <div className="space-y-2">
+              <Link href={`/reset-password?email=${encodeURIComponent(email)}`} className="block">
+                <Button className="w-full credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold">
+                  Redefinir Senha Agora
+                </Button>
+              </Link>
               <Button 
                 onClick={() => {
                   setEmailSent(false)
                   setEmail("")
+                  setResetCode("")
                 }} 
                 variant="outline" 
-                className="w-full"
+                className="w-full border-credmar-blue/20 text-credmar-blue hover:bg-credmar-blue/5"
               >
-                Enviar para outro email
+                Gerar novo código
               </Button>
               <Link href="/login" className="block">
-                <Button variant="ghost" className="w-full">
+                <Button variant="ghost" className="w-full text-credmar-blue-light hover:text-credmar-blue">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Voltar ao login
                 </Button>
@@ -97,12 +118,18 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center credmar-gradient px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-2xl border-0">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Recuperar Senha</CardTitle>
-          <CardDescription className="text-center">
-            Digite seu email para receber um link de recuperação
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-credmar-red to-credmar-red-dark rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-xl">C</span>
+            </div>
+            <CardTitle className="text-3xl font-bold text-credmar-blue">CREDMAR</CardTitle>
+          </div>
+          <CardTitle className="text-xl font-bold text-center text-credmar-blue">Recuperar Senha</CardTitle>
+          <CardDescription className="text-center text-credmar-blue-light">
+            Digite seu email para gerar um código de recuperação
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,12 +143,12 @@ export default function ForgotPasswordPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Enviando..." : "Enviar Link de Recuperação"}
+            <Button type="submit" className="w-full credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold" disabled={isLoading}>
+              {isLoading ? "Gerando..." : "Gerar Código de Recuperação"}
             </Button>
           </form>
           <div className="mt-4 text-center">
-            <Link href="/login" className="text-sm text-blue-600 hover:underline inline-flex items-center">
+            <Link href="/login" className="text-sm text-credmar-red hover:text-credmar-red-dark hover:underline inline-flex items-center">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Voltar ao login
             </Link>

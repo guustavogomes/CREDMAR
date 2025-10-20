@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaPago - Materiais Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .nav-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: #10b981;
+        }
+        
+        .nav-card h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .nav-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+        
+        .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .files-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .files-list h2 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-icon {
+            font-size: 1.5em;
+        }
+        
+        .file-details h4 {
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .file-details p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status.ready {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status.recommended {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-item {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .file-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 TaPago Instagram</h1>
+            <p>Materiais visuais para redes sociais</p>
+        </div>
+        
+        <div class="nav-grid">
+            <a href="convert-logos.html" class="nav-card">
+                <span class="icon">🎨</span>
+                <h3>Conversor de Logos</h3>
+                <p>Converta e baixe suas logos para Instagram com preview em tempo real</p>
+            </a>
+            
+            <a href="logo-converter.html" class="nav-card">
+                <span class="icon">🔄</span>
+                <h3>Converter SVG → PNG</h3>
+                <p>Ferramenta simples para converter logos SVG para PNG</p>
+            </a>
+            
+            <a href="README.md" class="nav-card">
+                <span class="icon">📖</span>
+                <h3>Instruções</h3>
+                <p>Guia completo de como usar as logos no Instagram</p>
+            </a>
+            
+            <a href="config.json" class="nav-card">
+                <span class="icon">⚙️</span>
+                <h3>Configurações</h3>
+                <p>Especificações técnicas e configurações da marca</p>
+            </a>
+        </div>
+        
+        <div class="files-list">
+            <h2>📁 Arquivos Disponíveis</h2>
+            
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">⭐</span>
+                    <div class="file-details">
+                        <h4>tapago-logo-simple.svg</h4>
+                        <p>Logo minimalista - Perfeita para perfil do Instagram</p>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <span class="status recommended">Recomendada</span>
+                    <a href="tapago-logo-simple.svg" class="btn" download>📥 Baixar</a>
+                </div>
+            </div>
+            
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">🔤</span>
+                    <div class="file-details">
+                        <h4>tapago-logo-tp.svg</h4>
+                        <p>Logo com abreviação "TP" - Ideal para bio do Instagram</p>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <span class="status ready">Pronta</span>
+                    <a href="tapago-logo-tp.svg" class="btn" download>📥 Baixar</a>
+                </div>
+            </div>
+            
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">🎯</span>
+                    <div class="file-details">
+                        <h4>tapago-logo-minimal.svg</h4>
+                        <p>Logo limpa com "TAPAGO" - Para stories e posts</p>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <span class="status ready">Pronta</span>
+                    <a href="tapago-logo-minimal.svg" class="btn" download>📥 Baixar</a>
+                </div>
+            </div>
+            
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">📱</span>
+                    <div class="file-details">
+                        <h4>tapago-logo-instagram.svg</h4>
+                        <p>Logo para redes sociais - Facebook, LinkedIn, Twitter</p>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <span class="status ready">Pronta</span>
+                    <a href="tapago-logo-instagram.svg" class="btn" download>📥 Baixar</a>
+                </div>
+            </div>
+            
+            <div class="file-item">
+                <div class="file-info">
+                    <span class="file-icon">🏢</span>
+                    <div class="file-details">
+                        <h4>tapago-logo.svg</h4>
+                        <p>Logo completa - Para site e materiais oficiais</p>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    <span class="status ready">Pronta</span>
+                    <a href="tapago-logo.svg" class="btn" download>📥 Baixar</a>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: rgba(255, 255, 255, 0.7);">
+            <p>🚀 <strong>TaPago</strong> - Gestão de Empréstimos Inteligente</p>
+            <p>IA anti-fraude que reduz inadimplência em até 65%</p>
+        </div>
+    </div>
+</body>
+</html>

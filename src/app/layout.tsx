@@ -3,15 +3,15 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/components/auth-provider'
-import { PaymentGatewayGuard } from '@/components/payment-gateway-guard'
+
 import { Toaster } from '@/components/ui/toaster'
 import '@/lib/timezone-config' // Configura timezone brasileiro globalmente
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'TaPago - Sistema de Gestão de Empréstimos',
-  description: 'Sistema moderno para gestão de empréstimos e pagamentos',
+  title: 'CREDMAR - Seu Crédito, Sua Força',
+  description: 'Sistema moderno para gestão de empréstimos e crédito pessoal',
 }
 
 export default function RootLayout({
@@ -29,9 +29,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <PaymentGatewayGuard>
-              {children}
-            </PaymentGatewayGuard>
+            {children}
             <Toaster />
           </ThemeProvider>
         </AuthProvider>

@@ -19,6 +19,10 @@ interface Customer {
   id: string
   nomeCompleto: string
   cpf: string
+  route?: {
+    id: string
+    description: string
+  }
 }
 
 interface Periodicity {
@@ -45,7 +49,8 @@ export default function NovoEmprestimoPage() {
     installments: '',
     nextPaymentDate: '',
     startDate: getBrazilTodayString(), // Data atual do Brasil como padrão
-    observation: '' // Campo de observação
+    observation: '', // Campo de observação
+    commission: '' // Campo de comissão em %
   })
 
   const [calculatedValues, setCalculatedValues] = useState({
@@ -81,7 +86,8 @@ export default function NovoEmprestimoPage() {
             installments: decodedData.installments?.toString() || '',
             nextPaymentDate: decodedData.nextPaymentDate || '',
             startDate: getBrazilTodayString(),
-            observation: decodedData.observation || ''
+            observation: decodedData.observation || '',
+            commission: decodedData.commission?.toString() || ''
           })
         }
       } catch (error) {
@@ -182,7 +188,8 @@ export default function NovoEmprestimoPage() {
       installments: parseInt(formData.installments),
       installmentValue: calculatedValues.installmentValue,
       startDate: formData.startDate, // Incluir data de início
-      observation: formData.observation // Incluir observação
+      observation: formData.observation, // Incluir observação
+      commission: formData.commission ? parseFloat(formData.commission) : null // Incluir comissão
     }
     
     
@@ -298,7 +305,12 @@ export default function NovoEmprestimoPage() {
                               key={customer.id}
                               className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                               onClick={() => {
-                                setFormData(prev => ({ ...prev, customerId: customer.id }))
+                                setFormData(prev => ({ 
+                                  ...prev, 
+                                  customerId: customer.id,
+                                  // Limpar comissão se o cliente não tem rota
+                                  commission: customer.route ? prev.commission : ''
+                                }))
                                 setCustomerSearch(`${customer.nomeCompleto} - ${customer.cpf}`)
                                 setCustomerSearchOpen(false)
                               }}
@@ -313,22 +325,34 @@ export default function NovoEmprestimoPage() {
                   </div>
                   
                   {selectedCustomer && (
-                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-sm font-medium text-blue-900">
-                            {selectedCustomer.nomeCompleto}
-                          </span>
-                          <span className="text-xs text-blue-700 ml-2">
-                            {selectedCustomer.cpf}
-                          </span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-blue-900">
+                              {selectedCustomer.nomeCompleto}
+                            </span>
+                            <span className="text-xs text-blue-700">
+                              {selectedCustomer.cpf}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-blue-600 font-medium">Rota:</span>
+                            <span className="text-xs bg-credmar-blue/10 text-credmar-blue px-2 py-1 rounded-full border border-credmar-blue/20 font-medium">
+                              {selectedCustomer.route?.description || 'Capital Próprio'}
+                            </span>
+                          </div>
                         </div>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            setFormData(prev => ({ ...prev, customerId: '' }))
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              customerId: '',
+                              commission: '' // Limpar comissão ao remover cliente
+                            }))
                             setCustomerSearch('')
                           }}
                         >
@@ -371,6 +395,38 @@ export default function NovoEmprestimoPage() {
                       required
                     />
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="commission">
+                    Comissão (%)
+                    {!selectedCustomer?.route && (
+                      <span className="text-sm text-gray-500 ml-2">
+                        (Disponível apenas para clientes com rota)
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="commission"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="0.00"
+                    value={formData.commission}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      commission: e.target.value
+                    }))}
+                    disabled={!selectedCustomer?.route}
+                    className={!selectedCustomer?.route ? 'bg-gray-100 cursor-not-allowed' : ''}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {selectedCustomer?.route 
+                      ? `Comissão será calculada sobre o valor total para a rota: ${selectedCustomer.route.description}`
+                      : 'Selecione um cliente com rota para habilitar a comissão'
+                    }
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -499,6 +555,12 @@ export default function NovoEmprestimoPage() {
                       <span>Parcelas:</span>
                       <span>{formData.installments || 0}x</span>
                     </div>
+                    {formData.commission && selectedCustomer?.route && (
+                      <div className="flex justify-between text-blue-600">
+                        <span>Comissão ({formData.commission}%):</span>
+                        <span>R$ {((parseFloat(formData.totalAmount || '0') * parseFloat(formData.commission || '0')) / 100).toFixed(2)}</span>
+                      </div>
+                    )}
                     <hr />
                     <div className="flex justify-between font-semibold">
                       <span>Valor da Parcela:</span>

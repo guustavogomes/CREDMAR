@@ -5,24 +5,24 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 210 22% 22%; /* Azul escuro CREDMAR */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 22% 22%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --popover-foreground: 210 22% 22%;
+    --primary: 0 73% 57%; /* Vermelho CREDMAR */
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary-foreground: 210 22% 22%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --accent: 0 73% 57%; /* Vermelho CREDMAR para accent */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 0 73% 57%; /* Vermelho CREDMAR para focus */
     --radius: 0.75rem;
   }
 
@@ -74,14 +74,26 @@
   animation: fadeIn 0.5s ease-out;
 }
 
-/* Gradientes customizados */
+/* Gradientes customizados CREDMAR */
 .gradient-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #E53E3E 0%, #1A365D 100%);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #E53E3E 0%, #1A365D 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.credmar-gradient {
+  background: linear-gradient(135deg, #E53E3E 0%, #C53030 50%, #1A365D 100%);
+}
+
+.credmar-red-gradient {
+  background: linear-gradient(135deg, #E53E3E 0%, #C53030 100%);
+}
+
+.credmar-blue-gradient {
+  background: linear-gradient(135deg, #1A365D 0%, #153E75 100%);
 }

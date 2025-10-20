@@ -16,7 +16,7 @@ export function AuthGuard({
   children, 
   requireAuth = true, 
   allowedRoles = ["USER", "ADMIN"],
-  allowedStatuses = ["ACTIVE", "PENDING_PAYMENT", "PENDING_APPROVAL"],
+  allowedStatuses = ["ACTIVE"],
   redirectTo = "/login"
 }: AuthGuardProps) {
   const { data: session, status } = useSession()
@@ -46,7 +46,7 @@ export function AuthGuard({
 
       // Verificar status
       if (!allowedStatuses.includes(userStatus)) {
-        router.push("/pending-payment")
+        router.push("/login")
         return
       }
     }

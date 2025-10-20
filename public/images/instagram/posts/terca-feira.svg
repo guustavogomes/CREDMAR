@@ -1,0 +1,103 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="url(#gradient1)"/>
+  
+  <!-- Decorative Elements -->
+  <circle cx="150" cy="300" r="100" fill="url(#gradient2)" opacity="0.3"/>
+  <circle cx="930" cy="800" r="130" fill="url(#gradient3)" opacity="0.2"/>
+  <circle cx="850" cy="150" r="70" fill="url(#gradient4)" opacity="0.4"/>
+  
+  <!-- Main Content Box -->
+  <rect x="90" y="200" width="900" height="680" rx="40" fill="rgba(255, 255, 255, 0.95)" stroke="url(#gradient5)" stroke-width="4"/>
+  
+  <!-- Logo Area -->
+  <circle cx="540" cy="300" r="60" fill="url(#gradient1)"/>
+  <rect x="510" y="270" width="60" height="15" rx="7.5" fill="white"/>
+  <rect x="532.5" y="270" width="15" height="60" rx="7.5" fill="white"/>
+  
+  <!-- Day Badge -->
+  <rect x="200" y="150" width="200" height="60" rx="30" fill="url(#gradient6)"/>
+  <text x="300" y="190" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">TERÇA-FEIRA</text>
+  
+  <!-- Main Title -->
+  <text x="540" y="420" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="48" font-weight="bold">PRODUTIVIDADE</text>
+  <text x="540" y="480" text-anchor="middle" fill="url(#gradient1)" font-family="Arial, sans-serif" font-size="48" font-weight="bold">EM ALTA!</text>
+  
+  <!-- Subtitle -->
+  <text x="540" y="540" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="24">Automatize sua análise de crédito</text>
+  <text x="540" y="570" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="24">e tome decisões em segundos</text>
+  
+  <!-- Features Grid -->
+  <rect x="150" y="620" width="200" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <circle cx="250" cy="660" r="20" fill="url(#gradient2)"/>
+  <text x="250" y="668" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">⚡</text>
+  <text x="250" y="700" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Análise Rápida</text>
+  <text x="250" y="720" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">&lt; 3 segundos</text>
+  
+  <rect x="370" y="620" width="200" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <circle cx="470" cy="660" r="20" fill="url(#gradient3)"/>
+  <text x="470" y="668" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">🤖</text>
+  <text x="470" y="700" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="18" font-weight="bold">IA Avançada</text>
+  <text x="470" y="720" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">98.7% precisão</text>
+  
+  <rect x="590" y="620" width="200" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <circle cx="690" cy="660" r="20" fill="url(#gradient4)"/>
+  <text x="690" y="668" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">📊</text>
+  <text x="690" y="700" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Relatórios</text>
+  <text x="690" y="720" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Tempo real</text>
+  
+  <!-- CTA Button -->
+  <rect x="340" y="780" width="400" height="80" rx="40" fill="url(#gradient1)"/>
+  <text x="540" y="830" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">🚀 TESTAR GRÁTIS - R$ 29,99/mês</text>
+  
+  <!-- Urgency Badge -->
+  <rect x="740" y="150" width="200" height="60" rx="30" fill="url(#gradient8)"/>
+  <text x="840" y="190" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="bold">⏰ ÚLTIMAS VAGAS</text>
+  
+  <!-- Bottom Text -->
+  <text x="540" y="920" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="16">Garanta sua vaga pelo preço promocional</text>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

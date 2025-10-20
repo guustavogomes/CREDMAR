@@ -29,10 +29,10 @@ export default function LoginPage() {
 
       if (result?.error) {
         const isApprovalPending = result.error.includes('aprovada')
-        const errorMessage = isApprovalPending 
-          ? "Sua conta será aprovada em instantes. Você receberá um email de confirmação quando estiver liberada." 
+        const errorMessage = isApprovalPending
+          ? "Sua conta será aprovada em instantes. Você receberá um email de confirmação quando estiver liberada."
           : "Email ou senha incorretos."
-        
+
         toast({
           title: isApprovalPending ? "Conta pendente de aprovação" : "Erro no login",
           description: errorMessage,
@@ -43,11 +43,11 @@ export default function LoginPage() {
           title: "Login realizado com sucesso!",
           description: "Redirecionando...",
         })
-        
+
         // Verificar o papel do usuário e redirecionar adequadamente
         const session = await fetch("/api/auth/session")
         const sessionData = await session.json()
-        
+
         if (sessionData?.user?.role === "ADMIN") {
           router.push("/admin")
         } else {
@@ -66,12 +66,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center credmar-gradient px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-2xl border-0">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">TaPago</CardTitle>
-          <CardDescription className="text-center">
-            Entre na sua conta
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-credmar-red to-credmar-red-dark rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-xl">C</span>
+            </div>
+            <CardTitle className="text-3xl font-bold text-credmar-blue">CREDMAR</CardTitle>
+          </div>
+          <CardDescription className="text-center text-credmar-blue-light">
+            Seu crédito, sua força
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,19 +99,19 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold" disabled={isLoading}>
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
           <div className="mt-4 space-y-2 text-center text-sm">
             <div>
-              <Link href="/forgot-password" className="text-blue-600 hover:underline">
+              <Link href="/forgot-password" className="text-credmar-red hover:text-credmar-red-dark hover:underline">
                 Esqueci minha senha
               </Link>
             </div>
             <div>
               Não tem uma conta?{" "}
-              <Link href="/register" className="text-blue-600 hover:underline">
+              <Link href="/register" className="text-credmar-red hover:text-credmar-red-dark hover:underline">
                 Registre-se
               </Link>
             </div>

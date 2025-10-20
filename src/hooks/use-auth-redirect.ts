@@ -29,12 +29,6 @@ export function useAuthRedirect() {
         return
       }
 
-      // Se tiver status pendente, redirecionar para pending-payment
-      if (userStatus === "PENDING_PAYMENT" || userStatus === "PENDING_APPROVAL") {
-        router.push("/pending-payment")
-        return
-      }
-
       // Se estiver ativo, redirecionar para dashboard
       if (userStatus === "ACTIVE") {
         router.push("/dashboard")

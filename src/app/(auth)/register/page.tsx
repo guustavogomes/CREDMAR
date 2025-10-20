@@ -73,7 +73,7 @@ export default function RegisterPage() {
         if (signInResult?.ok && !signInResult.error) {
           // Aguardar um pouco para a sessão ser estabelecida
           setTimeout(() => {
-            router.push("/pending-payment")
+            router.push("/dashboard")
           }, 1000)
         } else {
           toast({
@@ -102,12 +102,17 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center credmar-gradient px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-2xl border-0">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">TaPago</CardTitle>
-          <CardDescription className="text-center">
-            Crie sua conta
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-credmar-red to-credmar-red-dark rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-xl">C</span>
+            </div>
+            <CardTitle className="text-3xl font-bold text-credmar-blue">CREDMAR</CardTitle>
+          </div>
+          <CardDescription className="text-center text-credmar-blue-light">
+            Seu crédito, sua força
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -148,13 +153,13 @@ export default function RegisterPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold" disabled={isLoading}>
               {isLoading ? "Criando conta..." : "Criar conta"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
             Já tem uma conta?{" "}
-            <Link href="/login" className="text-blue-600 hover:underline">
+            <Link href="/login" className="text-credmar-red hover:text-credmar-red-dark hover:underline">
               Faça login
             </Link>
           </div>

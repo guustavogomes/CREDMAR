@@ -139,10 +139,10 @@ const filteredCustomers = customers.filter(customer =>
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
   }
 
-  if (status === "loading") {
+  if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Carregando...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-credmar-red"></div>
       </div>
     )
   }
@@ -151,21 +151,13 @@ const filteredCustomers = customers.filter(customer =>
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Carregando...</div>
-      </div>
-    )
-  }
-
   return (
     <div className="container mx-auto p-4 lg:p-6">
       {/* Header responsivo */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Meus Clientes</h1>
         <Link href="/dashboard/clientes/novo">
-          <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+          <Button className="w-full sm:w-auto credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold">
             <Plus className="w-4 h-4 mr-2" />
             Novo Cliente
           </Button>
@@ -221,14 +213,14 @@ const filteredCustomers = customers.filter(customer =>
                         <TableCell className="text-muted-foreground">{customer.celular}</TableCell>
                         <TableCell className="text-muted-foreground">{customer.cidade}/{customer.estado}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                          <Badge variant="outline" className="bg-credmar-blue/10 text-credmar-blue border-credmar-blue/20">
                             {customer.route?.description || 'Sem rota'}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Link href={`/dashboard/clientes/${customer.id}/editar`}>
-                              <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:border-primary/30">
+                              <Button variant="outline" size="sm" className="hover:bg-credmar-blue/10 hover:border-credmar-blue/30 border-credmar-blue/20 text-credmar-blue">
                                 <Edit className="w-4 h-4" />
                               </Button>
                             </Link>
@@ -261,7 +253,7 @@ const filteredCustomers = customers.filter(customer =>
                           CPF: {formatCPF(customer.cpf || '')}
                         </p>
                       </div>
-                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 ml-2">
+                      <Badge variant="outline" className="bg-credmar-blue/10 text-credmar-blue border-credmar-blue/20 ml-2">
                         {customer.route?.description || 'Sem rota'}
                       </Badge>
                     </div>
@@ -281,7 +273,7 @@ const filteredCustomers = customers.filter(customer =>
 
                     <div className="flex space-x-2">
                       <Link href={`/dashboard/clientes/${customer.id}/editar`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full hover:bg-primary/10 hover:border-primary/30">
+                        <Button variant="outline" size="sm" className="w-full hover:bg-credmar-blue/10 hover:border-credmar-blue/30 border-credmar-blue/20 text-credmar-blue">
                           <Edit className="w-4 h-4 mr-2" />
                           Editar
                         </Button>

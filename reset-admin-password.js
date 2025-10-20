@@ -10,7 +10,7 @@ async function resetAdminPassword() {
   try {
     // Buscar o usuário admin
     const admin = await prisma.user.findUnique({
-      where: { email: 'admin@tapago.com' }
+      where: { email: 'admin@credmar.com.br' }
     });
 
     if (!admin) {
@@ -21,7 +21,7 @@ async function resetAdminPassword() {
     console.log('✅ Usuário admin encontrado:', admin.email);
 
     // Hash da senha padrão
-    const hashedPassword = await bcrypt.hash('admin123', 12);
+    const hashedPassword = await bcrypt.hash('credmar123!@', 12);
 
     // Atualizar a senha
     await prisma.user.update({
@@ -34,8 +34,8 @@ async function resetAdminPassword() {
     });
 
     console.log('✅ Senha restaurada com sucesso!');
-    console.log('📧 Email: admin@tapago.com');
-    console.log('🔑 Senha: admin123');
+    console.log('📧 Email: admin@credmar.com.br');
+    console.log('🔑 Senha: credmar123!@');
     console.log('🧹 Tokens de reset removidos');
 
   } catch (error) {

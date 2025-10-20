@@ -4,11 +4,11 @@ import bcrypt from "bcryptjs"
 
 export async function POST(request: NextRequest) {
   try {
-    const { token, password } = await request.json()
+    const { email, resetCode, password } = await request.json()
 
-    if (!token || !password) {
+    if (!email || !resetCode || !password) {
       return NextResponse.json(
-        { error: "Token e senha são obrigatórios" },
+        { error: "Email, código e senha são obrigatórios" },
         { status: 400 }
       )
     }
@@ -20,10 +20,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar se o token existe e não expirou
+    // Verificar se o código existe e não expirou
     const user = await db.user.findFirst({
       where: {
-        resetToken: token,
+        email: email,
+        resetToken: resetCode,
         resetTokenExpiry: {
           gt: new Date()
         }
@@ -32,15 +33,17 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Token inválido ou expirado" },
+        { error: "Código inválido, expirado ou email incorreto" },
         { status: 400 }
       )
     }
 
+    console.log(`[RESET PASSWORD] Redefinindo senha para ${email} com código ${resetCode}`)
+
     // Hash da nova senha
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Atualizar senha e limpar token de reset
+    // Atualizar senha e limpar código de reset
     await db.user.update({
       where: { id: user.id },
       data: {
@@ -49,6 +52,8 @@ export async function POST(request: NextRequest) {
         resetTokenExpiry: null
       }
     })
+
+    console.log(`[RESET PASSWORD] ✅ Senha redefinida com sucesso para ${email}`)
 
     return NextResponse.json(
       { message: "Senha redefinida com sucesso" },

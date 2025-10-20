@@ -124,6 +124,30 @@ export default function NovoClientePage() {
     setFormData(prev => ({ ...prev, cpf: formattedCpf }))
   }
 
+  const formatCelular = (value: string) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, '')
+    
+    // Limita a 11 dígitos
+    const limitedNumbers = numbers.slice(0, 11)
+    
+    // Aplica a máscara
+    if (limitedNumbers.length <= 2) {
+      return limitedNumbers
+    } else if (limitedNumbers.length <= 7) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`
+    } else if (limitedNumbers.length <= 11) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`
+    }
+    
+    return limitedNumbers
+  }
+
+  const handleCelularChange = (celular: string) => {
+    const formattedCelular = formatCelular(celular)
+    setFormData(prev => ({ ...prev, celular: formattedCelular }))
+  }
+
   const handleConsultarScore = async () => {
     const cleanCpf = formData.cpf.replace(/\D/g, '')
     
@@ -258,20 +282,10 @@ export default function NovoClientePage() {
       return
     }
 
-    if (!formData.nomeCompleto || !formData.celular || !formData.cep) {
+    if (!formData.nomeCompleto || !formData.celular) {
       toast({
         title: 'Erro',
-        description: 'Preencha todos os campos obrigatórios',
-        variant: 'destructive'
-      })
-      return
-    }
-
-    // Validar se a foto foi selecionada
-    if (!fotoFile) {
-      toast({
-        title: 'Erro',
-        description: 'A foto do cliente é obrigatória',
+        description: 'Preencha todos os campos obrigatórios (CPF, Nome e Celular)',
         variant: 'destructive'
       })
       return
@@ -280,35 +294,46 @@ export default function NovoClientePage() {
     setLoading(true)
     
     try {
-      // Converter foto para base64 (obrigatório)
+      // Converter foto para base64 (opcional)
       let fotoBase64 = ''
-      try {
-        // Comprimir imagem antes de converter para base64
-        const compressedFile = await compressImage(fotoFile)
-        fotoBase64 = await convertFileToBase64(compressedFile)
-        
-        // Verificar se ainda está muito grande (limite de ~1MB em base64)
-        if (fotoBase64.length > 1000000) {
-          // Tentar compressão mais agressiva
-          const moreCompressed = await compressImage(fotoFile, 300, 0.5)
-          fotoBase64 = await convertFileToBase64(moreCompressed)
+      if (fotoFile) {
+        try {
+          // Comprimir imagem antes de converter para base64
+          const compressedFile = await compressImage(fotoFile)
+          fotoBase64 = await convertFileToBase64(compressedFile)
+          
+          // Verificar se ainda está muito grande (limite de ~1MB em base64)
+          if (fotoBase64.length > 1000000) {
+            // Tentar compressão mais agressiva
+            const moreCompressed = await compressImage(fotoFile, 300, 0.5)
+            fotoBase64 = await convertFileToBase64(moreCompressed)
+          }
+        } catch (error) {
+          console.error('Erro ao processar foto:', error)
+          toast({
+            title: 'Erro',
+            description: 'Erro ao processar a foto. Por favor, tente novamente.',
+            variant: 'destructive'
+          })
+          setLoading(false)
+          return
         }
-      } catch (error) {
-        console.error('Erro ao processar foto:', error)
-        toast({
-          title: 'Erro',
-          description: 'Erro ao processar a foto. Por favor, tente novamente.',
-          variant: 'destructive'
-        })
-        setLoading(false)
-        return
       }
 
-      // Preparar dados para envio - remover formatação do CPF
+      // Preparar dados para envio - remover formatação do CPF e celular
       const dataToSend = {
         ...formData,
         cpf: formData.cpf.replace(/\D/g, ''), // Remove pontos, traços e espaços
-        foto: fotoBase64 || null
+        celular: formData.celular.replace(/\D/g, ''), // Remove formatação do celular
+        foto: fotoBase64 || null,
+        // Garantir que campos opcionais sejam null se vazios
+        cep: formData.cep || null,
+        endereco: formData.endereco || null,
+        cidade: formData.cidade || null,
+        estado: formData.estado || null,
+        bairro: formData.bairro || null,
+        referencia: formData.referencia || null,
+        routeId: formData.routeId || null
       }
       
       
@@ -480,7 +505,7 @@ export default function NovoClientePage() {
             </div>
 
             <div>
-              <Label htmlFor="foto">Foto do Cliente *</Label>
+              <Label htmlFor="foto">Foto do Cliente</Label>
               <Input
                 id="foto"
                 type="file"
@@ -492,7 +517,6 @@ export default function NovoClientePage() {
                   }
                 }}
                 className="cursor-pointer"
-                required
               />
               {fotoFile && (
                 <p className="text-sm text-gray-500 mt-1">
@@ -500,7 +524,7 @@ export default function NovoClientePage() {
                 </p>
               )}
               <p className="text-xs text-gray-500 mt-1">
-                A foto é obrigatória para identificação do cliente
+                Foto opcional para identificação do cliente
               </p>
             </div>
 
@@ -511,29 +535,25 @@ export default function NovoClientePage() {
                   id="celular"
                   placeholder="(00) 00000-0000"
                   value={formData.celular}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    celular: e.target.value 
-                  }))}
+                  onChange={(e) => handleCelularChange(e.target.value)}
                   required
                 />
               </div>
               
               <div>
-                <Label htmlFor="cep">CEP *</Label>
+                <Label htmlFor="cep">CEP</Label>
                 <Input
                   id="cep"
                   placeholder="00000000"
                   value={formData.cep}
                   onChange={(e) => handleCepChange(formatCepInput(e.target.value))}
-                  required
                 />
                 {cepLoading && <p className="text-sm text-gray-500 mt-1">Buscando CEP...</p>}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="endereco">Endereço *</Label>
+              <Label htmlFor="endereco">Endereço</Label>
               <Input
                 id="endereco"
                 value={formData.endereco}
@@ -541,13 +561,12 @@ export default function NovoClientePage() {
                   ...prev, 
                   endereco: e.target.value 
                 }))}
-                required
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="bairro">Bairro *</Label>
+                <Label htmlFor="bairro">Bairro</Label>
                 <Input
                   id="bairro"
                   value={formData.bairro}
@@ -555,12 +574,11 @@ export default function NovoClientePage() {
                     ...prev, 
                     bairro: e.target.value 
                   }))}
-                  required
                 />
               </div>
               
               <div>
-                <Label htmlFor="cidade">Cidade *</Label>
+                <Label htmlFor="cidade">Cidade</Label>
                 <Input
                   id="cidade"
                   value={formData.cidade}
@@ -568,12 +586,11 @@ export default function NovoClientePage() {
                     ...prev, 
                     cidade: e.target.value 
                   }))}
-                  required
                 />
               </div>
               
               <div>
-                <Label htmlFor="estado">Estado *</Label>
+                <Label htmlFor="estado">Estado</Label>
                 <Input
                   id="estado"
                   value={formData.estado}
@@ -581,7 +598,6 @@ export default function NovoClientePage() {
                     ...prev, 
                     estado: e.target.value 
                   }))}
-                  required
                 />
               </div>
             </div>

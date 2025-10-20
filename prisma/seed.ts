@@ -15,12 +15,12 @@ async function main() {
   }
 
   // Criar usuário admin padrão
-  const hashedPassword = await bcrypt.hash('admin123', 12)
+  const hashedPassword = await bcrypt.hash('credmar123!@', 12)
   
   const adminUser = await prisma.user.create({
     data: {
-      email: 'admin@tapago.com',
-      name: 'Administrador',
+      email: 'admin@credmar.com.br',
+      name: 'Administrador CREDMAR',
       password: hashedPassword,
       role: 'ADMIN',
       status: 'ACTIVE'

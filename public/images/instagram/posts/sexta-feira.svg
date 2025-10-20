@@ -1,0 +1,109 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="url(#gradient1)"/>
+  
+  <!-- Decorative Elements -->
+  <circle cx="220" cy="280" r="130" fill="url(#gradient2)" opacity="0.3"/>
+  <circle cx="860" cy="780" r="110" fill="url(#gradient3)" opacity="0.2"/>
+  <circle cx="700" cy="140" r="80" fill="url(#gradient4)" opacity="0.4"/>
+  
+  <!-- Main Content Box -->
+  <rect x="90" y="200" width="900" height="680" rx="40" fill="rgba(255, 255, 255, 0.95)" stroke="url(#gradient5)" stroke-width="4"/>
+  
+  <!-- Logo Area -->
+  <circle cx="540" cy="300" r="60" fill="url(#gradient1)"/>
+  <rect x="510" y="270" width="60" height="15" rx="7.5" fill="white"/>
+  <rect x="532.5" y="270" width="15" height="60" rx="7.5" fill="white"/>
+  
+  <!-- Day Badge -->
+  <rect x="200" y="150" width="200" height="60" rx="30" fill="url(#gradient6)"/>
+  <text x="300" y="190" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">SEXTA-FEIRA</text>
+  
+  <!-- Main Title -->
+  <text x="540" y="420" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="48" font-weight="bold">SEXTA DE</text>
+  <text x="540" y="480" text-anchor="middle" fill="url(#gradient1)" font-family="Arial, sans-serif" font-size="48" font-weight="bold">SUCESSO!</text>
+  
+  <!-- Subtitle -->
+  <text x="540" y="540" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="24">Termine a semana com resultados</text>
+  <text x="540" y="570" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="24">que impressionam</text>
+  
+  <!-- Success Stats -->
+  <rect x="150" y="620" width="180" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <text x="240" y="660" text-anchor="middle" fill="#10b981" font-family="Arial, sans-serif" font-size="36" font-weight="bold">-65%</text>
+  <text x="240" y="685" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Inadimplência</text>
+  <text x="240" y="705" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Redução média</text>
+  <text x="240" y="725" text-anchor="middle" fill="#10b981" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Comprovado</text>
+  
+  <rect x="350" y="620" width="180" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <text x="440" y="660" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="36" font-weight="bold">98.7%</text>
+  <text x="440" y="685" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Precisão IA</text>
+  <text x="440" y="705" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Detecção fraudes</text>
+  <text x="440" y="725" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Tempo real</text>
+  
+  <rect x="550" y="620" width="180" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <text x="640" y="660" text-anchor="middle" fill="#F59E0B" font-family="Arial, sans-serif" font-size="36" font-weight="bold">2.000+</text>
+  <text x="640" y="685" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Usuários</text>
+  <text x="640" y="705" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Ativos</text>
+  <text x="640" y="725" text-anchor="middle" fill="#F59E0B" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Satisfeitos</text>
+  
+  <rect x="750" y="620" width="180" height="120" rx="15" fill="url(#gradient7)" opacity="0.1"/>
+  <text x="840" y="660" text-anchor="middle" fill="#8B5CF6" font-family="Arial, sans-serif" font-size="36" font-weight="bold">R$ 50M+</text>
+  <text x="840" y="685" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Analisados</text>
+  <text x="840" y="705" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Empréstimos</text>
+  <text x="840" y="725" text-anchor="middle" fill="#8B5CF6" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Processados</text>
+  
+  <!-- CTA Button -->
+  <rect x="340" y="780" width="400" height="80" rx="40" fill="url(#gradient1)"/>
+  <text x="540" y="830" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">🚀 GARANTIR SUCESSO - R$ 29,99/mês</text>
+  
+  <!-- Urgency Badge -->
+  <rect x="740" y="150" width="200" height="60" rx="30" fill="url(#gradient8)"/>
+  <text x="840" y="190" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="bold">🎯 ÚLTIMA CHANCE</text>
+  
+  <!-- Bottom Text -->
+  <text x="540" y="920" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="16">Não perca a oportunidade de transformar seu negócio</text>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,90 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="url(#gradient1)"/>
+  
+  <!-- Decorative Elements -->
+  <circle cx="200" cy="200" r="150" fill="url(#gradient2)" opacity="0.3"/>
+  <circle cx="880" cy="880" r="120" fill="url(#gradient3)" opacity="0.2"/>
+  <circle cx="900" cy="200" r="80" fill="url(#gradient4)" opacity="0.4"/>
+  
+  <!-- Main Content Box -->
+  <rect x="90" y="200" width="900" height="680" rx="40" fill="rgba(255, 255, 255, 0.95)" stroke="url(#gradient5)" stroke-width="4"/>
+  
+  <!-- Logo Area -->
+  <circle cx="540" cy="300" r="60" fill="url(#gradient1)"/>
+  <rect x="510" y="270" width="60" height="15" rx="7.5" fill="white"/>
+  <rect x="532.5" y="270" width="15" height="60" rx="7.5" fill="white"/>
+  
+  <!-- Day Badge -->
+  <rect x="200" y="150" width="200" height="60" rx="30" fill="url(#gradient6)"/>
+  <text x="300" y="190" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">SEGUNDA-FEIRA</text>
+  
+  <!-- Main Title -->
+  <text x="540" y="420" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="48" font-weight="bold">NOVA SEMANA,</text>
+  <text x="540" y="480" text-anchor="middle" fill="url(#gradient1)" font-family="Arial, sans-serif" font-size="48" font-weight="bold">NOVOS RESULTADOS!</text>
+  
+  <!-- Subtitle -->
+  <text x="540" y="540" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="24">Comece a semana reduzindo sua inadimplência</text>
+  <text x="540" y="570" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="24">com nossa IA anti-fraude</text>
+  
+  <!-- Stats Box -->
+  <rect x="200" y="620" width="680" height="120" rx="20" fill="url(#gradient7)" opacity="0.1"/>
+  <text x="540" y="660" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="32" font-weight="bold">-65% INADIMPLÊNCIA</text>
+  <text x="540" y="690" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="18">Resultado médio dos nossos clientes</text>
+  <text x="540" y="715" text-anchor="middle" fill="#10b981" font-family="Arial, sans-serif" font-size="20" font-weight="bold">98.7% de precisão na detecção de fraudes</text>
+  
+  <!-- CTA Button -->
+  <rect x="340" y="780" width="400" height="80" rx="40" fill="url(#gradient1)"/>
+  <text x="540" y="830" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">🚀 COMEÇAR AGORA - R$ 29,99/mês</text>
+  
+  <!-- Urgency Badge -->
+  <rect x="740" y="150" width="200" height="60" rx="30" fill="url(#gradient8)"/>
+  <text x="840" y="190" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="bold">🔥 OFERTA LIMITADA</text>
+  
+  <!-- Bottom Text -->
+  <text x="540" y="920" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="16">Apenas 47 vagas restantes pelo preço promocional</text>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

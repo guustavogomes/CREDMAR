@@ -330,10 +330,10 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
     )
   }
 
-  if (status === "loading") {
+  if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-credmar-red"></div>
       </div>
     )
   }
@@ -344,7 +344,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Meus Empréstimos</h1>
         <Link href="/dashboard/emprestimos/novo">
-          <Button className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+          <Button className="w-full sm:w-auto credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold">
             <Plus className="w-4 h-4 mr-2" />
             Novo Empréstimo
           </Button>
@@ -475,7 +475,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
         <CardContent className="pt-6">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-credmar-red"></div>
             </div>
           ) : filteredLoans.length === 0 ? (
             <div className="text-center py-8">
@@ -485,7 +485,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
               </p>
               {!searchTerm && (
                 <Link href="/dashboard/emprestimos/novo">
-                  <Button className="mt-4">
+                  <Button className="mt-4 credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold">
                     <Plus className="w-4 h-4 mr-2" />
                     Cadastrar Primeiro Empréstimo
                   </Button>
@@ -544,7 +544,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                               variant="outline" 
                               size="sm"
                               onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
-                              className="hover:bg-primary/10 hover:border-primary/30"
+                              className="hover:bg-credmar-blue/10 hover:border-credmar-blue/30 border-credmar-blue/20 text-credmar-blue"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -552,7 +552,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                               variant="outline" 
                               size="sm"
                               onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
-                              className="bg-primary/10 hover:bg-primary/20 border-primary/20"
+                              className="bg-credmar-blue/10 hover:bg-credmar-blue/20 border-credmar-blue/20 text-credmar-blue"
                             >
                               <Calendar className="w-4 h-4" />
                             </Button>
@@ -647,7 +647,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="flex-1 hover:bg-primary/10 hover:border-primary/30"
+                            className="flex-1 hover:bg-credmar-blue/10 hover:border-credmar-blue/30 border-credmar-blue/20 text-credmar-blue"
                             onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/editar`)}
                           >
                             <Edit className="w-4 h-4 mr-1" />
@@ -656,7 +656,7 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="flex-1 bg-primary/10 hover:bg-primary/20 border-primary/20"
+                            className="flex-1 bg-credmar-blue/10 hover:bg-credmar-blue/20 border-credmar-blue/20 text-credmar-blue"
                             onClick={() => router.push(`/dashboard/emprestimos/${loan.id}/parcelas`)}
                           >
                             <Calendar className="w-4 h-4 mr-1" />

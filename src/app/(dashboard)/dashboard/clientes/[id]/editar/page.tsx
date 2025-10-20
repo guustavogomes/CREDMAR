@@ -109,14 +109,14 @@ export default function EditarClientePage() {
         setFormData({
           cpf: data.cpf,
           nomeCompleto: data.nomeCompleto,
-          celular: data.celular,
-          cep: data.cep,
-          endereco: data.endereco,
-          cidade: data.cidade,
-          estado: data.estado,
-          bairro: data.bairro,
+          celular: formatCelular(data.celular), // Aplicar máscara no carregamento
+          cep: data.cep || '',
+          endereco: data.endereco || '',
+          cidade: data.cidade || '',
+          estado: data.estado || '',
+          bairro: data.bairro || '',
           referencia: data.referencia || '',
-          routeId: data.routeId,
+          routeId: data.routeId || '',
           foto: data.foto || ''
         })
       } else {
@@ -164,6 +164,30 @@ export default function EditarClientePage() {
     } catch (error) {
       console.error('Erro ao carregar empréstimos:', error)
     }
+  }
+
+  const formatCelular = (value: string) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, '')
+    
+    // Limita a 11 dígitos
+    const limitedNumbers = numbers.slice(0, 11)
+    
+    // Aplica a máscara
+    if (limitedNumbers.length <= 2) {
+      return limitedNumbers
+    } else if (limitedNumbers.length <= 7) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`
+    } else if (limitedNumbers.length <= 11) {
+      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`
+    }
+    
+    return limitedNumbers
+  }
+
+  const handleCelularChange = (celular: string) => {
+    const formattedCelular = formatCelular(celular)
+    setFormData(prev => ({ ...prev, celular: formattedCelular }))
   }
 
   const handleCepChange = async (cep: string) => {
@@ -316,10 +340,10 @@ export default function EditarClientePage() {
       return
     }
 
-    if (!formData.nomeCompleto || !formData.celular || !formData.cep) {
+    if (!formData.nomeCompleto || !formData.celular) {
       toast({
         title: 'Erro',
-        description: 'Preencha todos os campos obrigatórios',
+        description: 'Preencha todos os campos obrigatórios (Nome e Celular)',
         variant: 'destructive'
       })
       return
@@ -361,8 +385,16 @@ export default function EditarClientePage() {
         body: JSON.stringify({
           ...formData,
           cpf: formData.cpf.replace(/\D/g, ''), // Remove formatação do CPF
+          celular: formData.celular.replace(/\D/g, ''), // Remove formatação do celular
           foto: fotoBase64,
-          routeId: formData.routeId || null // Garantir que seja null se vazio
+          routeId: formData.routeId || null, // Garantir que seja null se vazio
+          // Garantir que campos opcionais sejam null se vazios
+          cep: formData.cep || null,
+          endereco: formData.endereco || null,
+          cidade: formData.cidade || null,
+          estado: formData.estado || null,
+          bairro: formData.bairro || null,
+          referencia: formData.referencia || null
         })
       })
 
@@ -542,14 +574,14 @@ export default function EditarClientePage() {
                   id="celular"
                   type="tel"
                   value={formData.celular}
-                  onChange={(e) => setFormData(prev => ({ ...prev, celular: e.target.value }))}
+                  onChange={(e) => handleCelularChange(e.target.value)}
                   placeholder="(11) 99999-9999"
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="cep">CEP *</Label>
+                <Label htmlFor="cep">CEP</Label>
                 <Input
                   id="cep"
                   type="text"
@@ -560,7 +592,6 @@ export default function EditarClientePage() {
                   }}
                   placeholder="00000-000"
                   maxLength={8}
-                  required
                   disabled={cepLoading}
                 />
                 {cepLoading && <p className="text-sm text-gray-500 mt-1">Buscando endereço...</p>}
@@ -593,8 +624,22 @@ export default function EditarClientePage() {
                 <Input
                   id="cidade"
                   type="text"
-                  value={`${formData.cidade}/${formData.estado}`}
-                  readOnly
+                  value={formData.cidade && formData.estado ? `${formData.cidade}/${formData.estado}` : ''}
+                  onChange={(e) => {
+                    // Permitir edição manual se necessário
+                    const value = e.target.value
+                    if (value.includes('/')) {
+                      const [cidade, estado] = value.split('/')
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        cidade: cidade?.trim() || '', 
+                        estado: estado?.trim() || '' 
+                      }))
+                    } else {
+                      setFormData(prev => ({ ...prev, cidade: value }))
+                    }
+                  }}
+                  placeholder="Cidade/Estado"
                 />
               </div>
 

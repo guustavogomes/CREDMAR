@@ -50,6 +50,15 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Cores da marca CREDMAR
+        credmar: {
+          red: "#E53E3E",
+          "red-dark": "#C53030",
+          "red-light": "#FC8181",
+          blue: "#1A365D",
+          "blue-dark": "#153E75",
+          "blue-light": "#2D3748",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

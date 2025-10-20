@@ -7,7 +7,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { 
   LayoutDashboard, 
-  CreditCard, 
   Settings, 
   LogOut, 
   User,
@@ -16,14 +15,14 @@ import {
   Search,
   Users,
   DollarSign,
-  Route
+  Route,
+  Calculator
 } from "lucide-react"
 import { useState } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { CurrentDateTime, CurrentDateTimeCompact } from "@/components/current-datetime"
 import { NotificationsDropdown } from "@/components/notifications"
-import TutorialProvider from "@/components/tutorial/tutorial-provider"
-import { TutorialButton } from "@/components/tutorial/tutorial-button"
+
 
 // Prevent static generation
 export const dynamic = 'force-dynamic'
@@ -56,11 +55,7 @@ export default function DashboardLayout({
       return
     }
     
-    // Verificar status do usuário
-    if (session?.user?.status === "PENDING_PAYMENT" || session?.user?.status === "PENDING_APPROVAL") {
-      router.push("/pending-payment")
-      return
-    }
+    // Usuários autenticados têm acesso direto ao dashboard
   }, [status, router, session])
 
   if (status === "loading") {
@@ -78,14 +73,14 @@ export default function DashboardLayout({
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
+    { name: 'Credores', href: '/dashboard/credores', icon: User },
     { name: 'Empréstimos', href: '/dashboard/emprestimos', icon: DollarSign },
-    { name: 'Pagamentos', href: '/dashboard/payments', icon: CreditCard },
+    { name: 'Simulação', href: '/dashboard/simulacao', icon: Calculator },
     { name: 'Rotas', href: '/dashboard/rotas', icon: Route },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
   ]
 
   return (
-    <TutorialProvider>
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-muted/40 dark:from-background dark:via-muted/10 dark:to-muted/20">
         {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${
@@ -96,9 +91,9 @@ export default function DashboardLayout({
           <div className="flex h-20 items-center justify-between px-6 bg-gradient-to-r from-primary to-primary/80">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-background rounded-lg flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">T</span>
+                <span className="text-credmar-red font-bold text-lg">C</span>
               </div>
-              <span className="text-xl font-bold text-primary-foreground">TaPago</span>
+              <span className="text-xl font-bold text-primary-foreground">CREDMAR</span>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">
               <span className="sr-only">Fechar sidebar</span>
@@ -154,9 +149,9 @@ export default function DashboardLayout({
           <div className="flex h-20 items-center px-6 bg-gradient-to-r from-primary to-primary/80">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-background rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-primary font-bold text-xl">T</span>
+                <span className="text-credmar-red font-bold text-xl">C</span>
               </div>
-              <span className="text-2xl font-bold text-primary-foreground">TaPago</span>
+              <span className="text-2xl font-bold text-primary-foreground">CREDMAR</span>
             </div>
           </div>
           <nav className="flex-1 space-y-2 px-4 py-6">
@@ -242,8 +237,6 @@ export default function DashboardLayout({
         </main>
       </div>
       <Toaster />
-      <TutorialButton />
     </div>
-    </TutorialProvider>
   )
 }

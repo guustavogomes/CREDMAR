@@ -10,46 +10,38 @@ import { useToast } from "@/hooks/use-toast"
 import { ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react"
 
 export default function ResetPasswordPage() {
+  const [email, setEmail] = useState("")
+  const [resetCode, setResetCode] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
   const [resetComplete, setResetComplete] = useState(false)
   
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = searchParams.get('token')
+  const emailParam = searchParams.get('email')
   const { toast } = useToast()
 
   useEffect(() => {
-    if (token) {
-      validateToken()
-    } else {
-      setIsValidToken(false)
+    if (emailParam) {
+      setEmail(emailParam)
     }
-  }, [token])
-
-  const validateToken = async () => {
-    try {
-      const response = await fetch("/api/auth/validate-reset-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      })
-
-      setIsValidToken(response.ok)
-    } catch (error) {
-      setIsValidToken(false)
-    }
-  }
+  }, [emailParam])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!email || !resetCode) {
+      toast({
+        title: "Erro",
+        description: "Email e código são obrigatórios.",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: "Erro",
@@ -76,7 +68,11 @@ export default function ResetPasswordPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ 
+          email, 
+          resetCode, 
+          password 
+        }),
       })
 
       const data = await response.json()
@@ -105,75 +101,25 @@ export default function ResetPasswordPage() {
     }
   }
 
-  // Loading state
-  if (isValidToken === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
-          <CardContent className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
 
-  // Invalid token
-  if (!isValidToken) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold text-red-600">Link Inválido</CardTitle>
-            <CardDescription>
-              Este link de recuperação é inválido ou expirou.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-sm text-gray-600 text-center">
-              <p>Possíveis motivos:</p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>O link expirou (válido por 1 hora)</li>
-                <li>O link já foi usado</li>
-                <li>O link está incorreto</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <Link href="/forgot-password" className="block">
-                <Button className="w-full">
-                  Solicitar Novo Link
-                </Button>
-              </Link>
-              <Link href="/login" className="block">
-                <Button variant="outline" className="w-full">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Voltar ao Login
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
 
   // Success state
   if (resetComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center credmar-gradient px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md shadow-2xl border-0">
           <CardHeader className="space-y-1 text-center">
             <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
             <CardTitle className="text-2xl font-bold text-green-600">Senha Redefinida!</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-credmar-blue-light">
               Sua senha foi alterada com sucesso.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/login" className="block">
-              <Button className="w-full">
+              <Button className="w-full credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold">
                 Fazer Login
               </Button>
             </Link>
@@ -184,16 +130,47 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center credmar-gradient px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-2xl border-0">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Nova Senha</CardTitle>
-          <CardDescription className="text-center">
-            Digite sua nova senha
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-credmar-red to-credmar-red-dark rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-xl">C</span>
+            </div>
+            <CardTitle className="text-3xl font-bold text-credmar-blue">CREDMAR</CardTitle>
+          </div>
+          <CardTitle className="text-xl font-bold text-center text-credmar-blue">Nova Senha</CardTitle>
+          <CardDescription className="text-center text-credmar-blue-light">
+            Digite o código de recuperação e sua nova senha
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Seu email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Input
+                type="text"
+                placeholder="Código de recuperação (6 dígitos)"
+                value={resetCode}
+                onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                required
+                maxLength={6}
+                className="text-center text-2xl font-bold tracking-wider"
+              />
+              <p className="text-xs text-credmar-blue-light text-center">
+                Digite o código de 6 dígitos que você recebeu
+              </p>
+            </div>
+            
             <div className="space-y-2">
               <div className="relative">
                 <Input
@@ -243,12 +220,12 @@ export default function ResetPasswordPage() {
             </div>
 
             {password && (
-              <div className="text-xs text-gray-600">
-                <p className={password.length >= 6 ? "text-green-600" : "text-red-600"}>
+              <div className="text-xs text-credmar-blue-light">
+                <p className={password.length >= 6 ? "text-green-600" : "text-credmar-red"}>
                   • Mínimo 6 caracteres
                 </p>
                 {confirmPassword && (
-                  <p className={password === confirmPassword ? "text-green-600" : "text-red-600"}>
+                  <p className={password === confirmPassword ? "text-green-600" : "text-credmar-red"}>
                     • Senhas {password === confirmPassword ? "coincidem" : "não coincidem"}
                   </p>
                 )}
@@ -257,15 +234,18 @@ export default function ResetPasswordPage() {
             
             <Button 
               type="submit" 
-              className="w-full" 
-              disabled={isLoading || password !== confirmPassword || password.length < 6}
+              className="w-full credmar-red-gradient hover:from-credmar-red-dark hover:to-credmar-red text-white font-semibold" 
+              disabled={isLoading || password !== confirmPassword || password.length < 6 || !email || !resetCode}
             >
               {isLoading ? "Redefinindo..." : "Redefinir Senha"}
             </Button>
           </form>
           
-          <div className="mt-4 text-center">
-            <Link href="/login" className="text-sm text-blue-600 hover:underline inline-flex items-center">
+          <div className="mt-4 text-center space-y-2">
+            <Link href="/forgot-password" className="text-sm text-credmar-red hover:text-credmar-red-dark hover:underline block">
+              Gerar novo código
+            </Link>
+            <Link href="/login" className="text-sm text-credmar-blue-light hover:text-credmar-blue hover:underline inline-flex items-center">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Voltar ao login
             </Link>

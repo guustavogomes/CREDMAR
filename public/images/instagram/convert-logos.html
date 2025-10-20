@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaPago - Conversor de Logos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+        }
+        
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .logo-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .logo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-card.recommended {
+            border-color: #10b981;
+            position: relative;
+        }
+        
+        .logo-card.recommended::before {
+            content: "⭐ RECOMENDADA";
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: #10b981;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .logo-card h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .logo-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .logo-preview:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-preview svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .logo-info {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .instructions h2 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .instructions ol {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions strong {
+            color: #10b981;
+        }
+        
+        .color-palette {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .color-item {
+            text-align: center;
+        }
+        
+        .color-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 auto 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .color-name {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+        
+        .hashtags {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .hashtags h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+        
+        .hashtag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .hashtag {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .hashtag:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .logo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 TaPago Logo Converter</h1>
+            <p>Converta e baixe suas logos para Instagram e redes sociais</p>
+        </div>
+        
+        <div class="logo-grid">
+            <div class="logo-card recommended">
+                <h3>Simple (Instagram)</h3>
+                <div class="logo-preview">
+                    <svg width="200" height="200" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="200" cy="200" r="200" fill="url(#gradient1)"/>
+                        <circle cx="200" cy="200" r="180" fill="url(#gradient2)" opacity="0.2"/>
+                        <rect x="150" y="150" width="100" height="25" rx="12.5" fill="white"/>
+                        <rect x="187.5" y="150" width="25" height="100" rx="12.5" fill="white"/>
+                        <g transform="translate(300, 120)" opacity="0.9">
+                            <circle cx="20" cy="20" r="16" fill="url(#gradient3)"/>
+                            <circle cx="16" cy="18" r="2" fill="white"/>
+                            <circle cx="20" cy="16" r="2" fill="white"/>
+                            <circle cx="24" cy="18" r="2" fill="white"/>
+                            <circle cx="20" cy="24" r="2" fill="white"/>
+                            <line x1="16" y1="18" x2="20" y2="16" stroke="white" stroke-width="1.2"/>
+                            <line x1="20" y1="16" x2="24" y2="18" stroke="white" stroke-width="1.2"/>
+                            <line x1="20" y1="16" x2="20" y2="24" stroke="white" stroke-width="1.2"/>
+                        </g>
+                        <g transform="translate(300, 300)" opacity="0.9">
+                            <path d="M20 10 L28 6 L36 10 L36 20 C36 26, 28 30, 20 28 C12 30, 4 26, 4 20 L4 10 Z" fill="url(#gradient4)"/>
+                            <path d="M15 18 L19 22 L25 16" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                        <g transform="translate(80, 300)" opacity="0.9">
+                            <circle cx="20" cy="20" r="18" fill="url(#gradient5)"/>
+                            <text x="20" y="26" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">R$</text>
+                        </g>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-info">
+                    <strong>Perfeita para perfil do Instagram</strong><br>
+                    Design minimalista com "T" grande e ícones sutis
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="downloadSVG('simple')">📥 Download SVG</button>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="logo-card">
+                <h3>TP (Abreviação)</h3>
+                <div class="logo-preview">
+                    <svg width="200" height="200" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="200" cy="200" r="200" fill="url(#gradient1)"/>
+                        <circle cx="200" cy="200" r="180" fill="url(#gradient2)" opacity="0.15"/>
+                        <rect x="160" y="160" width="80" height="18" rx="9" fill="white"/>
+                        <rect x="190" y="160" width="20" height="80" rx="10" fill="white"/>
+                        <rect x="160" y="200" width="18" height="60" rx="9" fill="white"/>
+                        <rect x="160" y="200" width="54" height="18" rx="9" fill="white"/>
+                        <rect x="160" y="230" width="54" height="18" rx="9" fill="white"/>
+                        <g transform="translate(300, 140)" opacity="0.8">
+                            <circle cx="20" cy="20" r="12" fill="url(#gradient3)"/>
+                            <circle cx="17" cy="18" r="1.5" fill="white"/>
+                            <circle cx="20" cy="16" r="1.5" fill="white"/>
+                            <circle cx="23" cy="18" r="1.5" fill="white"/>
+                            <circle cx="20" cy="22" r="1.5" fill="white"/>
+                            <line x1="17" y1="18" x2="20" y2="16" stroke="white" stroke-width="0.8"/>
+                            <line x1="20" y1="16" x2="23" y2="18" stroke="white" stroke-width="0.8"/>
+                            <line x1="20" y1="16" x2="20" y2="22" stroke="white" stroke-width="0.8"/>
+                        </g>
+                        <g transform="translate(300, 280)" opacity="0.8">
+                            <path d="M20 8 L26 5 L32 8 L32 16 C32 20, 26 22, 20 20 C14 22, 8 20, 8 16 L8 8 Z" fill="url(#gradient4)"/>
+                            <path d="M15 14 L18 17 L25 10" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                        <g transform="translate(80, 300)" opacity="0.8">
+                            <circle cx="20" cy="20" r="15" fill="url(#gradient5)"/>
+                            <text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">R$</text>
+                        </g>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-info">
+                    <strong>Ideal para bio do Instagram</strong><br>
+                    Letras "T" e "P" com ícones de IA, segurança e dinheiro
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="downloadSVG('tp')">📥 Download SVG</button>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>📱 Como Usar no Instagram</h2>
+            <ol>
+                <li><strong>Baixe o arquivo SVG</strong> clicando no botão "Download SVG"</li>
+                <li><strong>Converta para PNG</strong> usando o botão "Converter PNG" ou qualquer conversor online</li>
+                <li><strong>Configure a conversão</strong>:
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Tamanho: 400x400px</li>
+                        <li>Fundo: Transparente</li>
+                        <li>Qualidade: Alta</li>
+                    </ul>
+                </li>
+                <li><strong>Faça upload no Instagram</strong> como foto de perfil</li>
+            </ol>
+        </div>
+
+        <div class="color-palette">
+            <div class="color-item">
+                <div class="color-circle" style="background: #3B82F6;"></div>
+                <div class="color-name">Azul Principal</div>
+            </div>
+            <div class="color-item">
+                <div class="color-circle" style="background: #8B5CF6;"></div>
+                <div class="color-name">Roxo</div>
+            </div>
+            <div class="color-item">
+                <div class="color-circle" style="background: #10B981;"></div>
+                <div class="color-name">Verde IA</div>
+            </div>
+            <div class="color-item">
+                <div class="color-circle" style="background: #F59E0B;"></div>
+                <div class="color-name">Laranja</div>
+            </div>
+            <div class="color-item">
+                <div class="color-circle" style="background: #EF4444;"></div>
+                <div class="color-name">Vermelho</div>
+            </div>
+        </div>
+
+        <div class="hashtags">
+            <h3>🏷️ Hashtags Sugeridas</h3>
+            <div class="hashtag-list">
+                <span class="hashtag" onclick="copyToClipboard('#TaPago')">#TaPago</span>
+                <span class="hashtag" onclick="copyToClipboard('#IAAntiFraude')">#IAAntiFraude</span>
+                <span class="hashtag" onclick="copyToClipboard('#GestaoEmprestimos')">#GestaoEmprestimos</span>
+                <span class="hashtag" onclick="copyToClipboard('#Fintech')">#Fintech</span>
+                <span class="hashtag" onclick="copyToClipboard('#Inadimplencia')">#Inadimplencia</span>
+                <span class="hashtag" onclick="copyToClipboard('#TecnologiaFinanceira')">#TecnologiaFinanceira</span>
+                <span class="hashtag" onclick="copyToClipboard('#IA')">#IA</span>
+                <span class="hashtag" onclick="copyToClipboard('#SegurancaFinanceira')">#SegurancaFinanceira</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadSVG(type) {
+            const svgContent = document.querySelector('.logo-preview svg').outerHTML;
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tapago-logo-${type}.svg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Mostrar notificação
+            showNotification('✅ Logo baixada com sucesso!');
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`📋 ${text} copiado!`);
+            });
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #10b981;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                font-weight: bold;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Adicionar animação CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

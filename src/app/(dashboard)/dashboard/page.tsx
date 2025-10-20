@@ -132,7 +132,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header Premium */}
-      <div className="dashboard-welcome relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-8 text-white shadow-2xl">
+      <div className="dashboard-welcome relative overflow-hidden rounded-3xl credmar-gradient p-8 text-white shadow-2xl">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full -mr-48 -mt-48"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-indigo-500/20 to-transparent rounded-full -ml-32 -mb-32"></div>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
             </div>
             <h1 className="text-4xl font-bold">Dashboard de Gestão</h1>
           </div>
-          <p className="text-blue-100 text-lg mb-6">
+          <p className="text-red-100 text-lg mb-6">
             Bem-vindo de volta, <span className="font-semibold">{session.user.name || session.user.email}!</span>
           </p>
           
@@ -157,7 +157,7 @@ export default function DashboardPage() {
               <Shield className="h-4 w-4 text-emerald-400" />
               <span className="text-sm font-medium">{stats.activeLoans} Empréstimos Ativos</span>
             </div>
-            <div className="text-sm text-blue-100">
+            <div className="text-sm text-red-100">
               Última atualização: {new Date().toLocaleTimeString('pt-BR')}
             </div>
           </div>

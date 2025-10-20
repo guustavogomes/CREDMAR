@@ -17,7 +17,8 @@ const loanSchema = z.object({
   installmentValue: z.number().positive(),
   nextPaymentDate: z.string(),
   startDate: z.string(), // Nova data de início do empréstimo
-  observation: z.string().optional() // Campo de observação opcional
+  observation: z.string().optional(), // Campo de observação opcional
+  commission: z.number().min(0).max(100).optional().nullable() // Campo de comissão em %
 })
 
 export async function POST(request: NextRequest) {
@@ -86,7 +87,8 @@ export async function POST(request: NextRequest) {
         nextPaymentDate: nextPaymentDate,
         userId: user.id,
         status: 'ACTIVE',
-        observation: validatedData.observation || null // Salvar observação se fornecida
+        observation: validatedData.observation || null, // Salvar observação se fornecida
+        commission: validatedData.commission || null // Salvar comissão se fornecida
       },
       include: {
         customer: true,

@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         role: "USER",
-        status: "PENDING_PAYMENT"
+        status: "ACTIVE"
       }
     })  
     

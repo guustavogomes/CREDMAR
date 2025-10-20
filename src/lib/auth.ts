@@ -42,9 +42,9 @@ export const authOptions = {
           return null
         }
 
-        // Verificar se o usuário está aprovado ou com pagamento pendente
-        if (user.status !== 'ACTIVE' && user.status !== 'PENDING_PAYMENT' && user.status !== 'PENDING_APPROVAL') {
-          throw new Error('Sua conta ainda não foi aprovada. Em breve seu acesso será liberado!')
+        // Verificar se o usuário está ativo
+        if (user.status !== 'ACTIVE') {
+          throw new Error('Sua conta foi suspensa. Entre em contato com o suporte.')
         }
 
         return {

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaPago - Posts Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+        }
+        
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .post-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: #10b981;
+        }
+        
+        .post-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .post-preview:hover {
+            transform: scale(1.05);
+        }
+        
+        .post-preview svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .post-info h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .post-info p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .post-cta {
+            color: #10b981;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .instructions h2 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .instructions ol {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions strong {
+            color: #10b981;
+        }
+        
+        .hashtags {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .hashtags h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+        
+        .hashtag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .hashtag {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .hashtag:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Posts Instagram TaPago</h1>
+            <p>Imagens otimizadas para cada dia da semana</p>
+        </div>
+        
+        <div class="posts-grid">
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">NOVA SEMANA</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">NOVOS RESULTADOS</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>🌅 Segunda-feira</h3>
+                    <p>Nova semana, novos resultados! Comece a semana reduzindo sua inadimplência com nossa IA anti-fraude.</p>
+                    <div class="post-cta">🚀 COMEÇAR AGORA - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="segunda-feira.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">PRODUTIVIDADE</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">EM ALTA</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>⚡ Terça-feira</h3>
+                    <p>Produtividade em alta! Automatize sua análise de crédito e tome decisões em segundos.</p>
+                    <div class="post-cta">🚀 TESTAR GRÁTIS - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="terca-feira.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">MEIO DA SEMANA</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">MÁXIMOS RESULTADOS</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>📊 Quarta-feira</h3>
+                    <p>Meio da semana, máximos resultados! Veja como nossos clientes transformaram sua gestão.</p>
+                    <div class="post-cta">🚀 CONQUISTAR RESULTADOS - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="quarta-feira.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">TECNOLOGIA</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">DE PONTA</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>🤖 Quinta-feira</h3>
+                    <p>Tecnologia de ponta! IA que analisa centenas de variáveis em tempo real.</p>
+                    <div class="post-cta">🚀 EXPERIMENTAR IA - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="quinta-feira.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">SEXTA DE</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">SUCESSO</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>🎯 Sexta-feira</h3>
+                    <p>Sexta de sucesso! Termine a semana com resultados que impressionam.</p>
+                    <div class="post-cta">🚀 GARANTIR SUCESSO - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="sexta-feira.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">FIM DE SEMANA</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">SEM PREOCUPAÇÕES</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>🛡️ Sábado</h3>
+                    <p>Fim de semana sem preocupações! Nossa IA trabalha 24/7 para proteger seu negócio.</p>
+                    <div class="post-cta">🚀 PROTEÇÃO 24/7 - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="sabado.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-preview">
+                    <svg width="200" height="200" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="200" height="200" fill="url(#gradient1)"/>
+                        <rect x="20" y="40" width="160" height="120" rx="10" fill="rgba(255, 255, 255, 0.95)"/>
+                        <rect x="60" y="60" width="80" height="8" rx="4" fill="white"/>
+                        <rect x="96" y="60" width="8" height="40" rx="4" fill="white"/>
+                        <text x="100" y="140" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="12" font-weight="bold">DOMINGO DE</text>
+                        <text x="100" y="155" text-anchor="middle" fill="#3B82F6" font-family="Arial, sans-serif" font-size="12" font-weight="bold">PLANEJAMENTO</text>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="post-info">
+                    <h3>📈 Domingo</h3>
+                    <p>Domingo de planejamento! Prepare a próxima semana com a ferramenta mais inteligente.</p>
+                    <div class="post-cta">🚀 PLANEJAR SEMANA - R$ 29,99/mês</div>
+                </div>
+                <div class="btn-group">
+                    <a href="domingo.svg" class="btn" download>📥 Baixar SVG</a>
+                    <a href="https://convertio.co/svg-png/" target="_blank" class="btn btn-secondary">🔄 Converter PNG</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>📱 Como Usar no Instagram</h2>
+            <ol>
+                <li><strong>Baixe o arquivo SVG</strong> clicando no botão "Baixar SVG"</li>
+                <li><strong>Converta para PNG</strong> usando o botão "Converter PNG" ou qualquer conversor online</li>
+                <li><strong>Configure a conversão</strong>:
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Tamanho: 1080x1080px</li>
+                        <li>Fundo: Branco ou transparente</li>
+                        <li>Qualidade: Alta (300 DPI)</li>
+                    </ul>
+                </li>
+                <li><strong>Faça upload no Instagram</strong> como post no feed</li>
+                <li><strong>Adicione hashtags</strong> relevantes para aumentar o alcance</li>
+                <li><strong>Configure anúncios pagos</strong> para impulsionar as vendas</li>
+            </ol>
+        </div>
+
+        <div class="hashtags">
+            <h3>🏷️ Hashtags Sugeridas</h3>
+            <div class="hashtag-list">
+                <span class="hashtag" onclick="copyToClipboard('#TaPago')">#TaPago</span>
+                <span class="hashtag" onclick="copyToClipboard('#IAAntiFraude')">#IAAntiFraude</span>
+                <span class="hashtag" onclick="copyToClipboard('#GestaoEmprestimos')">#GestaoEmprestimos</span>
+                <span class="hashtag" onclick="copyToClipboard('#Fintech')">#Fintech</span>
+                <span class="hashtag" onclick="copyToClipboard('#Inadimplencia')">#Inadimplencia</span>
+                <span class="hashtag" onclick="copyToClipboard('#TecnologiaFinanceira')">#TecnologiaFinanceira</span>
+                <span class="hashtag" onclick="copyToClipboard('#IA')">#IA</span>
+                <span class="hashtag" onclick="copyToClipboard('#SegurancaFinanceira')">#SegurancaFinanceira</span>
+                <span class="hashtag" onclick="copyToClipboard('#MachineLearning')">#MachineLearning</span>
+                <span class="hashtag" onclick="copyToClipboard('#AnalisePreditiva')">#AnalisePreditiva</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`📋 ${text} copiado!`);
+            });
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #10b981;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                font-weight: bold;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Adicionar animação CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
