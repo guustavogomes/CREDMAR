@@ -23,10 +23,10 @@ export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [stats, setStats] = useState({
-    pendingApproval: 0,
     activeUsers: 0,
-    pendingPayments: 0,
-    suspendedUsers: 0
+    suspendedUsers: 0,
+    totalUsers: 0,
+    totalLoans: 0
   })
 
   useEffect(() => {
