@@ -33,8 +33,8 @@ export async function GET() {
       where: { status: "ACTIVE" },
     })
 
-    const pendingPayments = await db.user.count({
-      where: { status: "PENDING_PAYMENT" },
+    const suspendedUsers = await db.user.count({
+      where: { status: "SUSPENDED" },
     })
 
     const suspendedUsers = await db.user.count({

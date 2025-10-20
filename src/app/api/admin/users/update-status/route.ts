@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se o status é válido
-    const validStatuses = ["PENDING_PAYMENT", "PENDING_APPROVAL", "ACTIVE", "SUSPENDED"]
+    const validStatuses = ["ACTIVE", "SUSPENDED"]
     if (!validStatuses.includes(status)) {
       return new NextResponse(JSON.stringify({ error: "Status inválido" }), {
         status: 400,

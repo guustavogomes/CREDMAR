@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
       case 'suspended':
         whereClause.status = 'SUSPENDED'
         break
-      case 'pending_payment':
-        whereClause.status = 'PENDING_PAYMENT'
+      case 'suspended':
+        whereClause.status = 'SUSPENDED'
         break
       case 'all':
       default:
