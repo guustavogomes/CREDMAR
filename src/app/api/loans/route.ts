@@ -11,7 +11,8 @@ import { parseBrazilDateString as luxonParseBrazilDateString, brazilDateTimeToDa
 const loanSchema = z.object({
   customerId: z.string().min(1),
   totalAmount: z.number().positive(),
-  amountWithoutInterest: z.number().positive(),
+  loanType: z.string().min(1),
+  interestRate: z.number().min(0),
   periodicityId: z.string().min(1),
   installments: z.number().int().positive(),
   installmentValue: z.number().positive(),
@@ -80,7 +81,8 @@ export async function POST(request: NextRequest) {
         customerId: validatedData.customerId,
         transactionDate: transactionDate, // Data customizada do empréstimo
         totalAmount: validatedData.totalAmount,
-        amountWithoutInterest: validatedData.amountWithoutInterest,
+        loanType: validatedData.loanType,
+        interestRate: validatedData.interestRate,
         periodicityId: validatedData.periodicityId,
         installments: validatedData.installments,
         installmentValue: validatedData.installmentValue,

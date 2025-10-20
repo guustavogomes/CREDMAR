@@ -120,7 +120,8 @@ model Loan {
   creditorId            String?       // Credor que empresta o dinheiro (opcional)
   transactionDate       DateTime      @default(now())
   totalAmount           Float
-  amountWithoutInterest Float
+  loanType              String            @default("PRICE")
+  interestRate          Float             @default(2.5)
   periodicityId         String
   installments          Int
   installmentValue      Float

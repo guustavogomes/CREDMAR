@@ -14,6 +14,8 @@ import Link from 'next/link'
 import { getBrazilTodayString } from '@/lib/timezone-utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
+import { calculateLoanSimulation } from '@/lib/loan-calculations'
+import type { LoanType } from '@/types/loan-simulation'
 
 interface Customer {
   id: string
@@ -44,7 +46,8 @@ export default function NovoEmprestimoPage() {
   const [formData, setFormData] = useState({
     customerId: '',
     totalAmount: '',
-    amountWithoutInterest: '',
+    loanType: 'PRICE' as const,
+    interestRate: '2.5',
     periodicityId: '',
     installments: '',
     nextPaymentDate: '',
@@ -55,6 +58,9 @@ export default function NovoEmprestimoPage() {
 
   const [calculatedValues, setCalculatedValues] = useState({
     installmentValue: 0,
+    totalAmount: 0,
+    totalInterest: 0,
+    effectiveRate: 0,
     showCalculation: false
   })
   const [isRenewal, setIsRenewal] = useState(false)
@@ -80,8 +86,9 @@ export default function NovoEmprestimoPage() {
           setIsRenewal(true)
           setFormData({
             customerId: decodedData.customerId || '',
-            totalAmount: decodedData.totalAmount?.toString() || '',
-            amountWithoutInterest: decodedData.amountWithoutInterest?.toString() || '',
+            totalAmount: decodedData.requestedAmount?.toString() || '',
+            loanType: (decodedData.loanType as LoanType) || 'PRICE',
+            interestRate: decodedData.interestRate?.toString() || '2.5',
             periodicityId: decodedData.periodicityId || '',
             installments: decodedData.installments?.toString() || '',
             nextPaymentDate: decodedData.nextPaymentDate || '',
@@ -136,18 +143,42 @@ export default function NovoEmprestimoPage() {
   }
 
   const calculateInstallmentValue = () => {
-    const total = parseFloat(formData.totalAmount) || 0
+    const requestedAmount = parseFloat(formData.totalAmount) || 0
     const installments = parseInt(formData.installments) || 0
+    const interestRate = parseFloat(formData.interestRate) || 0
     
-    if (total > 0 && installments > 0) {
-      const installmentValue = total / installments
-      setCalculatedValues({
-        installmentValue,
-        showCalculation: true
-      })
+    if (requestedAmount > 0 && installments > 0 && interestRate >= 0 && formData.periodicityId) {
+      try {
+        const simulation = calculateLoanSimulation({
+          loanType: formData.loanType as LoanType,
+          periodicityId: formData.periodicityId,
+          requestedAmount,
+          installments,
+          interestRate
+        })
+        
+        setCalculatedValues({
+          installmentValue: simulation.installmentValue,
+          totalAmount: simulation.totalAmount,
+          totalInterest: simulation.totalInterest,
+          effectiveRate: simulation.effectiveRate,
+          showCalculation: true
+        })
+      } catch (error) {
+        setCalculatedValues({
+          installmentValue: 0,
+          totalAmount: 0,
+          totalInterest: 0,
+          effectiveRate: 0,
+          showCalculation: false
+        })
+      }
     } else {
       setCalculatedValues({
         installmentValue: 0,
+        totalAmount: 0,
+        totalInterest: 0,
+        effectiveRate: 0,
         showCalculation: false
       })
     }
@@ -156,7 +187,7 @@ export default function NovoEmprestimoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.customerId || !formData.totalAmount || !formData.amountWithoutInterest ||
+    if (!formData.customerId || !formData.totalAmount || !formData.loanType || !formData.interestRate ||
         !formData.periodicityId || !formData.installments || !formData.nextPaymentDate || !formData.startDate) {
       toast({
         title: 'Erro',
@@ -183,8 +214,9 @@ export default function NovoEmprestimoPage() {
     
     const requestData = {
       ...formData,
-      totalAmount: parseFloat(formData.totalAmount),
-      amountWithoutInterest: parseFloat(formData.amountWithoutInterest),
+      totalAmount: calculatedValues.totalAmount,
+      loanType: formData.loanType,
+      interestRate: parseFloat(formData.interestRate),
       installments: parseInt(formData.installments),
       installmentValue: calculatedValues.installmentValue,
       startDate: formData.startDate, // Incluir data de início
@@ -365,7 +397,7 @@ export default function NovoEmprestimoPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="totalAmount">Valor Total *</Label>
+                    <Label htmlFor="totalAmount">Valor do Empréstimo *</Label>
                     <Input
                       id="totalAmount"
                       type="number"
@@ -381,20 +413,73 @@ export default function NovoEmprestimoPage() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="amountWithoutInterest">Valor Sem Juros *</Label>
+                    <Label htmlFor="loanType">Tipo de Cobrança *</Label>
+                    <Select 
+                      value={formData.loanType} 
+                      onValueChange={(value) => setFormData(prev => ({ 
+                        ...prev, 
+                        loanType: value as LoanType
+                      }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PRICE">PRICE - Prestações Fixas</SelectItem>
+                        <SelectItem value="SAC">SAC - Sistema de Amortização Constante</SelectItem>
+                        <SelectItem value="SIMPLE_INTEREST">Juros Simples</SelectItem>
+                        <SelectItem value="RECURRING_SIMPLE_INTEREST">Juros Simples Recorrente</SelectItem>
+                        <SelectItem value="INTEREST_ONLY">Apenas Juros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="interestRate">Taxa de Juros (% ao mês) *</Label>
                     <Input
-                      id="amountWithoutInterest"
+                      id="interestRate"
                       type="number"
                       step="0.01"
-                      placeholder="0.00"
-                      value={formData.amountWithoutInterest}
+                      min="0"
+                      placeholder="2.50"
+                      value={formData.interestRate}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
-                        amountWithoutInterest: e.target.value
+                        interestRate: e.target.value
                       }))}
                       required
                     />
                   </div>
+                  
+                  <div>
+                    <Label htmlFor="installments">Número de Parcelas *</Label>
+                    <Input
+                      id="installments"
+                      type="number"
+                      min="1"
+                      placeholder="12"
+                      value={formData.installments}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        installments: e.target.value
+                      }))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={calculateInstallmentValue}
+                    className="flex items-center gap-2"
+                  >
+                    <Calculator className="w-4 h-4" />
+                    Calcular Parcelas
+                  </Button>
                 </div>
 
                 <div>
@@ -429,9 +514,8 @@ export default function NovoEmprestimoPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="periodicityId">Periodicidade *</Label>
+                <div>
+                  <Label htmlFor="periodicityId">Periodicidade *</Label>
                     <Select value={formData.periodicityId} onValueChange={(value) => 
                       setFormData(prev => ({ ...prev, periodicityId: value }))
                     }>
@@ -446,23 +530,6 @@ export default function NovoEmprestimoPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="installments">Quantidade de Parcelas *</Label>
-                    <Input
-                      id="installments"
-                      type="number"
-                      min="1"
-                      placeholder="12"
-                      value={formData.installments}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        installments: e.target.value 
-                      }))}
-                      required
-                    />
-                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -539,17 +606,34 @@ export default function NovoEmprestimoPage() {
             <CardContent>
               {calculatedValues.showCalculation ? (
                 <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <div className="text-sm text-blue-600 mb-1">Valor por Parcela</div>
-                    <div className="text-2xl font-bold text-blue-700">
-                      R$ {calculatedValues.installmentValue.toFixed(2)}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="text-sm text-green-600 mb-1">Valor da Parcela</div>
+                      <div className="text-xl font-bold text-green-700">
+                        R$ {calculatedValues.installmentValue.toFixed(2)}
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="text-sm text-blue-600 mb-1">Valor Total a Receber</div>
+                      <div className="text-xl font-bold text-blue-700">
+                        R$ {calculatedValues.totalAmount.toFixed(2)}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Valor Total:</span>
+                      <span>Valor Emprestado:</span>
                       <span>R$ {parseFloat(formData.totalAmount || '0').toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total de Juros:</span>
+                      <span className="text-orange-600">R$ {calculatedValues.totalInterest.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Taxa Efetiva:</span>
+                      <span>{calculatedValues.effectiveRate.toFixed(2)}%</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Parcelas:</span>
