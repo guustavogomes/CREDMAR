@@ -42,10 +42,10 @@ export async function DELETE(request: NextRequest) {
     const targetUser = await db.user.findUnique({
       where: { id: userId },
       include: {
-        payments: true,
         customers: true,
         loans: true,
-        routes: true
+        routes: true,
+        creditors: true
       }
     })
 
@@ -59,10 +59,10 @@ export async function DELETE(request: NextRequest) {
 
     console.log('[ADMIN DELETE] Usuário encontrado:', targetUser.email)
     console.log('[ADMIN DELETE] Dados relacionados:', {
-      payments: targetUser.payments.length,
       customers: targetUser.customers.length,
       loans: targetUser.loans.length,
-      routes: targetUser.routes.length
+      routes: targetUser.routes.length,
+      creditors: targetUser.creditors.length
     })
 
     // Verificar se o usuário tem dados importantes (empréstimos ativos)
@@ -100,10 +100,10 @@ export async function DELETE(request: NextRequest) {
       deletedAt: new Date().toISOString(),
       deletedBy: session.user.email,
       relatedDataDeleted: {
-        payments: targetUser.payments.length,
         customers: targetUser.customers.length,
         loans: targetUser.loans.length,
-        routes: targetUser.routes.length
+        routes: targetUser.routes.length,
+        creditors: targetUser.creditors.length
       }
     })
 
