@@ -152,7 +152,8 @@ export default function NovoEmprestimoPage() {
       const response = await fetch('/api/creditors')
       if (response.ok) {
         const data = await response.json()
-        setCreditors(Array.isArray(data) ? data : [])
+        // A API retorna { creditors: [...], pagination: {...} }
+        setCreditors(Array.isArray(data.creditors) ? data.creditors : [])
       } else {
         setCreditors([])
       }
