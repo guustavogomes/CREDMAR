@@ -33,18 +33,28 @@ interface Periodicity {
   description?: string
 }
 
+interface Creditor {
+  id: string
+  nome: string
+  cpf: string
+}
+
 export default function NovoEmprestimoPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [creditors, setCreditors] = useState<Creditor[]>([])
   const [periodicities, setPeriodicities] = useState<Periodicity[]>([])
   const [loading, setLoading] = useState(false)
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
   const [customerSearch, setCustomerSearch] = useState('')
+  const [creditorSearchOpen, setCreditorSearchOpen] = useState(false)
+  const [creditorSearch, setCreditorSearch] = useState('')
 
   const [formData, setFormData] = useState({
     customerId: '',
+    creditorId: '',
     totalAmount: '',
     loanType: 'PRICE' as LoanType,
     interestRate: '2.5',
@@ -53,7 +63,8 @@ export default function NovoEmprestimoPage() {
     nextPaymentDate: '',
     startDate: getBrazilTodayString(), // Data atual do Brasil como padrão
     observation: '', // Campo de observação
-    commission: '' // Campo de comissão em %
+    commission: '', // Campo de comissão do intermediador em %
+    creditorCommission: '' // Campo de comissão do credor em %
   })
 
   const [calculatedValues, setCalculatedValues] = useState({
@@ -71,10 +82,18 @@ export default function NovoEmprestimoPage() {
     customer.cpf.includes(customerSearch)
   )
 
+  // Filtrar credores baseado na pesquisa
+  const filteredCreditors = creditors.filter(creditor =>
+    creditor.nome.toLowerCase().includes(creditorSearch.toLowerCase()) ||
+    creditor.cpf.includes(creditorSearch)
+  )
+
   const selectedCustomer = customers.find(c => c.id === formData.customerId)
+  const selectedCreditor = creditors.find(c => c.id === formData.creditorId)
 
   useEffect(() => {
     fetchCustomers()
+    fetchCreditors()
     fetchPeriodicities()
     
     // Verificar se há dados de renovação na URL
@@ -86,6 +105,7 @@ export default function NovoEmprestimoPage() {
           setIsRenewal(true)
           setFormData({
             customerId: decodedData.customerId || '',
+            creditorId: decodedData.creditorId || '',
             totalAmount: decodedData.requestedAmount?.toString() || '',
             loanType: (decodedData.loanType as LoanType) || 'PRICE',
             interestRate: decodedData.interestRate?.toString() || '2.5',
@@ -94,7 +114,8 @@ export default function NovoEmprestimoPage() {
             nextPaymentDate: decodedData.nextPaymentDate || '',
             startDate: getBrazilTodayString(),
             observation: decodedData.observation || '',
-            commission: decodedData.commission?.toString() || ''
+            commission: decodedData.commission?.toString() || '',
+            creditorCommission: decodedData.creditorCommission?.toString() || ''
           })
         }
       } catch (error) {
@@ -125,6 +146,18 @@ export default function NovoEmprestimoPage() {
     }
   }
 
+  const fetchCreditors = async () => {
+    try {
+      const response = await fetch('/api/creditors')
+      if (response.ok) {
+        const data = await response.json()
+        setCreditors(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar credores:', error)
+    }
+  }
+
   const fetchPeriodicities = async () => {
     try {
       const response = await fetch('/api/periodicities')
@@ -143,37 +176,117 @@ export default function NovoEmprestimoPage() {
   }
 
   const calculateInstallmentValue = () => {
-    const requestedAmount = parseFloat(formData.totalAmount) || 0
-    const installments = parseInt(formData.installments) || 0
-    const interestRate = parseFloat(formData.interestRate) || 0
+    // Validar campos obrigatórios para o cálculo
+    if (!formData.totalAmount) {
+      const field = document.getElementById('totalAmount')
+      field?.focus()
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Preencha o valor do empréstimo para calcular as parcelas',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!formData.interestRate) {
+      const field = document.getElementById('interestRate')
+      field?.focus()
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Preencha a taxa de juros para calcular as parcelas',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!formData.installments) {
+      const field = document.getElementById('installments')
+      field?.focus()
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Preencha o número de parcelas para calcular',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (!formData.periodicityId) {
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Selecione a periodicidade para calcular as parcelas',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    const requestedAmount = parseFloat(formData.totalAmount)
+    const installments = parseInt(formData.installments)
+    const interestRate = parseFloat(formData.interestRate)
     
-    if (requestedAmount > 0 && installments > 0 && interestRate >= 0 && formData.periodicityId) {
-      try {
-        const simulation = calculateLoanSimulation({
-          loanType: formData.loanType as LoanType,
-          periodicityId: formData.periodicityId,
-          requestedAmount,
-          installments,
-          interestRate
-        })
-        
-        setCalculatedValues({
-          installmentValue: simulation.installmentValue,
-          totalAmount: simulation.totalAmount,
-          totalInterest: simulation.totalInterest,
-          effectiveRate: simulation.effectiveRate,
-          showCalculation: true
-        })
-      } catch (error) {
-        setCalculatedValues({
-          installmentValue: 0,
-          totalAmount: 0,
-          totalInterest: 0,
-          effectiveRate: 0,
-          showCalculation: false
-        })
-      }
-    } else {
+    // Validar valores numéricos
+    if (requestedAmount <= 0) {
+      const field = document.getElementById('totalAmount')
+      field?.focus()
+      toast({
+        title: 'Valor inválido',
+        description: 'O valor do empréstimo deve ser maior que zero',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (installments <= 0) {
+      const field = document.getElementById('installments')
+      field?.focus()
+      toast({
+        title: 'Valor inválido',
+        description: 'O número de parcelas deve ser maior que zero',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    if (interestRate < 0) {
+      const field = document.getElementById('interestRate')
+      field?.focus()
+      toast({
+        title: 'Valor inválido',
+        description: 'A taxa de juros não pode ser negativa',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    // Realizar o cálculo
+    try {
+      const simulation = calculateLoanSimulation({
+        loanType: formData.loanType as LoanType,
+        periodicityId: formData.periodicityId,
+        requestedAmount,
+        installments,
+        interestRate
+      })
+      
+      setCalculatedValues({
+        installmentValue: simulation.installmentValue,
+        totalAmount: simulation.totalAmount,
+        totalInterest: simulation.totalInterest,
+        effectiveRate: simulation.effectiveRate,
+        showCalculation: true
+      })
+
+      toast({
+        title: 'Cálculo realizado',
+        description: 'Parcelas calculadas com sucesso!',
+        variant: 'default'
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro no cálculo',
+        description: 'Não foi possível calcular as parcelas. Verifique os dados informados.',
+        variant: 'destructive'
+      })
+      
       setCalculatedValues({
         installmentValue: 0,
         totalAmount: 0,
@@ -221,7 +334,9 @@ export default function NovoEmprestimoPage() {
       installmentValue: calculatedValues.installmentValue,
       startDate: formData.startDate, // Incluir data de início
       observation: formData.observation, // Incluir observação
-      commission: formData.commission ? parseFloat(formData.commission) : null // Incluir comissão
+      commission: formData.commission ? parseFloat(formData.commission) : null, // Incluir comissão do intermediador
+      creditorId: formData.creditorId || null, // Incluir credor (opcional)
+      creditorCommission: formData.creditorCommission ? parseFloat(formData.creditorCommission) : null // Incluir comissão do credor
     }
     
     
@@ -395,6 +510,80 @@ export default function NovoEmprestimoPage() {
                   )}
                 </div>
 
+                <div>
+                  <Label htmlFor="creditorId">Credor (Opcional)</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Pesquisar credor por nome ou CPF..."
+                      value={creditorSearch}
+                      onChange={(e) => setCreditorSearch(e.target.value)}
+                      onFocus={() => setCreditorSearchOpen(true)}
+                      className="pr-10"
+                    />
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    
+                    {creditorSearchOpen && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {filteredCreditors.length === 0 ? (
+                          <div className="p-3 text-sm text-gray-500">
+                            Nenhum credor encontrado
+                          </div>
+                        ) : (
+                          filteredCreditors.map((creditor) => (
+                            <div
+                              key={creditor.id}
+                              className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                              onClick={() => {
+                                setFormData(prev => ({ 
+                                  ...prev, 
+                                  creditorId: creditor.id
+                                }))
+                                setCreditorSearch(`${creditor.nome} - ${creditor.cpf}`)
+                                setCreditorSearchOpen(false)
+                              }}
+                            >
+                              <div className="font-medium text-sm">{creditor.nome}</div>
+                              <div className="text-xs text-gray-500">{creditor.cpf}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedCreditor && (
+                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-green-900">
+                              {selectedCreditor.nome}
+                            </span>
+                            <span className="text-xs text-green-700">
+                              {selectedCreditor.cpf}
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              creditorId: '',
+                              creditorCommission: '' // Limpar comissão ao remover credor
+                            }))
+                            setCreditorSearch('')
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="totalAmount">Valor do Empréstimo *</Label>
@@ -510,6 +699,38 @@ export default function NovoEmprestimoPage() {
                     {selectedCustomer?.route 
                       ? `Comissão do intermediador será calculada sobre o valor total para a rota: ${selectedCustomer.route.description}`
                       : 'Selecione um cliente com rota para habilitar a comissão do intermediador'
+                    }
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="creditorCommission">
+                    Comissão do Credor (%)
+                    {!selectedCreditor && (
+                      <span className="text-sm text-gray-500 ml-2">
+                        (Disponível apenas quando um credor for selecionado)
+                      </span>
+                    )}
+                  </Label>
+                  <Input
+                    id="creditorCommission"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="0.00"
+                    value={formData.creditorCommission}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      creditorCommission: e.target.value
+                    }))}
+                    disabled={!selectedCreditor}
+                    className={!selectedCreditor ? 'bg-gray-100 cursor-not-allowed' : ''}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {selectedCreditor 
+                      ? `Comissão do credor será calculada sobre o valor total para: ${selectedCreditor.nome}`
+                      : 'Selecione um credor para habilitar a comissão do credor'
                     }
                   </p>
                 </div>

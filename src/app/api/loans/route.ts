@@ -19,7 +19,9 @@ const loanSchema = z.object({
   nextPaymentDate: z.string(),
   startDate: z.string(), // Nova data de início do empréstimo
   observation: z.string().optional(), // Campo de observação opcional
-  commission: z.number().min(0).max(100).optional().nullable() // Campo de comissão em %
+  commission: z.number().min(0).max(100).optional().nullable(), // Campo de comissão do intermediador em %
+  creditorId: z.string().optional().nullable(), // ID do credor (opcional)
+  creditorCommission: z.number().min(0).max(100).optional().nullable() // Campo de comissão do credor em %
 })
 
 export async function POST(request: NextRequest) {
@@ -79,6 +81,7 @@ export async function POST(request: NextRequest) {
     const newLoan = await db.loan.create({
       data: {
         customerId: validatedData.customerId,
+        creditorId: validatedData.creditorId || null, // Salvar credor se fornecido
         transactionDate: transactionDate, // Data customizada do empréstimo
         totalAmount: validatedData.totalAmount,
         loanType: validatedData.loanType,
@@ -90,7 +93,8 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         status: 'ACTIVE',
         observation: validatedData.observation || null, // Salvar observação se fornecida
-        commission: validatedData.commission || null // Salvar comissão se fornecida
+        commission: validatedData.commission || null, // Salvar comissão do intermediador se fornecida
+        creditorCommission: validatedData.creditorCommission || null // Salvar comissão do credor se fornecida
       },
       include: {
         customer: true,

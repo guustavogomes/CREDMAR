@@ -128,7 +128,8 @@ model Loan {
   nextPaymentDate       DateTime
   status                LoanStatus    @default(ACTIVE)
   observation           String?
-  commission            Float?        // Comissão em % (opcional, apenas para clientes com rota)
+  commission            Float?        // Comissão do intermediador em % (opcional, apenas para clientes com rota)
+  creditorCommission    Float?        // Comissão do credor em % (opcional, apenas quando credor for selecionado)
   userId                String
   deletedAt             DateTime?
   createdAt             DateTime      @default(now())
