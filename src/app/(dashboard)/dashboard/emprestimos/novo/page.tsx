@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 import { calculateLoanSimulation } from '@/lib/loan-calculations'
 import type { LoanType } from '@/types/loan-simulation'
+import { PDFConfirmationModal } from '@/components/ui/pdf-confirmation-modal'
+import { generateLoanPDF } from '@/lib/loan-pdf-generator'
 
 interface Customer {
   id: string
@@ -75,6 +77,37 @@ export default function NovoEmprestimoPage() {
     showCalculation: false
   })
   const [isRenewal, setIsRenewal] = useState(false)
+
+  // Estados para o modal de PDF
+  const [showPDFModal, setShowPDFModal] = useState(false)
+  const [savedLoanData, setSavedLoanData] = useState<any>(null)
+
+  // Função para gerar PDF
+  const handleGeneratePDF = async () => {
+    if (savedLoanData) {
+      try {
+        await generateLoanPDF(savedLoanData)
+        toast({
+          title: 'PDF Gerado',
+          description: 'O arquivo PDF foi baixado com sucesso',
+          variant: 'default'
+        })
+      } catch (error) {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao gerar PDF',
+          variant: 'destructive'
+        })
+      }
+    }
+  }
+
+  // Função para fechar modal e redirecionar
+  const handleClosePDFModal = () => {
+    setShowPDFModal(false)
+    setSavedLoanData(null)
+    router.push('/dashboard/emprestimos')
+  }
 
   // Filtrar clientes baseado na pesquisa
   const filteredCustomers = Array.isArray(customers) ? customers.filter(customer =>
@@ -358,11 +391,31 @@ export default function NovoEmprestimoPage() {
       if (response.ok) {
         const result = await response.json()
         
+        // Preparar dados para o PDF
+        const loanDataForPDF = {
+          ...result,
+          customer: selectedCustomer,
+          creditor: selectedCreditor,
+          periodicity: periodicities.find(p => p.id === formData.periodicityId),
+          totalAmount: parseFloat(formData.totalAmount),
+          interestRate: parseFloat(formData.interestRate),
+          installments: parseInt(formData.installments),
+          installmentValue: calculatedValues.installmentValue,
+          startDate: formData.startDate,
+          nextPaymentDate: formData.nextPaymentDate,
+          observation: formData.observation,
+          commission: formData.commission ? parseFloat(formData.commission) : undefined,
+          creditorCommission: formData.creditorCommission ? parseFloat(formData.creditorCommission) : undefined,
+          loanType: formData.loanType
+        }
+        
+        setSavedLoanData(loanDataForPDF)
+        setShowPDFModal(true)
+        
         toast({
           title: 'Sucesso',
           description: 'Empréstimo cadastrado com sucesso'
         })
-        router.push('/dashboard/emprestimos')
       } else {
         const error = await response.json()
         console.error('Erro na resposta:', error)
@@ -888,6 +941,15 @@ export default function NovoEmprestimoPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal de confirmação para gerar PDF */}
+      <PDFConfirmationModal
+        isOpen={showPDFModal}
+        onClose={handleClosePDFModal}
+        onConfirm={handleGeneratePDF}
+        customerName={savedLoanData?.customer?.nomeCompleto || ''}
+        loanId={savedLoanData?.id || ''}
+      />
     </div>
   )
 }

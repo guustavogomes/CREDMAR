@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw, Info, PlusCircle } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, DollarSign, Calendar, User, RotateCcw, Info, PlusCircle, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import { formatDate, formatCurrency } from '@/lib/date-utils'
@@ -29,6 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { generateLoanPDF } from '@/lib/loan-pdf-generator'
 
 interface Loan {
   id: string
@@ -182,6 +183,34 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
       startDate: ''
     })
     setShowAddInstallmentsDialog(true)
+  }
+
+  const handleGeneratePDF = async (loan: Loan) => {
+    try {
+      // Buscar dados completos do empréstimo
+      const response = await fetch(`/api/loans/${loan.id}`)
+      if (!response.ok) {
+        throw new Error('Erro ao buscar dados do empréstimo')
+      }
+      
+      const loanData = await response.json()
+      
+      // Gerar PDF
+      await generateLoanPDF(loanData)
+      
+      toast({
+        title: 'PDF Gerado',
+        description: 'O arquivo PDF foi baixado com sucesso',
+        variant: 'default'
+      })
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao gerar PDF do empréstimo',
+        variant: 'destructive'
+      })
+    }
   }
 
   const confirmRenew = () => {
@@ -558,6 +587,15 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                             >
                               <Calendar className="w-4 h-4" />
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleGeneratePDF(loan)}
+                              className="bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-600"
+                              title="Gerar PDF do Empréstimo"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
                             {loan.status === 'ACTIVE' && (
                               <Button
                                 variant="outline"
@@ -663,6 +701,16 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
                           >
                             <Calendar className="w-4 h-4 mr-1" />
                             Parcelas
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleGeneratePDF(loan)}
+                            className="flex-1 bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-600"
+                            title="Gerar PDF"
+                          >
+                            <FileText className="w-4 h-4 mr-1" />
+                            PDF
                           </Button>
                         </div>
                         {loan.status === 'ACTIVE' && (
