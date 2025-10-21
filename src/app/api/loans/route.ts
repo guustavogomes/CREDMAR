@@ -205,6 +205,7 @@ export async function GET() {
       },
       include: {
         customer: true,
+        creditor: true,
         periodicity: true
       },
       orderBy: {
