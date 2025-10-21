@@ -97,3 +97,62 @@
 .credmar-blue-gradient {
   background: linear-gradient(135deg, #1A365D 0%, #153E75 100%);
 }
+
+/* Novos estilos para o dashboard redesenhado */
+.dashboard-card {
+  @apply relative overflow-hidden border-0 shadow-lg bg-white hover:shadow-xl transition-all duration-300;
+}
+
+.dashboard-card-hover {
+  @apply hover:-translate-y-1 cursor-pointer;
+}
+
+.dashboard-metric-icon {
+  @apply p-3 rounded-2xl shadow-md group-hover:scale-110 transition-transform duration-300;
+}
+
+.dashboard-gradient-overlay {
+  @apply absolute inset-0 bg-gradient-to-br opacity-5;
+}
+
+.dashboard-decorative-circle {
+  @apply absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 opacity-10;
+}
+
+.dashboard-progress-bar {
+  @apply absolute bottom-0 left-0 w-full h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300;
+}
+
+/* Animações suaves */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glassmorphism effect */
+.glass-effect {
+  @apply bg-white/80 backdrop-blur-sm border border-white/20;
+}
