@@ -84,7 +84,7 @@ export const generateLoanPDF = async (loanData: LoanPDFData) => {
           <div><strong>Nome:</strong><br>${loanData.customer.nomeCompleto}</div>
           <div><strong>CPF:</strong><br>${loanData.customer.cpf}</div>
           ${loanData.customer.telefone ? `<div><strong>Telefone:</strong><br>${loanData.customer.telefone}</div>` : ''}
-          ${loanData.customer.route ? `<div><strong>Rota:</strong><br>${loanData.customer.route.description}</div>` : '<div><strong>Rota:</strong><br>Capital Próprio</div>'}
+          ${loanData.customer.route ? `<div><strong>Intermediador:</strong><br>${loanData.customer.route.description}</div>` : '<div><strong>Intermediador:</strong><br>Capital Próprio</div>'}
         </div>
       </div>
 

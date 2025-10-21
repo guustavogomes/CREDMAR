@@ -20,7 +20,7 @@ interface RouteData {
   }
 }
 
-export default function RotasPage() {
+export default function IntermediadorPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [routes, setRoutes] = useState<RouteData[]>([])
@@ -48,14 +48,14 @@ export default function RotasPage() {
       } else {
         toast({
           title: 'Erro',
-          description: 'Erro ao carregar rotas',
+          description: 'Erro ao carregar intermediadores',
           variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
         title: 'Erro',
-        description: 'Erro ao carregar rotas',
+        description: 'Erro ao carregar intermediadores',
         variant: 'destructive'
       })
     } finally {
@@ -78,7 +78,7 @@ export default function RotasPage() {
       if (response.ok) {
         toast({
           title: 'Sucesso',
-          description: 'Rota criada com sucesso'
+          description: 'Intermediador criado com sucesso'
         })
         setShowNewRouteInput(false)
         setNewRouteDescription('')
@@ -87,14 +87,14 @@ export default function RotasPage() {
         const error = await response.json()
         toast({
           title: 'Erro',
-          description: error.error || 'Erro ao criar rota',
+          description: error.error || 'Erro ao criar intermediador',
           variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
         title: 'Erro',
-        description: 'Erro ao criar rota',
+        description: 'Erro ao criar intermediador',
         variant: 'destructive'
       })
     }
@@ -118,20 +118,20 @@ export default function RotasPage() {
         setRoutes(routes.filter(r => r.id !== confirmModal.routeId))
         toast({
           title: 'Sucesso',
-          description: 'Rota excluída com sucesso'
+          description: 'Intermediador excluído com sucesso'
         })
       } else {
         const error = await response.json()
         toast({
           title: 'Erro',
-          description: error.error || 'Erro ao excluir rota',
+          description: error.error || 'Erro ao excluir intermediador',
           variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
         title: 'Erro',
-        description: 'Erro ao excluir rota',
+        description: 'Erro ao excluir intermediador',
         variant: 'destructive'
       })
     } finally {
@@ -154,14 +154,14 @@ export default function RotasPage() {
               Voltar
             </Button>
           </Link>
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Gerenciar Rotas</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Gerenciar Intermediadores</h1>
         </div>
         <Button 
           className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
           onClick={() => setShowNewRouteInput(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Nova Rota
+          Novo Intermediador
         </Button>
       </div>
 
@@ -171,7 +171,7 @@ export default function RotasPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Buscar rotas..."
+              placeholder="Buscar intermediadores..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-background border-border focus:border-primary"
@@ -180,17 +180,17 @@ export default function RotasPage() {
         </CardContent>
       </Card>
 
-      {/* Nova Rota */}
+      {/* Novo Intermediador */}
       {showNewRouteInput && (
         <Card className="mb-6 border-border bg-card">
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-lg font-medium text-foreground">
                 <Route className="w-5 h-5" />
-                Nova Rota
+                Novo Intermediador
               </div>
               <Input
-                placeholder="Digite a descrição da nova rota (ex: Centro, Bairro Sul, etc.)"
+                placeholder="Digite o nome do intermediador (ex: João Silva, Maria Santos, etc.)"
                 value={newRouteDescription}
                 onChange={(e) => setNewRouteDescription(e.target.value)}
                 className="w-full"
@@ -202,7 +202,7 @@ export default function RotasPage() {
                   disabled={!newRouteDescription.trim()}
                   className="flex-1"
                 >
-                  Criar Rota
+                  Criar Intermediador
                 </Button>
                 <Button 
                   variant="outline"
@@ -226,7 +226,7 @@ export default function RotasPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total de Rotas</p>
+                <p className="text-sm text-muted-foreground">Total de Intermediadores</p>
                 <p className="text-2xl font-bold text-foreground">{filteredRoutes.length}</p>
               </div>
               <Route className="w-8 h-8 text-blue-600" />
@@ -238,7 +238,7 @@ export default function RotasPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Rotas com Clientes</p>
+                <p className="text-sm text-muted-foreground">Intermediadores com Clientes</p>
                 <p className="text-2xl font-bold text-foreground">
                   {filteredRoutes.filter(r => r._count.customers > 0).length}
                 </p>
@@ -252,7 +252,7 @@ export default function RotasPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Rotas Vazias</p>
+                <p className="text-sm text-muted-foreground">Intermediadores sem Clientes</p>
                 <p className="text-2xl font-bold text-foreground">
                   {filteredRoutes.filter(r => r._count.customers === 0).length}
                 </p>
@@ -266,7 +266,7 @@ export default function RotasPage() {
       {/* Table */}
       <Card className="border-border bg-card">
         <CardHeader className="border-b border-border">
-          <CardTitle className="text-foreground">Lista de Rotas</CardTitle>
+          <CardTitle className="text-foreground">Lista de Intermediadores</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           {loading ? (
@@ -277,7 +277,7 @@ export default function RotasPage() {
             <div className="text-center py-8">
               <Route className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
-                {searchTerm ? 'Nenhuma rota encontrada' : 'Nenhuma rota cadastrada'}
+                {searchTerm ? 'Nenhum intermediador encontrado' : 'Nenhum intermediador cadastrado'}
               </p>
             </div>
           ) : (
@@ -389,8 +389,8 @@ export default function RotasPage() {
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ isOpen: false, routeId: '', routeName: '' })}
         onConfirm={confirmDelete}
-        title="Excluir Rota"
-        description={`Tem certeza que deseja excluir a rota "${confirmModal.routeName}"? Esta ação não poderá ser desfeita.`}
+        title="Excluir Intermediador"
+        description={`Tem certeza que deseja excluir o intermediador "${confirmModal.routeName}"? Esta ação não poderá ser desfeita.`}
         confirmText="Excluir"
         cancelText="Cancelar"
         variant="destructive"

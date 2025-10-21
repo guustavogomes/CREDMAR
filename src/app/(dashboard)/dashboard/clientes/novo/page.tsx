@@ -80,7 +80,7 @@ export default function NovoClientePage() {
         setRoutes(data)
       }
     } catch (error) {
-      console.error('Erro ao carregar rotas:', error)
+      console.error('Erro ao carregar intermediadores:', error)
     }
   }
 
@@ -196,20 +196,20 @@ export default function NovoClientePage() {
         setNewRouteDescription('')
         toast({
           title: 'Sucesso',
-          description: 'Rota criada com sucesso'
+          description: 'Intermediador criado com sucesso'
         })
       } else {
         const error = await response.json()
         toast({
           title: 'Erro',
-          description: error.error || 'Erro ao criar rota',
+          description: error.error || 'Erro ao criar intermediador',
           variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
         title: 'Erro',
-        description: 'Erro ao criar rota',
+        description: 'Erro ao criar intermediador',
         variant: 'destructive'
       })
     }
@@ -616,7 +616,7 @@ export default function NovoClientePage() {
             </div>
 
             <div>
-              <Label htmlFor="rota">Rota</Label>
+              <Label htmlFor="rota">Intermediador</Label>
               <div className="flex gap-2">
                 <Select
                   value={formData.routeId}
@@ -631,16 +631,16 @@ export default function NovoClientePage() {
                   }}
                 >
                   <SelectTrigger className="flex-1 bg-white dark:bg-[hsl(222.2_84%_4.9%)]">
-                    <SelectValue placeholder="Selecione uma rota (opcional)" />
+                    <SelectValue placeholder="Selecione um intermediador (opcional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Sem rota</SelectItem>
+                    <SelectItem value="none">Sem intermediador</SelectItem>
                     {routes.map((route) => (
                       <SelectItem key={route.id} value={route.id}>
                         {route.description}
                       </SelectItem>
                     ))}
-                    <SelectItem value="new">+ Criar nova rota</SelectItem>
+                    <SelectItem value="new">+ Criar novo intermediador</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -651,10 +651,10 @@ export default function NovoClientePage() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Nova Rota
+                    Novo Intermediador
                   </div>
                   <Input
-                    placeholder="Digite a descrição da nova rota (ex: Centro, Bairro Sul, etc.)"
+                    placeholder="Digite o nome do intermediador (ex: João Silva, Maria Santos, etc.)"
                     value={newRouteDescription}
                     onChange={(e) => setNewRouteDescription(e.target.value)}
                     className="w-full"
@@ -667,7 +667,7 @@ export default function NovoClientePage() {
                       disabled={!newRouteDescription.trim()}
                       className="flex-1"
                     >
-                      Criar Rota
+                      Criar Intermediador
                     </Button>
                     <Button 
                       type="button" 

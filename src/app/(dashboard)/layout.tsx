@@ -76,7 +76,7 @@ export default function DashboardLayout({
     { name: 'Credores', href: '/dashboard/credores', icon: User },
     { name: 'Empréstimos', href: '/dashboard/emprestimos', icon: DollarSign },
     { name: 'Simulação', href: '/dashboard/simulacao', icon: Calculator },
-    { name: 'Rotas', href: '/dashboard/rotas', icon: Route },
+    { name: 'Intermediador', href: '/dashboard/rotas', icon: Route },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
   ]
 

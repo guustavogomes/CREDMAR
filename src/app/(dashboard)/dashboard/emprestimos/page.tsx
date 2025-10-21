@@ -143,9 +143,9 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
     if (selectedRoute === 'all') {
       matchRoute = true // Mostra todos
     } else if (selectedRoute === 'no-route') {
-      matchRoute = !loan.customer.routeId // Apenas sem rota
+      matchRoute = !loan.customer.routeId // Apenas sem intermediador
     } else {
-      matchRoute = loan.customer.routeId === selectedRoute // Rota específica
+      matchRoute = loan.customer.routeId === selectedRoute // Intermediador específico
     }
     
     let matchStatus = true
@@ -415,14 +415,14 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <label className="font-medium text-sm text-muted-foreground">Rota:</label>
+          <label className="font-medium text-sm text-muted-foreground">Intermediador:</label>
           <Select value={selectedRoute} onValueChange={setSelectedRoute}>
             <SelectTrigger className="w-64">
-              <SelectValue placeholder="Filtrar por rota" />
+              <SelectValue placeholder="Filtrar por intermediador" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas as rotas</SelectItem>
-              <SelectItem value="no-route">Clientes sem rota</SelectItem>
+              <SelectItem value="all">Todos os intermediadores</SelectItem>
+              <SelectItem value="no-route">Clientes sem intermediador</SelectItem>
               {routes.map((route) => (
                 <SelectItem key={route.id} value={route.id}>{route.description}</SelectItem>
               ))}

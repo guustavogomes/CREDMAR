@@ -513,7 +513,7 @@ export default function NovoEmprestimoPage() {
                                 setFormData(prev => ({ 
                                   ...prev, 
                                   customerId: customer.id,
-                                  // Limpar comissão se o cliente não tem rota
+                                  // Limpar comissão se o cliente não tem intermediador
                                   commission: customer.route ? prev.commission : ''
                                 }))
                                 setCustomerSearch(`${customer.nomeCompleto} - ${customer.cpf}`)
@@ -542,7 +542,7 @@ export default function NovoEmprestimoPage() {
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-blue-600 font-medium">Rota:</span>
+                            <span className="text-xs text-blue-600 font-medium">Intermediador:</span>
                             <span className="text-xs bg-credmar-blue/10 text-credmar-blue px-2 py-1 rounded-full border border-credmar-blue/20 font-medium">
                               {selectedCustomer.route?.description || 'Capital Próprio'}
                             </span>
@@ -734,7 +734,7 @@ export default function NovoEmprestimoPage() {
                     {selectedCustomer?.route ? 'Comissão do Intermediador (%)' : 'Comissão (%)'}
                     {!selectedCustomer?.route && (
                       <span className="text-sm text-gray-500 ml-2">
-                        (Disponível apenas para clientes com rota)
+                        (Disponível apenas para clientes com intermediador)
                       </span>
                     )}
                   </Label>
@@ -755,8 +755,8 @@ export default function NovoEmprestimoPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     {selectedCustomer?.route 
-                      ? `Comissão do intermediador será calculada sobre o valor total para a rota: ${selectedCustomer.route.description}`
-                      : 'Selecione um cliente com rota para habilitar a comissão do intermediador'
+                      ? `Comissão do intermediador será calculada sobre o valor total para: ${selectedCustomer.route.description}`
+                      : 'Selecione um cliente com intermediador para habilitar a comissão'
                     }
                   </p>
                 </div>
