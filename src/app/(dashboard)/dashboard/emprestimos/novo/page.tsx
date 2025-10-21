@@ -130,9 +130,7 @@ export default function NovoEmprestimoPage() {
     }
   }, [searchParams])
 
-  useEffect(() => {
-    calculateInstallmentValue()
-  }, [formData.totalAmount, formData.installments])
+
 
   const fetchCustomers = async () => {
     try {
