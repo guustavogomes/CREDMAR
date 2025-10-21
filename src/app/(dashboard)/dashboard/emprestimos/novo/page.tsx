@@ -77,19 +77,19 @@ export default function NovoEmprestimoPage() {
   const [isRenewal, setIsRenewal] = useState(false)
 
   // Filtrar clientes baseado na pesquisa
-  const filteredCustomers = customers.filter(customer =>
+  const filteredCustomers = Array.isArray(customers) ? customers.filter(customer =>
     customer.nomeCompleto.toLowerCase().includes(customerSearch.toLowerCase()) ||
     customer.cpf.includes(customerSearch)
-  )
+  ) : []
 
   // Filtrar credores baseado na pesquisa
-  const filteredCreditors = creditors.filter(creditor =>
+  const filteredCreditors = Array.isArray(creditors) ? creditors.filter(creditor =>
     creditor.nome.toLowerCase().includes(creditorSearch.toLowerCase()) ||
     creditor.cpf.includes(creditorSearch)
-  )
+  ) : []
 
-  const selectedCustomer = customers.find(c => c.id === formData.customerId)
-  const selectedCreditor = creditors.find(c => c.id === formData.creditorId)
+  const selectedCustomer = Array.isArray(customers) ? customers.find(c => c.id === formData.customerId) : null
+  const selectedCreditor = Array.isArray(creditors) ? creditors.find(c => c.id === formData.creditorId) : null
 
   useEffect(() => {
     fetchCustomers()
@@ -139,10 +139,13 @@ export default function NovoEmprestimoPage() {
       const response = await fetch('/api/customers')
       if (response.ok) {
         const data = await response.json()
-        setCustomers(data)
+        setCustomers(Array.isArray(data) ? data : [])
+      } else {
+        setCustomers([])
       }
     } catch (error) {
       console.error('Erro ao buscar clientes:', error)
+      setCustomers([])
     }
   }
 
@@ -151,10 +154,13 @@ export default function NovoEmprestimoPage() {
       const response = await fetch('/api/creditors')
       if (response.ok) {
         const data = await response.json()
-        setCreditors(data)
+        setCreditors(Array.isArray(data) ? data : [])
+      } else {
+        setCreditors([])
       }
     } catch (error) {
       console.error('Erro ao buscar credores:', error)
+      setCreditors([])
     }
   }
 
