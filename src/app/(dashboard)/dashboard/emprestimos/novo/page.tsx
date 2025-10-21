@@ -484,7 +484,7 @@ export default function NovoEmprestimoPage() {
 
                 <div>
                   <Label htmlFor="commission">
-                    Comissão (%)
+                    {selectedCustomer?.route ? 'Comissão do Intermediador (%)' : 'Comissão (%)'}
                     {!selectedCustomer?.route && (
                       <span className="text-sm text-gray-500 ml-2">
                         (Disponível apenas para clientes com rota)
@@ -508,8 +508,8 @@ export default function NovoEmprestimoPage() {
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     {selectedCustomer?.route 
-                      ? `Comissão será calculada sobre o valor total para a rota: ${selectedCustomer.route.description}`
-                      : 'Selecione um cliente com rota para habilitar a comissão'
+                      ? `Comissão do intermediador será calculada sobre o valor total para a rota: ${selectedCustomer.route.description}`
+                      : 'Selecione um cliente com rota para habilitar a comissão do intermediador'
                     }
                   </p>
                 </div>
