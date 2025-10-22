@@ -91,9 +91,13 @@ function calculateSAC(principal: number, installments: number, monthlyRate: numb
 
 // Juros Simples
 function calculateSimpleInterest(principal: number, installments: number, monthlyRate: number): LoanSimulationResult {
-  const totalInterest = principal * monthlyRate * installments
+  // No juros simples, dividimos o principal pelas parcelas e aplicamos juros sobre cada parcela
+  const principalPerInstallment = principal / installments
+  const interestPerInstallment = principalPerInstallment * monthlyRate
+  const installmentValue = principalPerInstallment + interestPerInstallment
+  
+  const totalInterest = interestPerInstallment * installments
   const totalAmount = principal + totalInterest
-  const installmentValue = totalAmount / installments
   
   const details: InstallmentDetail[] = []
   
@@ -101,10 +105,10 @@ function calculateSimpleInterest(principal: number, installments: number, monthl
     details.push({
       number: i,
       dueDate: new Date(Date.now() + i * 30 * 24 * 60 * 60 * 1000),
-      principalAmount: principal / installments,
-      interestAmount: totalInterest / installments,
+      principalAmount: principalPerInstallment,
+      interestAmount: interestPerInstallment,
       totalAmount: installmentValue,
-      remainingBalance: principal - (principal / installments * i)
+      remainingBalance: principal - (principalPerInstallment * i)
     })
   }
   
@@ -112,7 +116,7 @@ function calculateSimpleInterest(principal: number, installments: number, monthl
     totalAmount,
     totalInterest,
     installmentValue,
-    effectiveRate: monthlyRate * installments * 100,
+    effectiveRate: (totalAmount / principal - 1) * 100,
     installments: details
   }
 }
