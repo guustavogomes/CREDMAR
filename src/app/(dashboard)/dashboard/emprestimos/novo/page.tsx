@@ -391,6 +391,15 @@ export default function NovoEmprestimoPage() {
       if (response.ok) {
         const result = await response.json()
         
+        // Gerar detalhes das parcelas usando a simulação
+        const simulationData = calculateLoanSimulation({
+          loanType: formData.loanType as LoanType,
+          periodicityId: formData.periodicityId,
+          requestedAmount: parseFloat(formData.totalAmount),
+          installments: parseInt(formData.installments),
+          interestRate: parseFloat(formData.interestRate)
+        })
+
         // Preparar dados para o PDF
         const loanDataForPDF = {
           ...result,
@@ -406,7 +415,15 @@ export default function NovoEmprestimoPage() {
           observation: formData.observation,
           commission: formData.commission ? parseFloat(formData.commission) : undefined,
           creditorCommission: formData.creditorCommission ? parseFloat(formData.creditorCommission) : undefined,
-          loanType: formData.loanType
+          loanType: formData.loanType,
+          installmentDetails: simulationData.installments.map(inst => ({
+            number: inst.number,
+            dueDate: inst.dueDate.toISOString().split('T')[0],
+            principalAmount: inst.principalAmount,
+            interestAmount: inst.interestAmount,
+            totalAmount: inst.totalAmount,
+            remainingBalance: inst.remainingBalance
+          }))
         }
         
         setSavedLoanData(loanDataForPDF)

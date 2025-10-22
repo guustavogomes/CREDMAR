@@ -188,15 +188,39 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
   const handleGeneratePDF = async (loan: Loan) => {
     try {
       // Buscar dados completos do empréstimo
-      const response = await fetch(`/api/loans/${loan.id}`)
-      if (!response.ok) {
+      const [loanResponse, installmentsResponse] = await Promise.all([
+        fetch(`/api/loans/${loan.id}`),
+        fetch(`/api/loans/${loan.id}/installments`)
+      ])
+      
+      if (!loanResponse.ok) {
         throw new Error('Erro ao buscar dados do empréstimo')
       }
       
-      const loanData = await response.json()
+      const loanData = await loanResponse.json()
+      let installmentDetails = []
+      
+      // Buscar parcelas se a API estiver disponível
+      if (installmentsResponse.ok) {
+        const installmentsData = await installmentsResponse.json()
+        installmentDetails = installmentsData.map((inst: any) => ({
+          number: inst.installmentNumber,
+          dueDate: inst.dueDate,
+          principalAmount: loanData.totalAmount / loanData.installments, // Cálculo básico
+          interestAmount: inst.amount - (loanData.totalAmount / loanData.installments),
+          totalAmount: inst.amount,
+          remainingBalance: loanData.totalAmount - ((loanData.totalAmount / loanData.installments) * inst.installmentNumber)
+        }))
+      }
+      
+      // Adicionar detalhes das parcelas aos dados do empréstimo
+      const enrichedLoanData = {
+        ...loanData,
+        installmentDetails: installmentDetails.length > 0 ? installmentDetails : undefined
+      }
       
       // Gerar PDF
-      await generateLoanPDF(loanData)
+      await generateLoanPDF(enrichedLoanData)
       
       toast({
         title: 'PDF Gerado',
