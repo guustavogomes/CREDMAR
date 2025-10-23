@@ -18,6 +18,7 @@ import { calculateLoanSimulation } from '@/lib/loan-calculations'
 import type { LoanType } from '@/types/loan-simulation'
 import { PDFConfirmationModal } from '@/components/ui/pdf-confirmation-modal'
 import { generateLoanPDF } from '@/lib/loan-pdf-generator'
+import { ManagerBadge } from '@/components/ui/manager-badge'
 
 interface Customer {
   id: string
@@ -39,6 +40,7 @@ interface Creditor {
   id: string
   nome: string
   cpf: string
+  isManager: boolean
 }
 
 export default function NovoEmprestimoPage() {
@@ -77,6 +79,8 @@ export default function NovoEmprestimoPage() {
     showCalculation: false
   })
   const [isRenewal, setIsRenewal] = useState(false)
+  const [creditorBalance, setCreditorBalance] = useState<number | null>(null)
+  const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false)
 
   // Estados para o modal de PDF
   const [showPDFModal, setShowPDFModal] = useState(false)
@@ -163,7 +167,10 @@ export default function NovoEmprestimoPage() {
     }
   }, [searchParams])
 
-
+  // Verificar saldo do credor sempre que credor ou valor mudarem
+  useEffect(() => {
+    checkCreditorBalance()
+  }, [formData.creditorId, formData.totalAmount])
 
   const fetchCustomers = async () => {
     try {
@@ -186,7 +193,8 @@ export default function NovoEmprestimoPage() {
       if (response.ok) {
         const data = await response.json()
         // A API retorna { creditors: [...], pagination: {...} }
-        setCreditors(Array.isArray(data.creditors) ? data.creditors : [])
+        const creditorsList = Array.isArray(data.creditors) ? data.creditors : []
+        setCreditors(creditorsList)
       } else {
         setCreditors([])
       }
@@ -213,7 +221,49 @@ export default function NovoEmprestimoPage() {
     }
   }
 
-  const calculateInstallmentValue = () => {
+  const checkCreditorBalance = async () => {
+    if (!formData.creditorId || !formData.totalAmount) {
+      setCreditorBalance(null)
+      setHasInsufficientBalance(false)
+      return
+    }
+
+    const requestedAmount = parseFloat(formData.totalAmount)
+    if (requestedAmount <= 0) {
+      setCreditorBalance(null)
+      setHasInsufficientBalance(false)
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/creditors/balance?creditorId=${formData.creditorId}`)
+      if (response.ok) {
+        const data = await response.json()
+        const balance = data.balance || 0
+        setCreditorBalance(balance)
+        setHasInsufficientBalance(balance < requestedAmount)
+      } else {
+        setCreditorBalance(null)
+        setHasInsufficientBalance(false)
+      }
+    } catch (error) {
+      console.error('Erro ao verificar saldo do credor:', error)
+      setCreditorBalance(null)
+      setHasInsufficientBalance(false)
+    }
+  }
+
+  const calculateInstallmentValue = async () => {
+    // Validar se o credor foi selecionado (agora obrigatório)
+    if (!formData.creditorId) {
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Selecione um credor para o empréstimo',
+        variant: 'destructive'
+      })
+      return
+    }
+
     // Validar campos obrigatórios para o cálculo
     if (!formData.totalAmount) {
       const field = document.getElementById('totalAmount')
@@ -390,6 +440,29 @@ export default function NovoEmprestimoPage() {
 
       if (response.ok) {
         const result = await response.json()
+        
+        // Criar movimentação de débito no fluxo de caixa se há credor
+        if (formData.creditorId) {
+          try {
+            await fetch('/api/cash-flow', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                creditorId: formData.creditorId,
+                type: 'DEBIT',
+                category: 'LOAN_DISBURSEMENT',
+                amount: parseFloat(formData.totalAmount),
+                description: `Desembolso empréstimo - ${selectedCustomer?.nomeCompleto}`,
+                loanId: result.id
+              })
+            })
+          } catch (error) {
+            console.error('Erro ao criar movimentação no fluxo de caixa:', error)
+            // Não bloqueia o fluxo, apenas loga o erro
+          }
+        }
         
         // Gerar detalhes das parcelas usando a simulação
         const simulationData = calculateLoanSimulation({
@@ -586,7 +659,7 @@ export default function NovoEmprestimoPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="creditorId">Credor (Opcional)</Label>
+                  <Label htmlFor="creditorId">Credor *</Label>
                   <div className="relative">
                     <Input
                       placeholder="Pesquisar credor por nome ou CPF..."
@@ -617,8 +690,13 @@ export default function NovoEmprestimoPage() {
                                 setCreditorSearchOpen(false)
                               }}
                             >
-                              <div className="font-medium text-sm">{creditor.nome}</div>
-                              <div className="text-xs text-gray-500">{creditor.cpf}</div>
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-medium text-sm">{creditor.nome}</div>
+                                  <div className="text-xs text-gray-500">{creditor.cpf}</div>
+                                </div>
+                                <ManagerBadge isManager={creditor.isManager} size="sm" />
+                              </div>
                             </div>
                           ))
                         )}
@@ -637,6 +715,7 @@ export default function NovoEmprestimoPage() {
                             <span className="text-xs text-green-700">
                               {selectedCreditor.cpf}
                             </span>
+                            <ManagerBadge isManager={selectedCreditor.isManager} size="sm" />
                           </div>
                         </div>
                         <Button
@@ -734,18 +813,6 @@ export default function NovoEmprestimoPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={calculateInstallmentValue}
-                    className="flex items-center gap-2"
-                  >
-                    <Calculator className="w-4 h-4" />
-                    Calcular Parcelas
-                  </Button>
-                </div>
-
                 <div>
                   <Label htmlFor="commission">
                     {selectedCustomer?.route ? 'Comissão do Intermediador (%)' : 'Comissão (%)'}
@@ -828,6 +895,18 @@ export default function NovoEmprestimoPage() {
                     </Select>
                 </div>
 
+                <div className="flex justify-end">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={calculateInstallmentValue}
+                    className="flex items-center gap-2"
+                  >
+                    <Calculator className="w-4 h-4" />
+                    Calcular Parcelas
+                  </Button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="startDate">Data do Empréstimo *</Label>
@@ -883,9 +962,29 @@ export default function NovoEmprestimoPage() {
                   </p>
                 </div>
 
-                <Button type="submit" disabled={loading} className="w-full">
+                <Button 
+                  type="submit" 
+                  disabled={loading || hasInsufficientBalance} 
+                  className="w-full"
+                >
                   {loading ? 'Cadastrando...' : 'Cadastrar Empréstimo'}
                 </Button>
+                
+                {hasInsufficientBalance && creditorBalance !== null && (
+                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-700">
+                      <strong>Saldo Insuficiente:</strong> O credor possui saldo de{' '}
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(creditorBalance)}, mas o empréstimo é de{' '}
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(parseFloat(formData.totalAmount) || 0)}
+                    </p>
+                  </div>
+                )}
               </form>
             </CardContent>
           </Card>

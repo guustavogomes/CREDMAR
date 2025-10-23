@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Save, User } from "lucide-react"
+import { ArrowLeft, Save, User, Crown } from "lucide-react"
 import Link from "next/link"
 
 interface CreditorForm {
@@ -21,6 +22,7 @@ interface CreditorForm {
   cidade: string
   estado: string
   observacoes: string
+  isManager: boolean
 }
 
 export default function NovoCredorPage() {
@@ -37,7 +39,8 @@ export default function NovoCredorPage() {
     endereco: "",
     cidade: "",
     estado: "",
-    observacoes: ""
+    observacoes: "",
+    isManager: false
   })
 
   const handleInputChange = (field: keyof CreditorForm, value: string) => {
@@ -303,6 +306,30 @@ export default function NovoCredorPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Credor Gestor */}
+            <div className="space-y-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isManager"
+                  checked={formData.isManager}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, isManager: Boolean(checked) }))
+                  }
+                />
+                <Label 
+                  htmlFor="isManager" 
+                  className="text-amber-800 font-semibold flex items-center cursor-pointer"
+                >
+                  <Crown className="h-4 w-4 mr-2 text-amber-600" />
+                  Definir como Credor Gestor (Capital Próprio)
+                </Label>
+              </div>
+              <p className="text-sm text-amber-700 ml-6">
+                O credor gestor representa seu capital próprio e será usado como padrão em novos empréstimos. 
+                Apenas um credor pode ser gestor por vez.
+              </p>
             </div>
 
             {/* Observações */}

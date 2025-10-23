@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { CreditorManagerService } from "@/lib/creditor-manager-service"
 
 // GET - Buscar credor por ID
 export async function GET(
@@ -79,7 +80,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { cpf, nome, telefone, email, endereco, cidade, estado, observacoes } = body
+    const { cpf, nome, telefone, email, endereco, cidade, estado, observacoes, isManager } = body
 
     // Validações obrigatórias
     if (!cpf || !nome) {
@@ -133,19 +134,49 @@ export async function PUT(
       }
     }
 
+    // Validar alteração da flag de gestor
+    if (typeof isManager === 'boolean' && isManager !== existingCreditor.isManager) {
+      if (isManager) {
+        // Tentando definir como gestor
+        const canSetManager = await CreditorManagerService.validateManagerUniqueness(session.user.id, params.id)
+        if (!canSetManager) {
+          return NextResponse.json(
+            { error: "Já existe um credor gestor. Apenas um credor pode ser gestor por vez." },
+            { status: 400 }
+          )
+        }
+      } else {
+        // Tentando remover flag de gestor
+        const canChange = await CreditorManagerService.canChangeManagerFlag(params.id)
+        if (!canChange) {
+          return NextResponse.json(
+            { error: "Não é possível alterar o credor gestor pois há empréstimos ativos vinculados." },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
     // Atualizar credor
+    const updateData: any = {
+      cpf: cpfNumbers,
+      nome: nome.trim(),
+      telefone: telefone?.trim() || null,
+      email: email?.trim() || null,
+      endereco: endereco?.trim() || null,
+      cidade: cidade?.trim() || null,
+      estado: estado?.trim() || null,
+      observacoes: observacoes?.trim() || null
+    }
+
+    // Incluir isManager apenas se foi fornecido
+    if (typeof isManager === 'boolean') {
+      updateData.isManager = isManager
+    }
+
     const updatedCreditor = await db.creditor.update({
       where: { id: params.id },
-      data: {
-        cpf: cpfNumbers,
-        nome: nome.trim(),
-        telefone: telefone?.trim() || null,
-        email: email?.trim() || null,
-        endereco: endereco?.trim() || null,
-        cidade: cidade?.trim() || null,
-        estado: estado?.trim() || null,
-        observacoes: observacoes?.trim() || null
-      }
+      data: updateData
     })
 
     console.log(`[CREDITORS] ✅ Credor atualizado: ${nome} (${cpfNumbers})`)

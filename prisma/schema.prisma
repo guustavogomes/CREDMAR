@@ -23,6 +23,7 @@ model User {
   loans               Loan[]
   passwordResetTokens PasswordResetToken[]
   routes              Route[]
+  cashFlows           CashFlow[]
 
   @@map("users")
 }
@@ -78,7 +79,7 @@ model Customer {
 }
 
 model Creditor {
-  id           String    @id @default(cuid())
+  id           String     @id @default(cuid())
   cpf          String
   nome         String
   telefone     String?
@@ -87,14 +88,17 @@ model Creditor {
   cidade       String?
   estado       String?
   observacoes  String?
+  isManager    Boolean    @default(false)
   userId       String
   deletedAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  loans        Loan[]    @relation("CreditorLoans")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loans        Loan[]     @relation("CreditorLoans")
+  cashFlows    CashFlow[]
 
   @@unique([cpf, userId], name: "unique_creditor_cpf_per_user")
+  @@index([userId, isManager])
   @@map("creditors")
 }
 
@@ -139,6 +143,7 @@ model Loan {
   creditor              Creditor?     @relation("CreditorLoans", fields: [creditorId], references: [id], onDelete: Cascade)
   periodicity           Periodicity   @relation(fields: [periodicityId], references: [id])
   user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cashFlows             CashFlow[]
 
   @@map("loans")
 }
@@ -158,6 +163,7 @@ model Installment {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   loan              Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  cashFlows         CashFlow[]
 
   @@map("installments")
 }
@@ -190,4 +196,43 @@ enum ProofStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model CashFlow {
+  id            String           @id @default(cuid())
+  creditorId    String
+  type          CashFlowType
+  category      CashFlowCategory
+  amount        Float
+  description   String?
+  loanId        String?
+  installmentId String?
+  userId        String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  creditor      Creditor         @relation(fields: [creditorId], references: [id], onDelete: Restrict)
+  loan          Loan?            @relation(fields: [loanId], references: [id], onDelete: SetNull)
+  installment   Installment?     @relation(fields: [installmentId], references: [id], onDelete: SetNull)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([creditorId])
+  @@index([type])
+  @@index([category])
+  @@index([createdAt])
+  @@map("cash_flows")
+}
+
+enum CashFlowType {
+  CREDIT
+  DEBIT
+}
+
+enum CashFlowCategory {
+  DEPOSIT
+  WITHDRAWAL
+  COMMISSION
+  LOAN_DISBURSEMENT
+  INTERMEDIATOR_COMMISSION
+  MANAGER_COMMISSION
+  LOAN_RETURN
 }

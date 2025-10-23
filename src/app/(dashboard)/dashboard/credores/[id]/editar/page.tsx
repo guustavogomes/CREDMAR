@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Save, User, Phone, Mail, MapPin, FileText } from "lucide-react"
+import { ArrowLeft, Save, User, Phone, Mail, MapPin, FileText, Crown } from "lucide-react"
 import Link from "next/link"
 
 interface Creditor {
@@ -22,6 +23,7 @@ interface Creditor {
   cidade?: string
   estado?: string
   observacoes?: string
+  isManager: boolean
 }
 
 export default function EditCreditorPage() {
@@ -33,6 +35,7 @@ export default function EditCreditorPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [creditor, setCreditor] = useState<Creditor | null>(null)
+  const [canChangeManager, setCanChangeManager] = useState(true)
   const [formData, setFormData] = useState({
     nome: "",
     telefone: "",
@@ -40,7 +43,8 @@ export default function EditCreditorPage() {
     endereco: "",
     cidade: "",
     estado: "",
-    observacoes: ""
+    observacoes: "",
+    isManager: false
   })
 
   useEffect(() => {
@@ -70,8 +74,15 @@ export default function EditCreditorPage() {
           endereco: creditor.endereco || "",
           cidade: creditor.cidade || "",
           estado: creditor.estado || "",
-          observacoes: creditor.observacoes || ""
+          observacoes: creditor.observacoes || "",
+          isManager: creditor.isManager || false
         })
+        
+        // Verificar se pode alterar flag de gestor (se há empréstimos ativos)
+        if (creditor.loans && creditor.loans.length > 0) {
+          const hasActiveLoans = creditor.loans.some((loan: any) => loan.status === 'ACTIVE')
+          setCanChangeManager(!hasActiveLoans)
+        }
       } else if (response.status === 404) {
         toast({
           title: "Erro",
@@ -302,6 +313,41 @@ export default function EditCreditorPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Credor Gestor */}
+            <div className={`space-y-3 p-4 rounded-lg border ${
+              canChangeManager ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'
+            }`}>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isManager"
+                  checked={formData.isManager}
+                  disabled={!canChangeManager}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, isManager: Boolean(checked) }))
+                  }
+                />
+                <Label 
+                  htmlFor="isManager" 
+                  className={`font-semibold flex items-center ${
+                    canChangeManager ? 'text-amber-800 cursor-pointer' : 'text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <Crown className={`h-4 w-4 mr-2 ${
+                    canChangeManager ? 'text-amber-600' : 'text-gray-400'
+                  }`} />
+                  Definir como Credor Gestor (Capital Próprio)
+                </Label>
+              </div>
+              <p className={`text-sm ml-6 ${
+                canChangeManager ? 'text-amber-700' : 'text-gray-500'
+              }`}>
+                {canChangeManager 
+                  ? 'O credor gestor representa seu capital próprio e será usado como padrão em novos empréstimos. Apenas um credor pode ser gestor por vez.'
+                  : 'Não é possível alterar o credor gestor pois há empréstimos ativos vinculados a este credor.'
+                }
+              </p>
             </div>
 
             {/* Observações */}

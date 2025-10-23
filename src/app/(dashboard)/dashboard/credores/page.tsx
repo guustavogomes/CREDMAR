@@ -8,6 +8,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { 
   Plus, 
   Search, 
@@ -18,9 +28,12 @@ import {
   Mail, 
   MapPin,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Crown,
+  X
 } from "lucide-react"
 import Link from "next/link"
+import { ManagerBadge } from "@/components/ui/manager-badge"
 
 interface Creditor {
   id: string
@@ -32,6 +45,7 @@ interface Creditor {
   cidade?: string
   estado?: string
   observacoes?: string
+  isManager: boolean
   createdAt: string
   _count: {
     loans: number
@@ -57,11 +71,22 @@ export default function CreditorsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [toggleLoading, setToggleLoading] = useState<string | null>(null)
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
     pages: 0
+  })
+  
+  // Estados para os dialogs de confirmação
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; creditor: Creditor | null }>({
+    open: false,
+    creditor: null
+  })
+  const [managerDialog, setManagerDialog] = useState<{ open: boolean; creditor: Creditor | null }>({
+    open: false,
+    creditor: null
   })
 
   useEffect(() => {
@@ -108,7 +133,7 @@ export default function CreditorsPage() {
     }
   }
 
-  const handleDelete = async (creditor: Creditor) => {
+  const handleDeleteClick = (creditor: Creditor) => {
     if (creditor._count.loans > 0) {
       toast({
         title: "Não é possível excluir",
@@ -117,13 +142,15 @@ export default function CreditorsPage() {
       })
       return
     }
+    
+    setDeleteDialog({ open: true, creditor })
+  }
 
-    if (!confirm(`Tem certeza que deseja excluir o credor ${creditor.nome}?`)) {
-      return
-    }
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.creditor) return
 
     try {
-      const response = await fetch(`/api/creditors/${creditor.id}`, {
+      const response = await fetch(`/api/creditors/${deleteDialog.creditor.id}`, {
         method: 'DELETE'
       })
 
@@ -147,6 +174,62 @@ export default function CreditorsPage() {
         description: "Erro ao excluir credor",
         variant: "destructive"
       })
+    } finally {
+      setDeleteDialog({ open: false, creditor: null })
+    }
+  }
+
+  const handleToggleManagerClick = (creditor: Creditor) => {
+    if (creditor._count.loans > 0) {
+      toast({
+        title: "Não é possível alterar",
+        description: "Este credor possui empréstimos ativos",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    setManagerDialog({ open: true, creditor })
+  }
+
+  const handleToggleManagerConfirm = async () => {
+    if (!managerDialog.creditor) return
+
+    const creditor = managerDialog.creditor
+    const action = creditor.isManager ? 'remover' : 'definir'
+
+    try {
+      setToggleLoading(creditor.id)
+      
+      const endpoint = creditor.isManager ? 'unset-manager' : 'set-manager'
+      const response = await fetch(`/api/creditors/${creditor.id}/${endpoint}`, {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast({
+          title: "Sucesso",
+          description: data.message
+        })
+        fetchCreditors()
+      } else {
+        const data = await response.json()
+        toast({
+          title: "Erro",
+          description: data.error || `Erro ao ${action} credor gestor`,
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: `Erro ao ${action} credor gestor`,
+        variant: "destructive"
+      })
+    } finally {
+      setToggleLoading(null)
+      setManagerDialog({ open: false, creditor: null })
     }
   }
 
@@ -239,7 +322,8 @@ export default function CreditorsPage() {
                           CPF: {formatCPF(creditor.cpf)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <ManagerBadge isManager={creditor.isManager} size="sm" />
                         <Badge variant="outline" className="border-credmar-red/20 text-credmar-red">
                           {creditor._count.loans} empréstimo(s)
                         </Badge>
@@ -285,10 +369,46 @@ export default function CreditorsPage() {
                         Editar
                       </Button>
                     </Link>
+                    
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(creditor)}
+                      onClick={() => handleToggleManagerClick(creditor)}
+                      className={`flex-1 lg:flex-none ${
+                        creditor.isManager 
+                          ? 'border-amber-200 text-amber-700 hover:bg-amber-50' 
+                          : 'border-amber-200 text-amber-600 hover:bg-amber-50'
+                      }`}
+                      disabled={creditor._count.loans > 0 || toggleLoading === creditor.id}
+                      title={creditor._count.loans > 0 ? 'Não é possível alterar gestor com empréstimos ativos' : ''}
+                    >
+                      {toggleLoading === creditor.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600 mr-2" />
+                          Alterando...
+                        </>
+                      ) : creditor._count.loans > 0 ? (
+                        <>
+                          <AlertTriangle className="h-4 w-4 mr-2" />
+                          Bloqueado
+                        </>
+                      ) : creditor.isManager ? (
+                        <>
+                          <X className="h-4 w-4 mr-2" />
+                          Remover Gestor
+                        </>
+                      ) : (
+                        <>
+                          <Crown className="h-4 w-4 mr-2" />
+                          Definir Gestor
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteClick(creditor)}
                       className="flex-1 lg:flex-none border-red-200 text-red-600 hover:bg-red-50"
                       disabled={creditor._count.loans > 0}
                     >
@@ -345,6 +465,68 @@ export default function CreditorsPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Dialog de confirmação para excluir credor */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ open, creditor: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              Excluir Credor
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o credor <strong>{deleteDialog.creditor?.nome}</strong>?
+              <br />
+              <span className="text-red-600 font-medium">Esta ação não pode ser desfeita.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Excluir Credor
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog de confirmação para alterar gestor */}
+      <AlertDialog open={managerDialog.open} onOpenChange={(open) => setManagerDialog({ open, creditor: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-amber-600">
+              <Crown className="h-5 w-5" />
+              {managerDialog.creditor?.isManager ? 'Remover Credor Gestor' : 'Definir Credor Gestor'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {managerDialog.creditor?.isManager ? (
+                <>
+                  Tem certeza que deseja <strong>remover como gestor</strong> o credor <strong>{managerDialog.creditor?.nome}</strong>?
+                  <br />
+                  <span className="text-amber-700 font-medium">Este credor não será mais usado como padrão em novos empréstimos.</span>
+                </>
+              ) : (
+                <>
+                  Tem certeza que deseja <strong>definir como gestor</strong> o credor <strong>{managerDialog.creditor?.nome}</strong>?
+                  <br />
+                  <span className="text-amber-700 font-medium">Este credor representará seu capital próprio e será usado como padrão em novos empréstimos.</span>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleToggleManagerConfirm}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {managerDialog.creditor?.isManager ? 'Remover Gestor' : 'Definir Gestor'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

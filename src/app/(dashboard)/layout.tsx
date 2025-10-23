@@ -16,7 +16,8 @@ import {
   Users,
   DollarSign,
   Route,
-  Calculator
+  Calculator,
+  TrendingUp
 } from "lucide-react"
 import { useState } from "react"
 import { Toaster } from "@/components/ui/toaster"
@@ -40,7 +41,7 @@ export default function DashboardLayout({
   if (!sessionResult) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-credmar-red"></div>
       </div>
     )
   }
@@ -61,7 +62,7 @@ export default function DashboardLayout({
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-credmar-red"></div>
       </div>
     )
   }
@@ -75,6 +76,7 @@ export default function DashboardLayout({
     { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
     { name: 'Credores', href: '/dashboard/credores', icon: User },
     { name: 'Empréstimos', href: '/dashboard/emprestimos', icon: DollarSign },
+    { name: 'Fluxo de Caixa', href: '/dashboard/fluxo-caixa', icon: TrendingUp },
     { name: 'Simulação', href: '/dashboard/simulacao', icon: Calculator },
     { name: 'Intermediador', href: '/dashboard/rotas', icon: Route },
     { name: 'Configurações', href: '/dashboard/settings', icon: Settings },

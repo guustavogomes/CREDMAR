@@ -44,6 +44,19 @@ export async function POST(
       )
     }
 
+    // Buscar dados completos da parcela e empréstimo para verificar comissão
+    const fullInstallment = await db.installment.findFirst({
+      where: { id: params.installmentId },
+      include: {
+        loan: {
+          include: {
+            creditor: true,
+            user: true
+          }
+        }
+      }
+    })
+
     // Reverter o pagamento
     const updatedInstallment = await db.installment.update({
       where: { id: params.installmentId },
@@ -54,6 +67,23 @@ export async function POST(
         // Mantém a fineAmount caso tenha sido aplicada
       }
     })
+
+    // Remover movimentação de comissão do fluxo de caixa se existir
+    if (fullInstallment?.loan.creditor && fullInstallment.loan.creditorCommission) {
+      try {
+        await db.cashFlow.deleteMany({
+          where: {
+            installmentId: params.installmentId,
+            type: 'CREDIT',
+            category: 'COMMISSION',
+            userId: fullInstallment.loan.user.id
+          }
+        })
+      } catch (error) {
+        console.error('Erro ao remover movimentação de comissão:', error)
+        // Não bloqueia o estorno, apenas loga o erro
+      }
+    }
 
     return NextResponse.json(updatedInstallment)
   } catch (error) {

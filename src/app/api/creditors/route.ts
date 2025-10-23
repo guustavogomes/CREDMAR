@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { CreditorManagerService } from "@/lib/creditor-manager-service"
 
 // GET - Listar credores
 export async function GET(request: NextRequest) {
@@ -35,13 +36,16 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Buscar credores
+    // Buscar credores (gestor primeiro)
     const [creditors, total] = await Promise.all([
       db.creditor.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+          { isManager: 'desc' }, // Gestor primeiro
+          { createdAt: 'desc' }
+        ],
         include: {
           _count: {
             select: {
@@ -87,7 +91,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { cpf, nome, telefone, email, endereco, cidade, estado, observacoes } = body
+    const { cpf, nome, telefone, email, endereco, cidade, estado, observacoes, isManager } = body
 
     // Validações obrigatórias
     if (!cpf || !nome) {
@@ -122,6 +126,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validar se pode definir como gestor
+    if (isManager) {
+      const canSetManager = await CreditorManagerService.validateManagerUniqueness(session.user.id)
+      if (!canSetManager) {
+        return NextResponse.json(
+          { error: "Já existe um credor gestor. Apenas um credor pode ser gestor por vez." },
+          { status: 400 }
+        )
+      }
+    }
+
     // Criar credor
     const creditor = await db.creditor.create({
       data: {
@@ -133,6 +148,7 @@ export async function POST(request: NextRequest) {
         cidade: cidade?.trim() || null,
         estado: estado?.trim() || null,
         observacoes: observacoes?.trim() || null,
+        isManager: Boolean(isManager),
         userId: session.user.id
       }
     })
