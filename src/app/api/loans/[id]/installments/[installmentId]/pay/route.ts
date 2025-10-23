@@ -97,7 +97,7 @@ export async function POST(
         let remainingCommission = commissionPool
         
         // Comissão do Intermediador
-        if (updatedInstallment.loan.commission && updatedInstallment.loan.customer.route) {
+        if (updatedInstallment.loan.commission && updatedInstallment.loan.customer?.route) {
           intermediatorCommission = (installmentAmount * updatedInstallment.loan.commission) / 100
           remainingCommission -= intermediatorCommission
         }
@@ -136,7 +136,7 @@ export async function POST(
           const managerRate = totalInterestRate - intermediatorRate - creditorRate  // Restante dos juros
           
           // Aplicar as taxas sobre o principal
-          if (updatedInstallment.loan.commission && updatedInstallment.loan.customer.route) {
+          if (updatedInstallment.loan.commission && updatedInstallment.loan.customer?.route) {
             intermediatorCommission = (principalAmount * intermediatorRate) / 100
           }
           
@@ -152,20 +152,22 @@ export async function POST(
       
       // 1. Comissão do Intermediador (se houver)
       if (intermediatorCommission > 0) {
-        
-        // Lançar DÉBITO no fluxo de caixa para o intermediador
-        await db.cashFlow.create({
-          data: {
-            creditorId: managerCreditor?.id || updatedInstallment.loan.creditor?.id,
+        const creditorIdForDebit = managerCreditor?.id || updatedInstallment.loan.creditor?.id
+        if (creditorIdForDebit) {
+          // Lançar DÉBITO no fluxo de caixa para o intermediador
+          await db.cashFlow.create({
+            data: {
+              creditorId: creditorIdForDebit,
             type: 'DEBIT',
             category: 'INTERMEDIATOR_COMMISSION',
             amount: intermediatorCommission,
-            description: `Comissão intermediador (${updatedInstallment.loan.commission}%) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - ${updatedInstallment.loan.customer.route?.description} - Base: ${updatedInstallment.loan.loanType === 'SIMPLE_INTEREST' || updatedInstallment.loan.loanType === 'RECURRING_SIMPLE_INTEREST' ? 'Parcela' : 'Principal'}`,
+            description: `Comissão intermediador (${updatedInstallment.loan.commission}%) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - ${updatedInstallment.loan.customer?.route?.description} - Base: ${updatedInstallment.loan.loanType === 'SIMPLE_INTEREST' || updatedInstallment.loan.loanType === 'RECURRING_SIMPLE_INTEREST' ? 'Parcela' : 'Principal'}`,
             loanId: updatedInstallment.loan.id,
             installmentId: updatedInstallment.id,
             userId: updatedInstallment.loan.user.id
           }
         })
+        }
       }
 
       // 2. Comissão do Credor (se houver)
