@@ -89,14 +89,14 @@ function calculateSAC(principal: number, installments: number, monthlyRate: numb
   }
 }
 
-// Juros Simples
+// Juros Simples - Juros calculados 1x sobre valor emprestado
 function calculateSimpleInterest(principal: number, installments: number, monthlyRate: number): LoanSimulationResult {
-  // No juros simples, dividimos o principal pelas parcelas e aplicamos juros sobre cada parcela
+  // CORREÇÃO: Juros simples = juros calculados 1x sobre o valor emprestado total
+  const totalInterest = principal * monthlyRate  // Juros 1x sobre valor emprestado
+  const interestPerInstallment = totalInterest / installments  // Dividir juros pelas parcelas
   const principalPerInstallment = principal / installments
-  const interestPerInstallment = principalPerInstallment * monthlyRate
   const installmentValue = principalPerInstallment + interestPerInstallment
   
-  const totalInterest = interestPerInstallment * installments
   const totalAmount = principal + totalInterest
   
   const details: InstallmentDetail[] = []

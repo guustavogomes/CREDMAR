@@ -1034,11 +1034,57 @@ export default function NovoEmprestimoPage() {
                       <span>Parcelas:</span>
                       <span>{formData.installments || 0}x</span>
                     </div>
-                    {formData.commission && selectedCustomer?.route && (
-                      <div className="flex justify-between text-blue-600">
-                        <span>Comissão ({formData.commission}%):</span>
-                        <span>R$ {((parseFloat(formData.totalAmount || '0') * parseFloat(formData.commission || '0')) / 100).toFixed(2)}</span>
-                      </div>
+                    {/* Seção de Comissões */}
+                    {(formData.commission || formData.creditorCommission || parseFloat(formData.interestRate || '0') > 0) && (
+                      <>
+                        <hr className="border-gray-200" />
+                        <div className="text-sm font-medium text-gray-700 mb-2">💰 Distribuição de Comissões:</div>
+                        
+                        {formData.commission && selectedCustomer?.route && (
+                          <div className="flex justify-between text-blue-600 ml-4">
+                            <span>• Intermediador ({formData.commission}%):</span>
+                            <span>R$ {((parseFloat(formData.totalAmount || '0') * parseFloat(formData.commission || '0')) / 100).toFixed(2)}</span>
+                          </div>
+                        )}
+                        
+                        {formData.creditorCommission && selectedCreditor && (
+                          <div className="flex justify-between text-green-600 ml-4">
+                            <span>• Credor ({formData.creditorCommission}%):</span>
+                            <span>R$ {((parseFloat(formData.totalAmount || '0') * parseFloat(formData.creditorCommission || '0')) / 100).toFixed(2)}</span>
+                          </div>
+                        )}
+                        
+                        {(() => {
+                          const intermediatorRate = parseFloat(formData.commission || '0')
+                          const creditorRate = parseFloat(formData.creditorCommission || '0')
+                          const totalRate = parseFloat(formData.interestRate || '0')
+                          const managerRate = totalRate - intermediatorRate - creditorRate
+                          
+                          return managerRate > 0 ? (
+                            <div className="flex justify-between text-purple-600 ml-4">
+                              <span>• Gestor ({managerRate.toFixed(2)}%):</span>
+                              <span>R$ {((parseFloat(formData.totalAmount || '0') * managerRate) / 100).toFixed(2)}</span>
+                            </div>
+                          ) : null
+                        })()}
+                        
+                        {/* Total das Comissões */}
+                        {(() => {
+                          const totalCommissionRate = (parseFloat(formData.commission || '0') + 
+                                                     parseFloat(formData.creditorCommission || '0') + 
+                                                     (parseFloat(formData.interestRate || '0') - 
+                                                      parseFloat(formData.commission || '0') - 
+                                                      parseFloat(formData.creditorCommission || '0')))
+                          const totalCommissionValue = (parseFloat(formData.totalAmount || '0') * totalCommissionRate) / 100
+                          
+                          return totalCommissionRate > 0 ? (
+                            <div className="flex justify-between font-medium text-gray-700 ml-4 pt-1 border-t border-gray-200">
+                              <span>Total Comissões ({totalCommissionRate.toFixed(2)}%):</span>
+                              <span>R$ {totalCommissionValue.toFixed(2)}</span>
+                            </div>
+                          ) : null
+                        })()}
+                      </>
                     )}
                     <hr />
                     <div className="flex justify-between font-semibold">

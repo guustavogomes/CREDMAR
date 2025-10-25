@@ -200,23 +200,14 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
       const loanData = await loanResponse.json()
       let installmentDetails = []
       
-      // Buscar parcelas se a API estiver disponível
-      if (installmentsResponse.ok) {
-        const installmentsData = await installmentsResponse.json()
-        installmentDetails = installmentsData.map((inst: any) => ({
-          number: inst.installmentNumber,
-          dueDate: inst.dueDate,
-          principalAmount: loanData.totalAmount / loanData.installments, // Cálculo básico
-          interestAmount: inst.amount - (loanData.totalAmount / loanData.installments),
-          totalAmount: inst.amount,
-          remainingBalance: loanData.totalAmount - ((loanData.totalAmount / loanData.installments) * inst.installmentNumber)
-        }))
-      }
+      // Para PDF, não usar parcelas do banco - sempre gerar cronograma completo
+      // O PDF deve mostrar todas as parcelas planejadas, não apenas as criadas no banco
       
-      // Adicionar detalhes das parcelas aos dados do empréstimo
+      // Dados do empréstimo sem installmentDetails para forçar geração completa
       const enrichedLoanData = {
         ...loanData,
-        installmentDetails: installmentDetails.length > 0 ? installmentDetails : undefined
+        // Remover installmentDetails para que o PDF gere o cronograma completo
+        installmentDetails: undefined
       }
       
       // Gerar PDF

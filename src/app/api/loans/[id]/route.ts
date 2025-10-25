@@ -42,7 +42,12 @@ export async function GET(
         deletedAt: null
       },
       include: {
-        customer: true,
+        customer: {
+          include: {
+            route: true
+          }
+        },
+        creditor: true,
         periodicity: true,
         installmentRecords: {
           select: {

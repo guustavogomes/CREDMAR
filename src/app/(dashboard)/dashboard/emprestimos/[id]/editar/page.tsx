@@ -26,9 +26,16 @@ interface Periodicity {
   name: string
 }
 
+interface Creditor {
+  id: string
+  name: string
+  cpf: string
+}
+
 interface Loan {
   id: string
   customerId: string
+  creditorId?: string | null
   totalAmount: number
   loanType: string
   interestRate: number
@@ -38,7 +45,10 @@ interface Loan {
   nextPaymentDate: string
   transactionDate: string
   observation?: string | null
+  commission?: number | null
+  creditorCommission?: number | null
   customer: Customer
+  creditor?: Creditor | null
   periodicity: Periodicity
   installmentRecords?: Array<{
     id: string
@@ -54,6 +64,7 @@ export default function EditarEmprestimoPage() {
   const { toast } = useToast()
   const [loan, setLoan] = useState<Loan | null>(null)
   const [periodicities, setPeriodicities] = useState<Periodicity[]>([])
+  const [creditors, setCreditors] = useState<Creditor[]>([])
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
 
@@ -65,7 +76,10 @@ export default function EditarEmprestimoPage() {
     installments: '',
     nextPaymentDate: '',
     transactionDate: '',
-    observation: ''
+    observation: '',
+    creditorId: '',
+    commission: '',
+    creditorCommission: ''
   })
 
   const [calculatedValues, setCalculatedValues] = useState({
@@ -83,6 +97,7 @@ export default function EditarEmprestimoPage() {
   useEffect(() => {
     fetchLoan()
     fetchPeriodicities()
+    fetchCreditors()
   }, [params.id])
 
   useEffect(() => {
@@ -111,7 +126,10 @@ export default function EditarEmprestimoPage() {
           installments: data.installments.toString(),
           nextPaymentDate: data.nextPaymentDate.split('T')[0],
           transactionDate: data.transactionDate.split('T')[0],
-          observation: data.observation || ''
+          observation: data.observation || '',
+          creditorId: data.creditorId || '',
+          commission: data.commission?.toString() || '',
+          creditorCommission: data.creditorCommission?.toString() || ''
         })
       } else {
         toast({
@@ -141,6 +159,18 @@ export default function EditarEmprestimoPage() {
       }
     } catch (error) {
       console.error('Erro ao carregar periodicidades:', error)
+    }
+  }
+
+  const fetchCreditors = async () => {
+    try {
+      const response = await fetch('/api/creditors')
+      if (response.ok) {
+        const data = await response.json()
+        setCreditors(data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar credores:', error)
     }
   }
 
@@ -204,7 +234,10 @@ export default function EditarEmprestimoPage() {
           installments: parseInt(formData.installments),
           installmentValue: calculatedValues.installmentValue,
           transactionDate: formData.transactionDate,
-          observation: formData.observation
+          observation: formData.observation,
+          creditorId: formData.creditorId || null,
+          commission: formData.commission ? parseFloat(formData.commission) : null,
+          creditorCommission: formData.creditorCommission ? parseFloat(formData.creditorCommission) : null
         })
       })
 
@@ -443,6 +476,101 @@ export default function EditarEmprestimoPage() {
                     }))}
                     required
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="creditorId">
+                    Credor
+                    {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                  </Label>
+                  <Select
+                    value={formData.creditorId || undefined}
+                    onValueChange={(value) => setFormData(prev => ({ 
+                      ...prev, 
+                      creditorId: value || '',
+                      creditorCommission: value ? prev.creditorCommission : ''
+                    }))}
+                    disabled={hasPaidInstallments}
+                  >
+                    <SelectTrigger className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}>
+                      <SelectValue placeholder="Selecione um credor (opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.isArray(creditors) && creditors.map((creditor) => (
+                        <SelectItem key={creditor.id} value={creditor.id}>
+                          {creditor.name} - {creditor.cpf}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formData.creditorId && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormData(prev => ({ 
+                        ...prev, 
+                        creditorId: '',
+                        creditorCommission: ''
+                      }))}
+                      className="mt-2 text-red-600 hover:text-red-700"
+                      disabled={hasPaidInstallments}
+                    >
+                      Remover credor
+                    </Button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="commission">
+                      Comissão do Intermediador (%)
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
+                    <Input
+                      id="commission"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      placeholder="0.00"
+                      value={formData.commission}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        commission: e.target.value
+                      }))}
+                      disabled={hasPaidInstallments || !loan?.customer}
+                      className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Comissão para intermediador (se aplicável)
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="creditorCommission">
+                      Comissão do Credor (%)
+                      {hasPaidInstallments && <span className="text-amber-600 text-xs ml-2">(Não editável)</span>}
+                    </Label>
+                    <Input
+                      id="creditorCommission"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      placeholder="0.00"
+                      value={formData.creditorCommission}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        creditorCommission: e.target.value
+                      }))}
+                      disabled={hasPaidInstallments || !formData.creditorId}
+                      className={hasPaidInstallments ? "bg-gray-100 text-gray-500" : ""}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Comissão para o credor selecionado
+                    </p>
+                  </div>
                 </div>
 
                 <div>

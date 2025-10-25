@@ -68,19 +68,18 @@ export async function POST(
       }
     })
 
-    // Remover movimentação de comissão do fluxo de caixa se existir
-    if (fullInstallment?.loan.creditor && fullInstallment.loan.creditorCommission) {
+    // Remover TODAS as movimentações do fluxo de caixa relacionadas a esta parcela
+    if (fullInstallment) {
       try {
         await db.cashFlow.deleteMany({
           where: {
             installmentId: params.installmentId,
-            type: 'CREDIT',
-            category: 'COMMISSION',
             userId: fullInstallment.loan.user.id
           }
         })
+        console.log(`Removidas todas as movimentações do fluxo de caixa para a parcela ${params.installmentId}`)
       } catch (error) {
-        console.error('Erro ao remover movimentação de comissão:', error)
+        console.error('Erro ao remover movimentações do fluxo de caixa:', error)
         // Não bloqueia o estorno, apenas loga o erro
       }
     }
