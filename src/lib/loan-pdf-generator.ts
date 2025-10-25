@@ -129,7 +129,7 @@ export const generateLoanPDF = async (loanData: LoanPDFData) => {
       try {
         const simulation = calculateLoanSimulation({
           loanType: loanData.loanType as LoanType,
-          periodicityId: loanData.periodicity?.id || 'monthly',
+          periodicityId: 'monthly',
           requestedAmount: loanData.totalAmount,
           installments: loanData.installments,
           interestRate: loanData.interestRate
