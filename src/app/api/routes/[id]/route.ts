@@ -47,16 +47,17 @@ export async function DELETE(
       )
     }
     
-    // Verificar se existem clientes usando esta rota
-    const customersWithRoute = await db.customer.count({
+    // Verificar se existem empréstimos usando esta rota
+    const loansWithRoute = await db.loan.count({
       where: {
-        routeId: id
+        routeId: id,
+        deletedAt: null
       }
     })
     
-    if (customersWithRoute > 0) {
+    if (loansWithRoute > 0) {
       return NextResponse.json(
-        { error: `Não é possível excluir esta rota. Existem ${customersWithRoute} cliente(s) usando ela.` },
+        { error: `Não é possível excluir esta rota. Existem ${loansWithRoute} empréstimo(s) usando ela.` },
         { status: 400 }
       )
     }
@@ -114,7 +115,7 @@ export async function GET(
       include: {
         _count: {
           select: {
-            customers: true
+            loans: true
           }
         }
       }

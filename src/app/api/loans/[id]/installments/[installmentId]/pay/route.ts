@@ -62,12 +62,9 @@ export async function POST(
       include: {
         loan: {
           include: {
-            customer: {
-              include: {
-                route: true
-              }
-            },
+            customer: true,
             creditor: true,
+            route: true,
             user: true
           }
         }
@@ -219,7 +216,7 @@ export async function POST(
       console.log(`\n💰 CRIANDO MOVIMENTAÇÕES NO FLUXO DE CAIXA:`)
 
       // 1. Comissão do Intermediador (se houver)
-      if (intermediatorCommission > 0 && updatedInstallment.loan.customer?.route) {
+      if (intermediatorCommission > 0 && updatedInstallment.loan.route) {
         const creditorIdForDebit = managerCreditor?.id || updatedInstallment.loan.creditor?.id
         if (creditorIdForDebit) {
           console.log(`   📤 DÉBITO Intermediador: R$ ${intermediatorCommission.toFixed(2)}`)
@@ -229,7 +226,7 @@ export async function POST(
               type: 'DEBIT',
               category: 'INTERMEDIATOR_COMMISSION',
               amount: intermediatorCommission,
-              description: `Comissão intermediador (${intermediatorRate}%) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - ${updatedInstallment.loan.customer?.route?.description} - Base: ${calculationMethod}`,
+              description: `Comissão intermediador (${intermediatorRate}%) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - ${updatedInstallment.loan.route?.description} - Base: ${calculationMethod}`,
               loanId: updatedInstallment.loan.id,
               installmentId: updatedInstallment.id,
               userId: updatedInstallment.loan.user.id

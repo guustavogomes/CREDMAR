@@ -214,7 +214,7 @@ export const generateLoanPDF = async (loanData: LoanPDFData) => {
               <div style="margin-bottom: 3px;"><strong>Nome:</strong> ${loanData.customer.nomeCompleto}</div>
               <div style="margin-bottom: 3px;"><strong>CPF:</strong> ${loanData.customer.cpf}</div>
               ${loanData.customer.telefone ? `<div style="margin-bottom: 3px;"><strong>Telefone:</strong> ${loanData.customer.telefone}</div>` : ''}
-              <div><strong>Intermediador:</strong> ${loanData.customer.route ? loanData.customer.route.description : 'Capital Próprio'}</div>
+              <div><strong>Intermediador:</strong> ${loanData.route ? loanData.route.description : 'Capital Próprio'}</div>
             </div>
             
             ${loanData.creditor ? `
@@ -255,11 +255,11 @@ export const generateLoanPDF = async (loanData: LoanPDFData) => {
         <div style="background: #fef3c7; padding: 8px; border-radius: 6px; margin-bottom: 12px;">
           <h3 style="color: #d97706; margin: 0 0 6px 0; font-size: 12px;">💼 Comissões sobre Valor Emprestado</h3>
           <div style="display: flex; gap: 20px; font-size: 9px;">
-            ${loanData.commission && loanData.customer.route ? `
+            ${loanData.commission && loanData.route ? `
               <div style="flex: 1;">
                 <span style="font-weight: bold; color: #d97706;">Intermediador (${loanData.commission}%):</span>
                 <span style="color: #d97706; font-weight: bold; margin-left: 8px;">${formatCurrency((loanData.totalAmount * loanData.commission) / 100)}</span>
-                <div style="color: #666; font-size: 8px;">${loanData.customer.route.description}</div>
+                <div style="color: #666; font-size: 8px;">${loanData.route.description}</div>
               </div>
             ` : ''}
             ${loanData.creditorCommission && loanData.creditor ? `

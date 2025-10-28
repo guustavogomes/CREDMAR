@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// Select removido - não é mais usado no cadastro de clientes
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, DollarSign, Search } from 'lucide-react'
@@ -24,10 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-interface Route {
-  id: string
-  description: string
-}
+// Interface Route removida - não é mais usada no cadastro de clientes
 
 interface AddressData {
   cep: string
@@ -42,11 +39,8 @@ export default function NovoClientePage() {
   const router = useRouter()
   const { toast } = useToast()
   const { loading: scoreLoading, scoreData, error: scoreError, fetchScore, clearScore } = useCustomerScore()
-  const [routes, setRoutes] = useState<Route[]>([])
   const [loading, setLoading] = useState(false)
   const [cepLoading, setCepLoading] = useState(false)
-  const [showNewRouteInput, setShowNewRouteInput] = useState(false)
-  const [newRouteDescription, setNewRouteDescription] = useState('')
   const [showLoanDialog, setShowLoanDialog] = useState(false)
   const [createdCustomerId, setCreatedCustomerId] = useState<string>('')
   const [createdCustomerName, setCreatedCustomerName] = useState<string>('')
@@ -62,27 +56,14 @@ export default function NovoClientePage() {
     estado: '',
     bairro: '',
     referencia: '',
-    routeId: '',
     foto: ''
   })
 
   const [fotoFile, setFotoFile] = useState<File | null>(null)
 
-  useEffect(() => {
-    fetchRoutes()
-  }, [])
+  // Rotas agora são selecionadas apenas no empréstimo
 
-  const fetchRoutes = async () => {
-    try {
-      const response = await fetch('/api/routes')
-      if (response.ok) {
-        const data = await response.json()
-        setRoutes(data)
-      }
-    } catch (error) {
-      console.error('Erro ao carregar intermediadores:', error)
-    }
-  }
+  // Função fetchRoutes removida - rotas agora são selecionadas apenas no empréstimo
 
   const handleCepChange = async (cep: string) => {
     setFormData(prev => ({ ...prev, cep }))
@@ -176,44 +157,7 @@ export default function NovoClientePage() {
     await fetchScore(cleanCpf)
   }
 
-  const handleCreateRoute = async () => {
-    if (!newRouteDescription.trim()) return
-
-    try {
-      const response = await fetch('/api/routes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ description: newRouteDescription })
-      })
-
-      if (response.ok) {
-        const newRoute = await response.json()
-        setRoutes(prev => [...prev, newRoute])
-        setFormData(prev => ({ ...prev, routeId: newRoute.id }))
-        setShowNewRouteInput(false)
-        setNewRouteDescription('')
-        toast({
-          title: 'Sucesso',
-          description: 'Intermediador criado com sucesso'
-        })
-      } else {
-        const error = await response.json()
-        toast({
-          title: 'Erro',
-          description: error.error || 'Erro ao criar intermediador',
-          variant: 'destructive'
-        })
-      }
-    } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Erro ao criar intermediador',
-        variant: 'destructive'
-      })
-    }
-  }
+  // Função handleCreateRoute removida - rotas agora são selecionadas apenas no empréstimo
 
   const compressImage = (file: File, maxWidth: number = 400, quality: number = 0.7): Promise<File> => {
     return new Promise((resolve) => {
@@ -332,8 +276,7 @@ export default function NovoClientePage() {
         cidade: formData.cidade || null,
         estado: formData.estado || null,
         bairro: formData.bairro || null,
-        referencia: formData.referencia || null,
-        routeId: formData.routeId || null
+        referencia: formData.referencia || null
       }
       
       
@@ -615,75 +558,7 @@ export default function NovoClientePage() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="rota">Intermediador</Label>
-              <div className="flex gap-2">
-                <Select
-                  value={formData.routeId}
-                  onValueChange={(value) => {
-                    if (value === 'new') {
-                      setShowNewRouteInput(true)
-                    } else if (value === 'none') {
-                      setFormData(prev => ({ ...prev, routeId: '' }))
-                    } else {
-                      setFormData(prev => ({ ...prev, routeId: value }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="flex-1 bg-white dark:bg-[hsl(222.2_84%_4.9%)]">
-                    <SelectValue placeholder="Selecione um intermediador (opcional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sem intermediador</SelectItem>
-                    {routes.map((route) => (
-                      <SelectItem key={route.id} value={route.id}>
-                        {route.description}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="new">+ Criar novo intermediador</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {showNewRouteInput && (
-                <div className="mt-3 space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
-                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Novo Intermediador
-                  </div>
-                  <Input
-                    placeholder="Digite o nome do intermediador (ex: João Silva, Maria Santos, etc.)"
-                    value={newRouteDescription}
-                    onChange={(e) => setNewRouteDescription(e.target.value)}
-                    className="w-full"
-                    autoFocus
-                  />
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Button 
-                      type="button" 
-                      onClick={handleCreateRoute}
-                      disabled={!newRouteDescription.trim()}
-                      className="flex-1"
-                    >
-                      Criar Intermediador
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={() => {
-                        setShowNewRouteInput(false)
-                        setNewRouteDescription('')
-                      }}
-                      className="flex-1"
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Campo de intermediador removido - agora é selecionado apenas no empréstimo */}
 
             <div className="flex justify-end space-x-2">
               <Link href="/dashboard/clientes">

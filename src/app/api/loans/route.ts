@@ -21,7 +21,8 @@ const loanSchema = z.object({
   observation: z.string().optional(), // Campo de observação opcional
   commission: z.number().min(0).max(100).optional().nullable(), // Campo de comissão do intermediador em %
   creditorId: z.string().optional().nullable(), // ID do credor (opcional)
-  creditorCommission: z.number().min(0).max(100).optional().nullable() // Campo de comissão do credor em %
+  creditorCommission: z.number().min(0).max(100).optional().nullable(), // Campo de comissão do credor em %
+  routeId: z.string().optional().nullable() // ID da rota/intermediador (opcional)
 })
 
 export async function POST(request: NextRequest) {
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       data: {
         customerId: validatedData.customerId,
         creditorId: validatedData.creditorId || null, // Salvar credor se fornecido
+        routeId: validatedData.routeId || null, // Salvar rota/intermediador se fornecido
         transactionDate: transactionDate, // Data customizada do empréstimo
         totalAmount: validatedData.totalAmount,
         loanType: validatedData.loanType,
@@ -206,6 +208,7 @@ export async function GET() {
       include: {
         customer: true,
         creditor: true,
+        route: true,
         periodicity: true
       },
       orderBy: {

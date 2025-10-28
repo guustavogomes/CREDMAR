@@ -47,7 +47,7 @@ model Route {
   userId      String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  customers   Customer[]
+  loans       Loan[]     // Mudança: rotas agora se relacionam com empréstimos
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("routes")
@@ -64,13 +64,11 @@ model Customer {
   estado       String?
   bairro       String?
   referencia   String?
-  routeId      String?
   foto         String?
   userId       String
   deletedAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  route        Route?    @relation(fields: [routeId], references: [id])
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   loans        Loan[]
 
@@ -122,6 +120,7 @@ model Loan {
   id                    String        @id @default(cuid())
   customerId            String?       // Cliente que recebe o empréstimo (opcional)
   creditorId            String?       // Credor que empresta o dinheiro (opcional)
+  routeId               String?       // Rota/Intermediador do empréstimo (opcional)
   transactionDate       DateTime      @default(now())
   totalAmount           Float
   loanType              String            @default("PRICE")
@@ -132,7 +131,7 @@ model Loan {
   nextPaymentDate       DateTime
   status                LoanStatus    @default(ACTIVE)
   observation           String?
-  commission            Float?        // Comissão do intermediador em % (opcional, apenas para clientes com rota)
+  commission            Float?        // Comissão do intermediador em % (opcional, apenas quando rota for selecionada)
   creditorCommission    Float?        // Comissão do credor em % (opcional, apenas quando credor for selecionado)
   userId                String
   deletedAt             DateTime?
@@ -141,6 +140,7 @@ model Loan {
   installmentRecords    Installment[]
   customer              Customer?     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   creditor              Creditor?     @relation("CreditorLoans", fields: [creditorId], references: [id], onDelete: Cascade)
+  route                 Route?        @relation(fields: [routeId], references: [id], onDelete: SetNull)
   periodicity           Periodicity   @relation(fields: [periodicityId], references: [id])
   user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   cashFlows             CashFlow[]

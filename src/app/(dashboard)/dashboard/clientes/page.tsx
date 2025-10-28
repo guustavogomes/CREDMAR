@@ -130,8 +130,7 @@ export default function ClientesPage() {
 
 const filteredCustomers = customers.filter(customer =>
   (customer.nomeCompleto?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-  (customer.cpf || '').includes(searchTerm) ||
-  (customer.route?.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  (customer.cpf || '').includes(searchTerm)
 )
 
   const formatCPF = (cpf: string) => {
@@ -214,7 +213,7 @@ const filteredCustomers = customers.filter(customer =>
                         <TableCell className="text-muted-foreground">{customer.cidade}/{customer.estado}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="bg-credmar-blue/10 text-credmar-blue border-credmar-blue/20">
-                            {customer.route?.description || 'Sem rota'}
+                            Cliente Ativo
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -254,7 +253,7 @@ const filteredCustomers = customers.filter(customer =>
                         </p>
                       </div>
                       <Badge variant="outline" className="bg-credmar-blue/10 text-credmar-blue border-credmar-blue/20 ml-2">
-                        {customer.route?.description || 'Sem rota'}
+                        Cliente Ativo
                       </Badge>
                     </div>
                     

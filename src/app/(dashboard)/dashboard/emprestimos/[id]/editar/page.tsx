@@ -28,7 +28,7 @@ interface Periodicity {
 
 interface Creditor {
   id: string
-  name: string
+  nome: string
   cpf: string
 }
 
@@ -118,6 +118,10 @@ export default function EditarEmprestimoPage() {
         setHasPaidInstallments(paidInstallments.length > 0)
         setPaidInstallmentsCount(paidInstallments.length)
         
+        console.log('🔍 Dados do empréstimo carregados:', data)
+        console.log('👤 Credor do empréstimo:', data.creditor)
+        console.log('🆔 ID do credor:', data.creditorId)
+        
         setFormData({
           totalAmount: data.totalAmount.toString(),
           loanType: data.loanType || 'PRICE',
@@ -167,7 +171,10 @@ export default function EditarEmprestimoPage() {
       const response = await fetch('/api/creditors')
       if (response.ok) {
         const data = await response.json()
-        setCreditors(data)
+        // A API retorna { creditors: [...], pagination: {...} }
+        const creditorsList = Array.isArray(data.creditors) ? data.creditors : []
+        console.log('👥 Credores carregados:', creditorsList)
+        setCreditors(creditorsList)
       }
     } catch (error) {
       console.error('Erro ao carregar credores:', error)
@@ -498,7 +505,7 @@ export default function EditarEmprestimoPage() {
                     <SelectContent>
                       {Array.isArray(creditors) && creditors.map((creditor) => (
                         <SelectItem key={creditor.id} value={creditor.id}>
-                          {creditor.name} - {creditor.cpf}
+                          {creditor.nome} - {creditor.cpf}
                         </SelectItem>
                       ))}
                     </SelectContent>

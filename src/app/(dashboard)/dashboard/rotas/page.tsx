@@ -238,9 +238,9 @@ export default function IntermediadorPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Intermediadores com Clientes</p>
+                <p className="text-sm text-muted-foreground">Intermediadores com Empréstimos</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {filteredRoutes.filter(r => r._count.customers > 0).length}
+                  {filteredRoutes.filter(r => r._count.loans > 0).length}
                 </p>
               </div>
               <Users className="w-8 h-8 text-green-600" />
@@ -252,9 +252,9 @@ export default function IntermediadorPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Intermediadores sem Clientes</p>
+                <p className="text-sm text-muted-foreground">Intermediadores sem Empréstimos</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {filteredRoutes.filter(r => r._count.customers === 0).length}
+                  {filteredRoutes.filter(r => r._count.loans === 0).length}
                 </p>
               </div>
               <Route className="w-8 h-8 text-orange-600" />
@@ -301,11 +301,11 @@ export default function IntermediadorPage() {
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                            {route._count.customers} cliente(s)
+                            {route._count.loans} empréstimo(s)
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {route._count.customers === 0 ? (
+                          {route._count.loans === 0 ? (
                             <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
                               Vazia
                             </Badge>
@@ -320,8 +320,8 @@ export default function IntermediadorPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(route.id, route.description)}
-                            disabled={route._count.customers > 0}
-                            className={route._count.customers > 0 
+                            disabled={route._count.loans > 0}
+                            className={route._count.loans > 0 
                               ? "opacity-50 cursor-not-allowed" 
                               : "hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"}
                           >
@@ -345,7 +345,7 @@ export default function IntermediadorPage() {
                             {route.description}
                           </h3>
                         </div>
-                        {route._count.customers === 0 ? (
+                        {route._count.loans === 0 ? (
                           <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
                             Vazia
                           </Badge>
@@ -359,15 +359,15 @@ export default function IntermediadorPage() {
                       <div className="flex items-center justify-between">
                         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                           <Users className="w-3 h-3 mr-1" />
-                          {route._count.customers} cliente(s)
+                          {route._count.loans} empréstimo(s)
                         </Badge>
                         
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleDelete(route.id, route.description)}
-                          disabled={route._count.customers > 0}
-                          className={route._count.customers > 0 
+                          disabled={route._count.loans > 0}
+                          className={route._count.loans > 0 
                             ? "opacity-50 cursor-not-allowed" 
                             : "hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive"}
                         >

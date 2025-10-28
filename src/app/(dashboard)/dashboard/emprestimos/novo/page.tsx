@@ -49,6 +49,7 @@ export default function NovoEmprestimoPage() {
   const { toast } = useToast()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [creditors, setCreditors] = useState<Creditor[]>([])
+  const [routes, setRoutes] = useState<any[]>([])
   const [periodicities, setPeriodicities] = useState<Periodicity[]>([])
   const [loading, setLoading] = useState(false)
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
@@ -59,6 +60,7 @@ export default function NovoEmprestimoPage() {
   const [formData, setFormData] = useState({
     customerId: '',
     creditorId: '',
+    routeId: '', // Rota/Intermediador do empréstimo
     totalAmount: '',
     loanType: 'PRICE' as LoanType,
     interestRate: '2.5',
@@ -85,6 +87,14 @@ export default function NovoEmprestimoPage() {
   // Estados para o modal de PDF
   const [showPDFModal, setShowPDFModal] = useState(false)
   const [savedLoanData, setSavedLoanData] = useState<any>(null)
+
+  // Função para resetar cálculo quando campos importantes mudam
+  const resetCalculation = () => {
+    setCalculatedValues(prev => ({
+      ...prev,
+      showCalculation: false
+    }))
+  }
 
   // Função para gerar PDF
   const handleGeneratePDF = async () => {
@@ -127,10 +137,12 @@ export default function NovoEmprestimoPage() {
 
   const selectedCustomer = Array.isArray(customers) ? customers.find(c => c.id === formData.customerId) : null
   const selectedCreditor = Array.isArray(creditors) ? creditors.find(c => c.id === formData.creditorId) : null
+  const selectedRoute = Array.isArray(routes) ? routes.find(r => r.id === formData.routeId) : null
 
   useEffect(() => {
     fetchCustomers()
     fetchCreditors()
+    fetchRoutes()
     fetchPeriodicities()
     
     // Verificar se há dados de renovação na URL
@@ -201,6 +213,26 @@ export default function NovoEmprestimoPage() {
     } catch (error) {
       console.error('Erro ao buscar credores:', error)
       setCreditors([])
+    }
+  }
+
+  const fetchRoutes = async () => {
+    try {
+      console.log('🔍 Buscando rotas...')
+      const response = await fetch('/api/routes')
+      console.log('📡 Resposta da API de rotas:', response.status, response.statusText)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('📋 Rotas recebidas:', data)
+        setRoutes(Array.isArray(data) ? data : [])
+      } else {
+        console.error('❌ Erro na resposta de rotas:', response.status, response.statusText)
+        setRoutes([])
+      }
+    } catch (error) {
+      console.error('❌ Erro ao buscar rotas:', error)
+      setRoutes([])
     }
   }
 
@@ -414,17 +446,20 @@ export default function NovoEmprestimoPage() {
     setLoading(true)
     
     const requestData = {
-      ...formData,
+      customerId: formData.customerId,
       totalAmount: calculatedValues.totalAmount,
       loanType: formData.loanType,
       interestRate: parseFloat(formData.interestRate),
+      periodicityId: formData.periodicityId,
       installments: parseInt(formData.installments),
       installmentValue: calculatedValues.installmentValue,
-      startDate: formData.startDate, // Incluir data de início
-      observation: formData.observation, // Incluir observação
-      commission: formData.commission ? parseFloat(formData.commission) : null, // Incluir comissão do intermediador
-      creditorId: formData.creditorId || null, // Incluir credor (opcional)
-      creditorCommission: formData.creditorCommission ? parseFloat(formData.creditorCommission) : null // Incluir comissão do credor
+      nextPaymentDate: formData.nextPaymentDate,
+      startDate: formData.startDate,
+      observation: formData.observation || undefined,
+      commission: formData.commission && formData.commission.trim() !== '' ? parseFloat(formData.commission) : null,
+      creditorId: formData.creditorId && formData.creditorId.trim() !== '' ? formData.creditorId : null,
+      creditorCommission: formData.creditorCommission && formData.creditorCommission.trim() !== '' ? parseFloat(formData.creditorCommission) : null,
+      routeId: formData.routeId && formData.routeId.trim() !== '' && formData.routeId !== 'none' ? formData.routeId : null
     }
     
     
@@ -602,9 +637,7 @@ export default function NovoEmprestimoPage() {
                               onClick={() => {
                                 setFormData(prev => ({ 
                                   ...prev, 
-                                  customerId: customer.id,
-                                  // Limpar comissão se o cliente não tem intermediador
-                                  commission: customer.route ? prev.commission : ''
+                                  customerId: customer.id
                                 }))
                                 setCustomerSearch(`${customer.nomeCompleto} - ${customer.cpf}`)
                                 setCustomerSearchOpen(false)
@@ -634,7 +667,7 @@ export default function NovoEmprestimoPage() {
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-blue-600 font-medium">Intermediador:</span>
                             <span className="text-xs bg-credmar-blue/10 text-credmar-blue px-2 py-1 rounded-full border border-credmar-blue/20 font-medium">
-                              {selectedCustomer.route?.description || 'Capital Próprio'}
+                              {selectedRoute?.description || 'Capital Próprio'}
                             </span>
                           </div>
                         </div>
@@ -656,6 +689,34 @@ export default function NovoEmprestimoPage() {
                       </div>
                     </div>
                   )}
+                </div>
+
+                <div>
+                  <Label htmlFor="routeId">Intermediador/Rota (Opcional)</Label>
+                  <Select 
+                    value={formData.routeId || 'none'} 
+                    onValueChange={(value) => setFormData(prev => ({ 
+                      ...prev, 
+                      routeId: value === 'none' ? '' : value,
+                      // Limpar comissão se não há intermediador selecionado
+                      commission: value !== 'none' ? prev.commission : ''
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um intermediador (opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Capital Próprio (sem intermediador)</SelectItem>
+                      {routes.map((route) => (
+                        <SelectItem key={route.id} value={route.id}>
+                          {route.description}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Selecione um intermediador para habilitar comissões ou deixe em branco para capital próprio
+                  </p>
                 </div>
 
                 <div>
@@ -747,10 +808,13 @@ export default function NovoEmprestimoPage() {
                       step="0.01"
                       placeholder="0.00"
                       value={formData.totalAmount}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        totalAmount: e.target.value 
-                      }))}
+                      onChange={(e) => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          totalAmount: e.target.value 
+                        }))
+                        resetCalculation()
+                      }}
                       required
                     />
                   </div>
@@ -759,10 +823,13 @@ export default function NovoEmprestimoPage() {
                     <Label htmlFor="loanType">Tipo de Cobrança *</Label>
                     <Select 
                       value={formData.loanType} 
-                      onValueChange={(value) => setFormData(prev => ({ 
-                        ...prev, 
-                        loanType: value as LoanType
-                      }))}
+                      onValueChange={(value) => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          loanType: value as LoanType
+                        }))
+                        resetCalculation()
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
@@ -788,10 +855,13 @@ export default function NovoEmprestimoPage() {
                       min="0"
                       placeholder="2.50"
                       value={formData.interestRate}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        interestRate: e.target.value
-                      }))}
+                      onChange={(e) => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          interestRate: e.target.value
+                        }))
+                        resetCalculation()
+                      }}
                       required
                     />
                   </div>
@@ -804,10 +874,13 @@ export default function NovoEmprestimoPage() {
                       min="1"
                       placeholder="12"
                       value={formData.installments}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        installments: e.target.value
-                      }))}
+                      onChange={(e) => {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          installments: e.target.value
+                        }))
+                        resetCalculation()
+                      }}
                       required
                     />
                   </div>
@@ -815,10 +888,10 @@ export default function NovoEmprestimoPage() {
 
                 <div>
                   <Label htmlFor="commission">
-                    {selectedCustomer?.route ? 'Comissão do Intermediador (%)' : 'Comissão (%)'}
-                    {!selectedCustomer?.route && (
+                    {selectedRoute ? 'Comissão do Intermediador (%)' : 'Comissão (%)'}
+                    {!selectedRoute && (
                       <span className="text-sm text-gray-500 ml-2">
-                        (Disponível apenas para clientes com intermediador)
+                        (Disponível apenas quando intermediador for selecionado)
                       </span>
                     )}
                   </Label>
@@ -834,13 +907,13 @@ export default function NovoEmprestimoPage() {
                       ...prev, 
                       commission: e.target.value
                     }))}
-                    disabled={!selectedCustomer?.route}
-                    className={!selectedCustomer?.route ? 'bg-gray-100 cursor-not-allowed' : ''}
+                    disabled={!selectedRoute}
+                    className={!selectedRoute ? 'bg-gray-100 cursor-not-allowed' : ''}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {selectedCustomer?.route 
-                      ? `Comissão do intermediador será calculada sobre o valor total para: ${selectedCustomer.route.description}`
-                      : 'Selecione um cliente com intermediador para habilitar a comissão'
+                    {selectedRoute 
+                      ? `Comissão do intermediador será calculada sobre o valor total para: ${selectedRoute.description}`
+                      : 'Selecione um intermediador para habilitar a comissão'
                     }
                   </p>
                 </div>
@@ -879,9 +952,10 @@ export default function NovoEmprestimoPage() {
 
                 <div>
                   <Label htmlFor="periodicityId">Periodicidade *</Label>
-                    <Select value={formData.periodicityId} onValueChange={(value) => 
+                    <Select value={formData.periodicityId} onValueChange={(value) => {
                       setFormData(prev => ({ ...prev, periodicityId: value }))
-                    }>
+                      resetCalculation()
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a periodicidade" />
                       </SelectTrigger>
@@ -964,11 +1038,21 @@ export default function NovoEmprestimoPage() {
 
                 <Button 
                   type="submit" 
-                  disabled={loading || hasInsufficientBalance} 
+                  disabled={loading || hasInsufficientBalance || !calculatedValues.showCalculation} 
                   className="w-full"
                 >
-                  {loading ? 'Cadastrando...' : 'Cadastrar Empréstimo'}
+                  {loading ? 'Cadastrando...' : 
+                   !calculatedValues.showCalculation ? 'Calcule as Parcelas Primeiro' : 
+                   'Cadastrar Empréstimo'}
                 </Button>
+                
+                {!calculatedValues.showCalculation && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm text-blue-700">
+                      <strong>Atenção:</strong> Você precisa clicar em "Calcular Parcelas" antes de cadastrar o empréstimo.
+                    </p>
+                  </div>
+                )}
                 
                 {hasInsufficientBalance && creditorBalance !== null && (
                   <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -1040,7 +1124,7 @@ export default function NovoEmprestimoPage() {
                         <hr className="border-gray-200" />
                         <div className="text-sm font-medium text-gray-700 mb-2">💰 Distribuição de Comissões:</div>
                         
-                        {formData.commission && selectedCustomer?.route && (
+                        {formData.commission && selectedRoute && (
                           <div className="flex justify-between text-blue-600 ml-4">
                             <span>• Intermediador ({formData.commission}%):</span>
                             <span>R$ {((parseFloat(formData.totalAmount || '0') * parseFloat(formData.commission || '0')) / 100).toFixed(2)}</span>

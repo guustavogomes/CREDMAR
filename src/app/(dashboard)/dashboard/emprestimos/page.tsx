@@ -143,9 +143,9 @@ const [selectedStatus, setSelectedStatus] = useState<string>('active')
     if (selectedRoute === 'all') {
       matchRoute = true // Mostra todos
     } else if (selectedRoute === 'no-route') {
-      matchRoute = !loan.customer.routeId // Apenas sem intermediador
+      matchRoute = !loan.routeId // Apenas sem intermediador
     } else {
-      matchRoute = loan.customer.routeId === selectedRoute // Intermediador específico
+      matchRoute = loan.routeId === selectedRoute // Intermediador específico
     }
     
     let matchStatus = true

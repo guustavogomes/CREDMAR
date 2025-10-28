@@ -25,7 +25,6 @@ const customerSchema = z.object({
   estado: z.string().optional().nullable(),
   bairro: z.string().optional().nullable(),
   referencia: z.string().optional().nullable(),
-  routeId: z.string().optional().nullable(),
   foto: z.string().optional().nullable()
 })
 
@@ -41,14 +40,31 @@ export async function GET() {
       )
     }
     
+    // Verificar se o usuário existe - primeiro por ID, depois por email como fallback
+    let user = await db.user.findUnique({
+      where: { id: session.user.id }
+    })
+    
+    if (!user && session.user.email) {
+      user = await db.user.findUnique({
+        where: { email: session.user.email }
+      })
+    }
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Usuário não encontrado' },
+        { status: 404 }
+      )
+    }
+    
     // Buscar clientes do usuário logado (apenas não deletados)
     const customers = await db.customer.findMany({
       where: {
-        userId: session.user.id,
+        userId: user.id,
         deletedAt: null
       },
       include: {
-        route: true,
         user: true
       },
       orderBy: {
@@ -70,8 +86,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    console.log('🔍 [API Customers POST] Sessão:', session?.user?.email, 'ID:', session?.user?.id)
     
     if (!session?.user?.id) {
+      console.log('❌ [API Customers POST] Usuário não autorizado')
       return NextResponse.json(
         { error: 'Não autorizado' },
         { status: 401 }
@@ -79,34 +97,33 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
+    console.log('📋 [API Customers POST] Dados recebidos:', body)
     
     const validatedData = customerSchema.parse(body)
     
-    // Verificar se o usuário existe
-    const user = await db.user.findUnique({
+    // Verificar se o usuário existe - primeiro por ID, depois por email como fallback
+    let user = await db.user.findUnique({
       where: { id: session.user.id }
     })
     
+    if (!user && session.user.email) {
+      console.log('⚠️ [API Customers POST] Usuário não encontrado por ID, tentando por email')
+      user = await db.user.findUnique({
+        where: { email: session.user.email }
+      })
+    }
+    
+    console.log('👤 [API Customers POST] Usuário encontrado:', !!user, user?.email, 'ID:', user?.id)
+    
     if (!user) {
+      console.log('❌ [API Customers POST] Usuário não encontrado no banco')
       return NextResponse.json(
         { error: 'Usuário não encontrado' },
         { status: 404 }
       )
     }
     
-    // Se routeId foi fornecido, verificar se existe
-    if (validatedData.routeId) {
-      const route = await db.route.findUnique({
-        where: { id: validatedData.routeId }
-      })
-      
-      if (!route) {
-        return NextResponse.json(
-          { error: 'Rota não encontrada' },
-          { status: 400 }
-        )
-      }
-    }
+    // Validação de rota removida - agora a rota é definida no empréstimo
     
     // Criar novo cliente
     const newCustomer = await db.customer.create({
@@ -120,12 +137,8 @@ export async function POST(request: NextRequest) {
         estado: validatedData.estado,
         bairro: validatedData.bairro,
         referencia: validatedData.referencia || null,
-        routeId: validatedData.routeId || null,
         foto: validatedData.foto || null,
-        userId: session.user.id
-      },
-      include: {
-        route: true
+        userId: user.id
       }
     })
     

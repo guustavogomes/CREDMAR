@@ -49,7 +49,7 @@ export async function GET() {
         },
         _count: {
           select: {
-            customers: true
+            loans: true
           }
         }
       }
