@@ -155,6 +155,7 @@ export default function NovoEmprestimoPage() {
           setFormData({
             customerId: decodedData.customerId || '',
             creditorId: decodedData.creditorId || '',
+            routeId: decodedData.routeId || '',
             totalAmount: decodedData.requestedAmount?.toString() || '',
             loanType: (decodedData.loanType as LoanType) || 'PRICE',
             interestRate: decodedData.interestRate?.toString() || '2.5',

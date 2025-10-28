@@ -14,7 +14,7 @@ const updateCustomerSchema = z.object({
   estado: z.string().optional().nullable(),
   bairro: z.string().optional().nullable(),
   referencia: z.string().optional().nullable(),
-  routeId: z.string().optional().nullable(),
+  // routeId removido - agora é definido no empréstimo
   foto: z.string().optional().nullable()
 })
 
@@ -38,10 +38,8 @@ export async function GET(
         id: params.id,
         userId: session.user.id,
         deletedAt: null
-      },
-      include: {
-        route: true
       }
+      // include de route removido - agora é definido no empréstimo
     })
     
     if (!customer) {
@@ -95,19 +93,7 @@ export async function PUT(
       )
     }
     
-    // Se routeId foi fornecido, verificar se existe
-    if (validatedData.routeId) {
-      const route = await db.route.findUnique({
-        where: { id: validatedData.routeId }
-      })
-      
-      if (!route) {
-        return NextResponse.json(
-          { error: 'Rota não encontrada' },
-          { status: 400 }
-        )
-      }
-    }
+    // Validação de rota removida - agora é definida no empréstimo
     
     // Atualizar cliente
     const updatedCustomer = await db.customer.update({
@@ -124,12 +110,9 @@ export async function PUT(
         estado: validatedData.estado || null,
         bairro: validatedData.bairro || null,
         referencia: validatedData.referencia || null,
-        routeId: validatedData.routeId || null,
         foto: validatedData.foto || null
-      },
-      include: {
-        route: true
       }
+      // include de route removido
     })
     
     return NextResponse.json(updatedCustomer)

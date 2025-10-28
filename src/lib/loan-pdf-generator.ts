@@ -26,6 +26,9 @@ interface LoanPDFData {
     nome: string
     cpf: string
   }
+  route?: {
+    description: string
+  }
   periodicity: {
     name: string
   }

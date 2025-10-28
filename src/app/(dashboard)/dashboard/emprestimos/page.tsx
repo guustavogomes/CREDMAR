@@ -42,6 +42,11 @@ interface Loan {
   status: string
   transactionDate: string
   observation?: string | null
+  routeId?: string | null
+  route?: {
+    id: string
+    description: string
+  } | null
   customer: {
     [x: string]: string
     id: string

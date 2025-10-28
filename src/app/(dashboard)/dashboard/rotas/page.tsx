@@ -16,7 +16,7 @@ interface RouteData {
   id: string
   description: string
   _count: {
-    customers: number
+    loans: number
   }
 }
 
