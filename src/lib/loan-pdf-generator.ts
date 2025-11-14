@@ -242,13 +242,6 @@ export const generateLoanPDF = async (loanData: LoanPDFData) => {
               <div><strong>Taxa:</strong><br>${loanData.interestRate}% a.m.</div>
               <div><strong>1º Vencimento:</strong><br>${formatDate(loanData.nextPaymentDate)}</div>
             </div>
-            
-            <h3 style="color: #059669; margin: 0 0 8px 0; font-size: 14px;">💰 Resumo Financeiro</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 10px;">
-              <div><strong style="color: #059669;">Valor da Parcela:</strong><br><span style="color: #059669; font-size: 14px; font-weight: bold;">${formatCurrency(loanData.installmentValue)}</span></div>
-              <div><strong style="color: #ea580c;">Total de Juros:</strong><br><span style="color: #ea580c; font-size: 14px; font-weight: bold;">${formatCurrency(totalInterest)}</span></div>
-              <div><strong style="color: #1e40af;">Total a Pagar:</strong><br><span style="color: #1e40af; font-size: 14px; font-weight: bold;">${formatCurrency(totalToPay)}</span></div>
-            </div>
           </div>
         </div>
       </div>

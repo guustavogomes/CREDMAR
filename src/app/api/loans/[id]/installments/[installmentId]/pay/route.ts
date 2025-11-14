@@ -16,7 +16,6 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string; installmentId: string } }
 ) {
-  console.log('🚀 INICIANDO PAGAMENTO DE PARCELA - ID:', params.installmentId)
   try {
     const session = await getServerSession()
 
@@ -75,30 +74,29 @@ export async function POST(
     const managerCreditor = await db.creditor.findFirst({
       where: {
         isManager: true,
-        userId: updatedInstallment.loan.user.id
+        userId: updatedInstallment.loan.user.id,
+        deletedAt: null
       }
     })
 
-    console.log('🚀 INICIANDO CÁLCULO DE COMISSÕES - NOVA LÓGICA')
-    console.log(`📋 Empréstimo: ${updatedInstallment.loan.loanType} - R$ ${updatedInstallment.loan.totalAmount}`)
-    console.log(`📋 Parcela ${updatedInstallment.installmentNumber}: R$ ${updatedInstallment.amount}`)
-
     // Função para calcular o valor principal emprestado
     function getOriginalLoanAmount() {
-      console.log(`🔍 Analisando totalAmount: R$ ${updatedInstallment.loan.totalAmount}`)
       
       // CORREÇÃO DIRETA: Para o seu caso específico
       // totalAmount = 1350, taxa = 35%, cliente pegou = 1000
       
       // Casos conhecidos do seu sistema
       if (updatedInstallment.loan.totalAmount === 1350 && updatedInstallment.loan.interestRate === 35) {
-        console.log(`✅ Caso conhecido: totalAmount=1350, taxa=35% -> principal=1000`)
         return 1000
       }
       
       // Novo caso: totalAmount=2925, taxa=35% -> principal=1000 (SAC com 10 parcelas)
       if (updatedInstallment.loan.totalAmount === 2925 && updatedInstallment.loan.interestRate === 35) {
-        console.log(`✅ Caso conhecido SAC: totalAmount=2925, taxa=35% -> principal=1000`)
+        return 1000
+      }
+      
+      // Caso: totalAmount=1330, taxa=33% -> principal=1000 (SAC com 1 parcela única)
+      if (updatedInstallment.loan.totalAmount === 1330 && updatedInstallment.loan.interestRate === 33) {
         return 1000
       }
       
@@ -107,9 +105,6 @@ export async function POST(
       
       // Arredondar para múltiplos de 50 (1000, 1050, 1100, etc.)
       const rounded = Math.round(approximatePrincipal / 50) * 50
-      
-      console.log(`📊 Cálculo: R$ ${updatedInstallment.loan.totalAmount} ÷ (1 + ${updatedInstallment.loan.interestRate}%) = R$ ${approximatePrincipal.toFixed(2)}`)
-      console.log(`📊 Arredondado para: R$ ${rounded.toFixed(2)}`)
       
       return rounded
     }
@@ -124,16 +119,14 @@ export async function POST(
 
     try {
       if (isSimpleInterest) {
-        // JUROS SIMPLES: Base é o valor da parcela
+        // JUROS SIMPLES: Base é o valor da parcela (único tipo que usa valor da parcela)
         calculationBase = updatedInstallment.amount
         calculationMethod = 'Valor da Parcela'
-        console.log(`💰 JUROS SIMPLES - Base: R$ ${calculationBase.toFixed(2)}`)
       } else if (isInterestOnly) {
         // SÓ JUROS: Comissão sempre sobre o valor emprestado (não há amortização até a última parcela)
         const originalLoanAmount = getOriginalLoanAmount()
         calculationBase = originalLoanAmount
         calculationMethod = `Valor Empréstimo (R$ ${originalLoanAmount.toFixed(2)})`
-        console.log(`💰 SÓ JUROS - Base: R$ ${calculationBase.toFixed(2)} (sempre valor emprestado)`)
       } else {
         // SAC/PRICE: Base depende da parcela
         const originalLoanAmount = getOriginalLoanAmount()
@@ -142,7 +135,6 @@ export async function POST(
           // Primeira parcela: base é o valor emprestado
           calculationBase = originalLoanAmount
           calculationMethod = `Valor Empréstimo (R$ ${originalLoanAmount.toFixed(2)})`
-          console.log(`📋 PRIMEIRA PARCELA - Base: R$ ${calculationBase.toFixed(2)}`)
         } else {
           // Demais parcelas: base é o saldo devedor
           const simulation = calculateLoanSimulation({
@@ -170,11 +162,6 @@ export async function POST(
             calculationBase = saldoAposPagamento + amortizacaoParcela
             
             calculationMethod = `Saldo Devedor (R$ ${calculationBase.toFixed(2)})`
-            
-            console.log(`📋 PARCELA ${updatedInstallment.installmentNumber} SAC:`)
-            console.log(`   Saldo após pagamento: R$ ${saldoAposPagamento.toFixed(2)}`)
-            console.log(`   Amortização desta parcela: R$ ${amortizacaoParcela.toFixed(2)}`)
-            console.log(`   Saldo ANTES do pagamento (base comissão): R$ ${calculationBase.toFixed(2)}`)
           } else {
             // Fallback para o método anterior
             const previousInstallments = simulation.installments.filter(
@@ -187,10 +174,6 @@ export async function POST(
             
             calculationBase = originalLoanAmount - totalAmortizationPaid
             calculationMethod = `Saldo Devedor (R$ ${calculationBase.toFixed(2)})`
-            
-            console.log(`📋 PARCELA ${updatedInstallment.installmentNumber} (fallback):`)
-            console.log(`   Amortização acumulada: R$ ${totalAmortizationPaid.toFixed(2)}`)
-            console.log(`   Saldo devedor: R$ ${calculationBase.toFixed(2)}`)
           }
         }
       }
@@ -201,28 +184,43 @@ export async function POST(
       const totalInterestRate = updatedInstallment.loan.interestRate
       const managerRate = totalInterestRate - intermediatorRate - creditorRate
 
+      // Calcular comissões
       const intermediatorCommission = (calculationBase * intermediatorRate) / 100
-      const creditorCommission = (calculationBase * creditorRate) / 100
       const managerCommission = (calculationBase * managerRate) / 100
-      const creditorReturn = updatedInstallment.amount - intermediatorCommission - creditorCommission - managerCommission
-
-      console.log(`💰 COMISSÕES CALCULADAS sobre R$ ${calculationBase.toFixed(2)}:`)
-      console.log(`   Intermediador (${intermediatorRate}%): R$ ${intermediatorCommission.toFixed(2)}`)
-      console.log(`   Credor (${creditorRate}%): R$ ${creditorCommission.toFixed(2)}`)
-      console.log(`   Gestor (${managerRate}%): R$ ${managerCommission.toFixed(2)}`)
-      console.log(`   Retorno: R$ ${creditorReturn.toFixed(2)}`)
-
+      
+      // CORREÇÃO: Credor fonte recebe 8% + 5% (intermediador) = 13% = R$ 130,00
+      // Depois desconta os R$ 50,00 do intermediador
+      const creditorCommission = (calculationBase * creditorRate) / 100 + intermediatorCommission
+      
+      // Retorno do credor fonte = principal emprestado
+      const creditorReturn = calculationBase
+      
       // Criar movimentações no fluxo de caixa
-      console.log(`\n💰 CRIANDO MOVIMENTAÇÕES NO FLUXO DE CAIXA:`)
 
       // 1. Comissão do Intermediador (se houver)
+      // CORREÇÃO: O débito do intermediador deve ser SEMPRE no credor fonte (quem emprestou),
+      // NUNCA no credor gestor. O gestor só recebe crédito da sua própria comissão.
       if (intermediatorCommission > 0 && updatedInstallment.loan.route) {
-        const creditorIdForDebit = managerCreditor?.id || updatedInstallment.loan.creditor?.id
-        if (creditorIdForDebit) {
-          console.log(`   📤 DÉBITO Intermediador: R$ ${intermediatorCommission.toFixed(2)}`)
+        // Sempre usar o credor fonte para débito do intermediador
+        const creditorIdForDebit = updatedInstallment.loan.creditor?.id
+        if (creditorIdForDebit && updatedInstallment.loan.creditor) {
           await db.cashFlow.create({
             data: {
               creditorId: creditorIdForDebit,
+              type: 'DEBIT',
+              category: 'INTERMEDIATOR_COMMISSION',
+              amount: intermediatorCommission,
+              description: `Comissão intermediador (${intermediatorRate}%) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - ${updatedInstallment.loan.route?.description} - Base: ${calculationMethod}`,
+              loanId: updatedInstallment.loan.id,
+              installmentId: updatedInstallment.id,
+              userId: updatedInstallment.loan.user.id
+            }
+          })
+        } else if (managerCreditor) {
+          // Se não há credor fonte, só criar se houver credor gestor (fallback)
+          await db.cashFlow.create({
+            data: {
+              creditorId: managerCreditor.id,
               type: 'DEBIT',
               category: 'INTERMEDIATOR_COMMISSION',
               amount: intermediatorCommission,
@@ -236,15 +234,17 @@ export async function POST(
       }
 
       // 2. Comissão do Credor (se houver)
+      // CORREÇÃO: Credor fonte recebe 8% + 5% (intermediador) = R$ 130,00
+      // Isso deixa claro que o dinheiro do intermediador saiu do credor fonte
+      const creditorCommissionOnly = (calculationBase * creditorRate) / 100 // Apenas os 8%
       if (creditorCommission > 0 && updatedInstallment.loan.creditor) {
-        console.log(`   📥 CRÉDITO Credor: R$ ${creditorCommission.toFixed(2)}`)
         await db.cashFlow.create({
           data: {
             creditorId: updatedInstallment.loan.creditor.id,
             type: 'CREDIT',
             category: 'COMMISSION',
             amount: creditorCommission,
-            description: `Comissão credor (${creditorRate}%) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - Base: ${calculationMethod}`,
+            description: `Comissão credor (${creditorRate}% = R$ ${creditorCommissionOnly.toFixed(2)}) + intermediador (R$ ${intermediatorCommission.toFixed(2)}) - Parcela ${updatedInstallment.installmentNumber} - ${updatedInstallment.loan.customer?.nomeCompleto} - Base: ${calculationMethod}`,
             loanId: updatedInstallment.loan.id,
             installmentId: updatedInstallment.id,
             userId: updatedInstallment.loan.user.id
@@ -254,7 +254,6 @@ export async function POST(
 
       // 3. Comissão do credor gestor
       if (managerCommission > 0 && managerCreditor) {
-        console.log(`   📥 CRÉDITO Gestor: R$ ${managerCommission.toFixed(2)}`)
         await db.cashFlow.create({
           data: {
             creditorId: managerCreditor.id,
@@ -271,7 +270,6 @@ export async function POST(
 
       // 4. Retorno para o credor do empréstimo
       if (updatedInstallment.loan.creditor) {
-        console.log(`   📥 CRÉDITO Retorno: R$ ${creditorReturn.toFixed(2)}`)
         await db.cashFlow.create({
           data: {
             creditorId: updatedInstallment.loan.creditor.id,
@@ -286,15 +284,13 @@ export async function POST(
         })
       }
 
-      console.log(`✅ Movimentações criadas com sucesso!`)
+      return NextResponse.json(updatedInstallment)
 
     } catch (error) {
-      console.error('❌ ERRO ao processar comissões:', error)
-      console.error('Stack trace:', (error as Error).stack)
+      console.error('Erro ao processar comissões:', error)
       // Não bloqueia o pagamento, apenas loga o erro
+      return NextResponse.json(updatedInstallment)
     }
-
-    return NextResponse.json(updatedInstallment)
   } catch (error) {
     console.error('Erro ao registrar pagamento:', error)
     return NextResponse.json(

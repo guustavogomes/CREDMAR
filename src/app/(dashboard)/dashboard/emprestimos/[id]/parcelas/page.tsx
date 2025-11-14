@@ -130,6 +130,13 @@ export default function InstallmentsPage() {
           paymentDate: getBrazilTodayString()
         })
         fetchLoanAndInstallments()
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        toast({
+          title: 'Erro',
+          description: errorData.error || 'Erro ao registrar pagamento',
+          variant: 'destructive'
+        })
       }
     } catch (error) {
       toast({
